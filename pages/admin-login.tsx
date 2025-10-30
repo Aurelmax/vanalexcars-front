@@ -26,7 +26,7 @@ const AdminLoginPage: React.FC = () => {
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
+    <div className='min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
       <div className='max-w-md w-full space-y-8'>
         {/* Header */}
         <div className='text-center'>
@@ -34,11 +34,11 @@ const AdminLoginPage: React.FC = () => {
             href='/'
             className='flex items-center justify-center space-x-3 mb-8'
           >
-            <div className='w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg'>
+            <div className='w-12 h-12 bg-linear-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg'>
               <span className='text-black font-bold text-2xl'>V</span>
             </div>
             <div className='flex flex-col'>
-              <span className='text-3xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent'>
+              <span className='text-3xl font-bold bg-linear-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent'>
                 Vanalexcars
               </span>
               <span className='text-sm text-gray-400 -mt-1'>
@@ -106,7 +106,7 @@ const AdminLoginPage: React.FC = () => {
               <button
                 type='submit'
                 disabled={isLoading}
-                className='w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-black bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105'
+                className='w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-black bg-linear-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105'
               >
                 {isLoading ? (
                   <>

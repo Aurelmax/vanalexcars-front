@@ -1,10 +1,10 @@
 export default function AnimatedBanner() {
   return (
-    <div className='relative bg-gradient-to-r from-premium-black via-premium-gray-dark to-premium-black text-white overflow-hidden'>
+    <div className='relative bg-linear-to-r from-premium-black via-premium-gray-dark to-premium-black text-white overflow-hidden'>
       {/* Background Animation */}
       <div className='absolute inset-0'>
-        <div className='absolute top-0 left-0 w-full h-full bg-gradient-to-r from-premium-gold/10 via-transparent to-premium-gold/10 animate-pulse' />
-        <div className='absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-premium-gold/5 to-transparent' />
+        <div className='absolute top-0 left-0 w-full h-full bg-linear-to-r from-premium-gold/10 via-transparent to-premium-gold/10 animate-pulse' />
+        <div className='absolute top-0 left-0 w-full h-full bg-linear-to-b from-transparent via-premium-gold/5 to-transparent' />
       </div>
 
       {/* Content */}

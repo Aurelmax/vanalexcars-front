@@ -101,7 +101,7 @@ const TestNewsletterForm: React.FC<TestNewsletterFormProps> = ({
   };
 
   return (
-    <div className='bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-xl p-8 text-black'>
+    <div className='bg-linear-to-r from-yellow-500 to-yellow-400 rounded-xl p-8 text-black'>
       <div className='max-w-2xl mx-auto'>
         <h2 className='text-2xl font-bold mb-4 text-center'>
           📧 Restez informé de nos actualités

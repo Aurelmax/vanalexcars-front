@@ -305,7 +305,7 @@ export default function FormulaireDemande() {
             {/* Collecte des documents d'immatriculation */}
             {(formData.demandeType === 'recherche' ||
               formData.demandeType === '') && (
-              <div className='bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg shadow-lg p-8 border border-yellow-200'>
+              <div className='bg-linear-to-r from-yellow-50 to-yellow-100 rounded-lg shadow-lg p-8 border border-yellow-200'>
                 <div className='flex items-center mb-6'>
                   <div className='w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center mr-4'>
                     <span className='text-2xl'>📋</span>

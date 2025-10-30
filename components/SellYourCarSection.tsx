@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function SellYourCarSection() {
   return (
-    <section className='py-16 bg-gradient-to-r from-blue-50 to-indigo-100'>
+    <section className='py-16 bg-linear-to-r from-blue-50 to-indigo-100'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='bg-white rounded-2xl shadow-xl overflow-hidden'>
           <div className='grid grid-cols-1 lg:grid-cols-2'>
@@ -100,7 +100,7 @@ export default function SellYourCarSection() {
             </div>
 
             {/* Image illustrative */}
-            <div className='relative h-64 lg:h-auto bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center'>
+            <div className='relative h-64 lg:h-auto bg-linear-to-br from-blue-100 to-indigo-200 flex items-center justify-center'>
               <div className='text-center'>
                 <div className='text-6xl mb-4'>🔑</div>
                 <h3 className='text-xl font-semibold text-gray-700 mb-2'>

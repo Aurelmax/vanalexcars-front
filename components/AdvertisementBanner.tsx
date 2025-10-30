@@ -16,7 +16,7 @@ export default function AdvertisementBanner({
   imageUrl,
   buttonText,
   buttonLink,
-  backgroundColor = 'bg-gradient-to-r from-blue-600 to-purple-600',
+  backgroundColor = 'bg-linear-to-r from-blue-600 to-purple-600',
   textColor = 'text-white',
 }: AdvertisementBannerProps) {
   return (

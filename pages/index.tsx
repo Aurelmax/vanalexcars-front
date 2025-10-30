@@ -336,7 +336,7 @@ export default function Home({ vehicles, services, testimonials }: HomeProps) {
 
           {/* Call to Action */}
           <div className='text-center mt-12'>
-            <div className='bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-xl p-8 text-black'>
+            <div className='bg-linear-to-r from-yellow-500 to-yellow-400 rounded-xl p-8 text-black'>
               <h3 className='text-2xl font-bold mb-4'>
                 Vous ne trouvez pas votre véhicule ?
               </h3>
@@ -462,7 +462,7 @@ export default function Home({ vehicles, services, testimonials }: HomeProps) {
       </section>
 
       {/* CTA Final */}
-      <section className='py-16 bg-gradient-to-r from-yellow-500 to-yellow-400'>
+      <section className='py-16 bg-linear-to-r from-yellow-500 to-yellow-400'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
           <h2 className='text-3xl lg:text-4xl font-bold text-black mb-6'>
             Prêt à trouver votre véhicule idéal ?

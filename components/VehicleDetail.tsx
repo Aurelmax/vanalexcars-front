@@ -239,7 +239,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           </div>
 
           {/* Contact */}
-          <div className='bg-gradient-to-br from-premium-gold to-yellow-500 rounded-xl p-6 text-premium-black'>
+          <div className='bg-linear-to-br from-premium-gold to-yellow-500 rounded-xl p-6 text-premium-black'>
             <h3 className='text-xl font-bold mb-4'>
               Intéressé par ce véhicule ?
             </h3>

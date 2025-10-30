@@ -216,7 +216,7 @@ export default function Services() {
               </div>
 
               {/* Forfait VIP Premium */}
-              <div className='bg-gradient-to-br from-premium-gold to-yellow-600 rounded-lg p-6 text-premium-black relative hover:scale-105 transition-all duration-300'>
+              <div className='bg-linear-to-br from-premium-gold to-yellow-600 rounded-lg p-6 text-premium-black relative hover:scale-105 transition-all duration-300'>
                 <div className='absolute -top-3 right-4'>
                   <span className='bg-premium-black text-premium-gold text-xs font-bold px-3 py-1 rounded-full'>
                     VIP Premium
@@ -401,10 +401,10 @@ export default function Services() {
           </div>
 
           {/* Processus Dynamique */}
-          <div className='bg-gradient-to-br from-premium-black via-premium-gray-dark to-premium-black rounded-2xl shadow-2xl p-8 mb-8 text-premium-white overflow-hidden relative'>
+          <div className='bg-linear-to-br from-premium-black via-premium-gray-dark to-premium-black rounded-2xl shadow-2xl p-8 mb-8 text-premium-white overflow-hidden relative'>
             {/* Background Pattern */}
             <div className='absolute inset-0 opacity-10'>
-              <div className='absolute top-0 left-0 w-full h-full bg-gradient-to-r from-premium-gold/20 to-transparent'></div>
+              <div className='absolute top-0 left-0 w-full h-full bg-linear-to-r from-premium-gold/20 to-transparent'></div>
               <div className='absolute bottom-0 right-0 w-64 h-64 bg-premium-gold/10 rounded-full transform translate-x-32 translate-y-32'></div>
             </div>
 
@@ -419,7 +419,7 @@ export default function Services() {
               {/* Timeline Dynamique */}
               <div className='relative'>
                 {/* Ligne de connexion */}
-                <div className='absolute left-8 top-16 bottom-16 w-0.5 bg-gradient-to-b from-premium-gold via-premium-gold/60 to-premium-gold'></div>
+                <div className='absolute left-8 top-16 bottom-16 w-0.5 bg-linear-to-b from-premium-gold via-premium-gold/60 to-premium-gold'></div>
 
                 <div className='space-y-12'>
                   {/* Étape 1 */}

@@ -228,7 +228,7 @@ export default function FormulaireDemandeUpload() {
             </div>
 
             {/* Composant RGPD */}
-            <div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-8 border border-blue-200 mb-8'>
+            <div className='bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-8 border border-blue-200 mb-8'>
               <div className='flex items-start space-x-4'>
                 <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0'>
                   <svg
@@ -349,7 +349,7 @@ export default function FormulaireDemandeUpload() {
             </div>
 
             {/* Collecte des documents d'immatriculation */}
-            <div className='bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg shadow-lg p-8 border border-yellow-200'>
+            <div className='bg-linear-to-r from-yellow-50 to-yellow-100 rounded-lg shadow-lg p-8 border border-yellow-200'>
               <div className='flex items-center mb-6'>
                 <div className='w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center mr-4'>
                   <span className='text-2xl'>📋</span>

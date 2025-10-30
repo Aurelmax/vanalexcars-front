@@ -22,7 +22,7 @@ function ForfaitCard({
     <div
       className={`relative bg-premium-gray-dark rounded-lg p-8 border-2 transition-all duration-300 hover:scale-105 ${
         isPopular ? 'border-premium-gold' : 'border-premium-gray'
-      } ${isVip ? 'bg-gradient-to-br from-premium-gray-dark to-premium-black' : ''}`}
+      } ${isVip ? 'bg-linear-to-br from-premium-gray-dark to-premium-black' : ''}`}
     >
       {isPopular && (
         <div className='absolute -top-4 left-1/2 transform -translate-x-1/2'>
@@ -34,7 +34,7 @@ function ForfaitCard({
 
       {isVip && (
         <div className='absolute -top-4 left-1/2 transform -translate-x-1/2'>
-          <span className='bg-gradient-to-r from-premium-gold to-yellow-400 text-premium-black px-4 py-1 rounded-full text-sm font-semibold'>
+          <span className='bg-linear-to-r from-premium-gold to-yellow-400 text-premium-black px-4 py-1 rounded-full text-sm font-semibold'>
             VIP Premium
           </span>
         </div>

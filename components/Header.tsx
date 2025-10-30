@@ -33,13 +33,13 @@ export default function Header() {
           {/* Logo moderne */}
           <Link href='/' className='flex items-center space-x-3 group'>
             <div className='relative'>
-              <div className='w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105'>
+              <div className='w-10 h-10 bg-linear-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105'>
                 <span className='text-black font-bold text-xl'>V</span>
               </div>
               <div className='absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black animate-pulse'></div>
             </div>
             <div className='flex flex-col'>
-              <span className='text-2xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent'>
+              <span className='text-2xl font-bold bg-linear-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent'>
                 Vanalexcars
               </span>
               <span className='text-xs text-gray-400 -mt-1'>
@@ -153,7 +153,7 @@ export default function Header() {
             {/* CTA Principal */}
             <Link
               href='/demande'
-              className='relative bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-6 py-2.5 rounded-xl font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group'
+              className='relative bg-linear-to-r from-yellow-400 to-yellow-600 text-black px-6 py-2.5 rounded-xl font-semibold hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group'
             >
               <span className='relative z-10 flex items-center space-x-2'>
                 <span>Demander un véhicule</span>

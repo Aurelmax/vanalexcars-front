@@ -46,7 +46,7 @@ export default function Hero({
   ];
 
   return (
-    <section className='relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden'>
+    <section className='relative bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden'>
       {/* Background Image */}
       <div className='absolute inset-0 z-0'>
         <div
@@ -56,7 +56,7 @@ export default function Hero({
             backgroundPosition: showCar ? 'center right' : 'center center',
           }}
         />
-        <div className='absolute inset-0 bg-gradient-to-r from-black/80 via-black/70 to-black/60' />
+        <div className='absolute inset-0 bg-linear-to-r from-black/80 via-black/70 to-black/60' />
       </div>
 
       {/* Content */}

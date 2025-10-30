@@ -70,10 +70,10 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
           <div className='flex items-center justify-between'>
             <Link href='/' className='flex items-center space-x-3'>
-              <div className='w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center'>
+              <div className='w-10 h-10 bg-linear-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center'>
                 <span className='text-black font-bold text-xl'>V</span>
               </div>
-              <span className='text-2xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent'>
+              <span className='text-2xl font-bold bg-linear-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent'>
                 Vanalexcars
               </span>
             </Link>
@@ -89,7 +89,7 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           {/* Images */}
           <div className='space-y-4'>
             <div className='aspect-w-16 aspect-h-12 bg-gray-200 rounded-lg overflow-hidden'>
-              <div className='w-full h-96 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center'>
+              <div className='w-full h-96 bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center'>
                 <div className='text-center'>
                   <div className='w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-4'>
                     <svg
