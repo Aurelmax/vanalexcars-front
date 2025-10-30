@@ -21,6 +21,9 @@ export default function LanguageSelector({
   const { locale, pathname, asPath, query } = router
 
   const handleLanguageChange = (newLocale: string) => {
+    // Évite de naviguer si on est déjà sur la bonne langue
+    if (locale === newLocale) return
+
     // Utilise le routage i18n de Next.js pour changer de langue
     router.push({ pathname, query }, asPath, { locale: newLocale })
   }

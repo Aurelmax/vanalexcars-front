@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import LanguageSelector from './LanguageSelector';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -146,6 +147,9 @@ export default function Header() {
               </svg>
             </a>
 
+            {/* Sélecteur de langue */}
+            <LanguageSelector variant='buttons' />
+
             {/* CTA Principal */}
             <Link
               href='/demande'
@@ -287,6 +291,12 @@ export default function Header() {
               </div>
               <span className='font-medium'>Contact</span>
             </Link>
+
+            {/* Sélecteur de langue mobile */}
+            <div className='px-4 py-3'>
+              <div className='text-gray-400 text-sm mb-2'>Langue / Language</div>
+              <LanguageSelector variant='buttons' />
+            </div>
 
             {/* Actions rapides mobile */}
             <div className='pt-4 border-t border-gray-700 space-y-3'>
