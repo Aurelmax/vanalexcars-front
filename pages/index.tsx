@@ -1,18 +1,41 @@
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import AnimatedBanner from '../components/AnimatedBanner';
+import BrandSelector from '../components/BrandSelector';
 import Hero from '../components/Hero';
 import ServicesGrid from '../components/ServicesGrid';
 import TestimonialsGrid from '../components/TestimonialsGrid';
+import VehicleCategorySelector from '../components/VehicleCategorySelector';
 import VehicleGrid from '../components/VehicleGrid';
+
+interface BrandCount {
+  name: string;
+  displayName: string;
+  count: number;
+}
+
+interface CategoryCount {
+  name: string;
+  displayName: string;
+  count: number;
+  imageUrl: string;
+}
 
 interface HomeProps {
   vehicles: any[];
   services: any[];
   testimonials: any[];
+  brandCounts: BrandCount[];
+  categoryCounts: CategoryCount[];
 }
 
-export default function Home({ vehicles, services, testimonials }: HomeProps) {
+export default function Home({
+  vehicles,
+  services,
+  testimonials,
+  brandCounts,
+  categoryCounts,
+}: HomeProps) {
   return (
     <>
       {/* Animated Banner */}
@@ -82,6 +105,12 @@ export default function Home({ vehicles, services, testimonials }: HomeProps) {
           </div>
         </div>
       </section>
+
+      {/* Sélecteur de marques */}
+      <BrandSelector brands={brandCounts} />
+
+      {/* Catégories de véhicules */}
+      <VehicleCategorySelector categories={categoryCounts} />
 
       {/* Véhicules Disponibles */}
       {/* Services */}
@@ -491,11 +520,13 @@ export default function Home({ vehicles, services, testimonials }: HomeProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  // Récupérer les véhicules depuis l'API Payload CMS
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
   let vehicles = [];
+  let brandCounts: BrandCount[] = [];
+  let categoryCounts: CategoryCount[] = [];
 
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+    // Récupérer les véhicules
     const response = await fetch(`${backendUrl}/api/vehicles?limit=10&sort=-createdAt`);
 
     if (response.ok) {
@@ -505,8 +536,81 @@ export const getServerSideProps: GetServerSideProps = async () => {
     } else {
       console.warn('⚠️ Impossible de récupérer les véhicules:', response.status);
     }
+
+    // Récupérer tous les véhicules pour compter par marque et catégorie
+    const allVehiclesResponse = await fetch(`${backendUrl}/api/vehicles?limit=1000`);
+
+    if (allVehiclesResponse.ok) {
+      const allData = await allVehiclesResponse.json();
+      const allVehicles = allData.docs || [];
+
+      // Compter par marque
+      const brandMap = new Map<string, number>();
+      const brands = ['audi', 'bmw', 'mercedes', 'porsche', 'volkswagen', 'mini'];
+
+      allVehicles.forEach((v: any) => {
+        const brand = v.brand?.toLowerCase() || '';
+        if (brands.includes(brand)) {
+          brandMap.set(brand, (brandMap.get(brand) || 0) + 1);
+        }
+      });
+
+      brandCounts = [
+        { name: 'audi', displayName: "Audi d'occasion", count: brandMap.get('audi') || 0 },
+        { name: 'bmw', displayName: "BMW d'occasion", count: brandMap.get('bmw') || 0 },
+        { name: 'mercedes', displayName: "Mercedes-Benz d'occasion", count: brandMap.get('mercedes') || 0 },
+        { name: 'porsche', displayName: "Porsche d'occasion", count: brandMap.get('porsche') || 0 },
+        { name: 'volkswagen', displayName: "Volkswagen d'occasion", count: brandMap.get('volkswagen') || 0 },
+        { name: 'mini', displayName: "Mini d'occasion", count: brandMap.get('mini') || 0 },
+      ];
+
+      // Compter par catégorie
+      const categoryMap = new Map<string, number>();
+      const categories = ['suv', 'berline', 'coupe', 'break', 'monospace', 'cabriolet'];
+
+      allVehicles.forEach((v: any) => {
+        const category = v.category?.toLowerCase() || '';
+        if (categories.includes(category)) {
+          categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+        }
+      });
+
+      categoryCounts = [
+        { name: 'suv', displayName: "SUV d'occasion", count: categoryMap.get('suv') || 0, imageUrl: '/images/categories/suv.png' },
+        { name: 'berline', displayName: "Berline d'occasion", count: categoryMap.get('berline') || 0, imageUrl: '/images/categories/berline.png' },
+        { name: 'coupe', displayName: "Coupé d'occasion", count: categoryMap.get('coupe') || 0, imageUrl: '/images/categories/coupe.png' },
+        { name: 'break', displayName: "Break d'occasion", count: categoryMap.get('break') || 0, imageUrl: '/images/categories/break.png' },
+        { name: 'monospace', displayName: "Monospace d'occasion", count: categoryMap.get('monospace') || 0, imageUrl: '/images/categories/monospace.png' },
+        { name: 'cabriolet', displayName: "Cabriolet d'occasion", count: categoryMap.get('cabriolet') || 0, imageUrl: '/images/categories/cabriolet.png' },
+      ];
+
+      console.log(`✅ Compteurs de marques et catégories calculés`);
+    }
   } catch (error) {
     console.error('❌ Erreur lors de la récupération des véhicules:', error);
+  }
+
+  // Si aucune donnée, utiliser des valeurs par défaut
+  if (brandCounts.length === 0) {
+    brandCounts = [
+      { name: 'audi', displayName: "Audi d'occasion", count: 0 },
+      { name: 'bmw', displayName: "BMW d'occasion", count: 0 },
+      { name: 'mercedes', displayName: "Mercedes-Benz d'occasion", count: 0 },
+      { name: 'porsche', displayName: "Porsche d'occasion", count: 0 },
+      { name: 'volkswagen', displayName: "Volkswagen d'occasion", count: 0 },
+      { name: 'mini', displayName: "Mini d'occasion", count: 0 },
+    ];
+  }
+
+  if (categoryCounts.length === 0) {
+    categoryCounts = [
+      { name: 'suv', displayName: "SUV d'occasion", count: 0, imageUrl: '/images/categories/suv.png' },
+      { name: 'berline', displayName: "Berline d'occasion", count: 0, imageUrl: '/images/categories/berline.png' },
+      { name: 'coupe', displayName: "Coupé d'occasion", count: 0, imageUrl: '/images/categories/coupe.png' },
+      { name: 'break', displayName: "Break d'occasion", count: 0, imageUrl: '/images/categories/break.png' },
+      { name: 'monospace', displayName: "Monospace d'occasion", count: 0, imageUrl: '/images/categories/monospace.png' },
+      { name: 'cabriolet', displayName: "Cabriolet d'occasion", count: 0, imageUrl: '/images/categories/cabriolet.png' },
+    ];
   }
 
   return {
@@ -514,6 +618,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
       vehicles,
       services: [],
       testimonials: [],
+      brandCounts,
+      categoryCounts,
     },
   };
 };

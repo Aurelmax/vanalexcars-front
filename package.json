@@ -44,7 +44,14 @@
     "migrate:db": "node scripts/migrate-database.mjs",
     "test:apis": "node scripts/test-apis.mjs",
     "backup:db": "node scripts/backup-mongodb.mjs",
-    "verify:env": "node scripts/verify-env.mjs"
+    "verify:env": "node scripts/verify-env.mjs",
+    "scrape:mini": "tsx scripts/scrape-importemoi.ts mini 2",
+    "scrape:bmw": "tsx scripts/scrape-importemoi.ts bmw 3",
+    "scrape:mercedes": "tsx scripts/scrape-importemoi.ts mercedes 3",
+    "scrape:audi": "tsx scripts/scrape-importemoi.ts audi 3",
+    "scrape:porsche": "tsx scripts/scrape-importemoi.ts porsche 2",
+    "scrape:volkswagen": "tsx scripts/scrape-importemoi.ts volkswagen 3",
+    "scrape:daily": "tsx scripts/cron-scraper.ts"
   },
   "dependencies": {
     "@apollo/client": "^4.0.7",

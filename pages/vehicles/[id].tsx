@@ -1,6 +1,7 @@
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { ReactElement } from 'react';
 
 interface Vehicle {
   id: string;
@@ -14,15 +15,15 @@ interface Vehicle {
   status: string;
   slug: string;
   description: string;
-  specifications: {
-    engine: string;
-    power: string;
-    consumption: string;
-    acceleration: string;
-    color: string;
-    interior: string;
+  specifications?: {
+    engine?: string;
+    power?: string;
+    consumption?: string;
+    acceleration?: string;
+    color?: string;
+    interior?: string;
   };
-  features: string[];
+  features?: (string | { feature: string })[];
   createdAt: string;
   updatedAt: string;
 }
@@ -31,7 +32,7 @@ interface VehicleDetailProps {
   vehicle: Vehicle;
 }
 
-export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
+function VehicleDetail({ vehicle }: VehicleDetailProps) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -186,77 +187,88 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
           </div>
 
           {/* Spécifications */}
-          <div className='bg-white rounded-lg p-6 shadow-sm'>
-            <h2 className='text-xl font-bold text-gray-900 mb-4'>
-              Spécifications techniques
-            </h2>
-            <div className='space-y-3'>
-              <div className='flex justify-between'>
-                <span className='text-gray-600'>Moteur:</span>
-                <span className='font-medium'>
-                  {vehicle.specifications.engine}
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-gray-600'>Puissance:</span>
-                <span className='font-medium'>
-                  {vehicle.specifications.power}
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-gray-600'>Consommation:</span>
-                <span className='font-medium'>
-                  {vehicle.specifications.consumption}
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-gray-600'>Accélération 0-100:</span>
-                <span className='font-medium'>
-                  {vehicle.specifications.acceleration}
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-gray-600'>Couleur:</span>
-                <span className='font-medium'>
-                  {vehicle.specifications.color}
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-gray-600'>Intérieur:</span>
-                <span className='font-medium'>
-                  {vehicle.specifications.interior}
-                </span>
+          {vehicle.specifications && (
+            <div className='bg-white rounded-lg p-6 shadow-sm'>
+              <h2 className='text-xl font-bold text-gray-900 mb-4'>
+                Spécifications techniques
+              </h2>
+              <div className='space-y-3'>
+                {vehicle.specifications.engine && (
+                  <div className='flex justify-between'>
+                    <span className='text-gray-600'>Moteur:</span>
+                    <span className='font-medium'>{vehicle.specifications.engine}</span>
+                  </div>
+                )}
+                {vehicle.specifications.power && (
+                  <div className='flex justify-between'>
+                    <span className='text-gray-600'>Puissance:</span>
+                    <span className='font-medium'>{vehicle.specifications.power}</span>
+                  </div>
+                )}
+                {vehicle.specifications.consumption && (
+                  <div className='flex justify-between'>
+                    <span className='text-gray-600'>Consommation:</span>
+                    <span className='font-medium'>{vehicle.specifications.consumption}</span>
+                  </div>
+                )}
+                {vehicle.specifications.acceleration && (
+                  <div className='flex justify-between'>
+                    <span className='text-gray-600'>Accélération 0-100:</span>
+                    <span className='font-medium'>{vehicle.specifications.acceleration}</span>
+                  </div>
+                )}
+                {vehicle.specifications.color && (
+                  <div className='flex justify-between'>
+                    <span className='text-gray-600'>Couleur:</span>
+                    <span className='font-medium'>{vehicle.specifications.color}</span>
+                  </div>
+                )}
+                {vehicle.specifications.interior && (
+                  <div className='flex justify-between'>
+                    <span className='text-gray-600'>Intérieur:</span>
+                    <span className='font-medium'>{vehicle.specifications.interior}</span>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Équipements */}
-        <div className='mt-8 bg-white rounded-lg p-6 shadow-sm'>
-          <h2 className='text-xl font-bold text-gray-900 mb-4'>Équipements</h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
-            {vehicle.features.map((feature, index) => (
-              <div key={index} className='flex items-center space-x-2'>
-                <svg
-                  className='w-4 h-4 text-green-500'
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                    clipRule='evenodd'
-                  />
-                </svg>
-                <span className='text-gray-700'>{feature}</span>
-              </div>
-            ))}
+        {vehicle.features && vehicle.features.length > 0 && (
+          <div className='mt-8 bg-white rounded-lg p-6 shadow-sm'>
+            <h2 className='text-xl font-bold text-gray-900 mb-4'>Équipements</h2>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
+              {vehicle.features.map((feature, index) => (
+                <div key={index} className='flex items-center space-x-2'>
+                  <svg
+                    className='w-4 h-4 text-green-500'
+                    fill='currentColor'
+                    viewBox='0 0 20 20'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                  <span className='text-gray-700'>{typeof feature === 'string' ? feature : feature.feature}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
 }
+
+// Désactiver le Layout par défaut pour éviter le double header
+VehicleDetail.getLayout = function getLayout(page: ReactElement) {
+  return page;
+};
+
+export default VehicleDetail;
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   try {
