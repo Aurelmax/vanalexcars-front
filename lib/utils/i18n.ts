@@ -36,8 +36,26 @@ export const langNames: Record<string, string> = {
 }
 
 /**
+ * Drapeaux des langues (emojis)
+ */
+export const langFlags: Record<string, string> = {
+  fr: '🇫🇷',
+  en: '🇬🇧',
+  es: '🇪🇸',
+  de: '🇩🇪',
+  it: '🇮🇹',
+}
+
+/**
  * Retourne le nom complet d'une langue
  */
 export const getLangName = (lang: string): string => {
   return langNames[lang] ?? lang.toUpperCase()
+}
+
+/**
+ * Retourne le drapeau d'une langue
+ */
+export const getLangFlag = (lang: string): string => {
+  return langFlags[lang] ?? '🌐'
 }

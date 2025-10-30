@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/router'
-import { supportedLangs, getLangName } from '@/lib/utils/i18n'
+import { supportedLangs, getLangName, getLangFlag } from '@/lib/utils/i18n'
 import { ChangeEvent } from 'react'
 
 interface LanguageSelectorProps {
@@ -35,14 +35,15 @@ export default function LanguageSelector({
           <button
             key={lang}
             onClick={() => handleLanguageChange(lang)}
-            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 py-2 rounded-lg text-2xl transition-all duration-300 ${
               locale === lang
-                ? 'bg-primary text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-yellow-400 scale-110 shadow-lg'
+                : 'bg-white/10 hover:bg-white/20 hover:scale-105'
             }`}
             aria-label={`Changer la langue en ${getLangName(lang)}`}
+            title={getLangName(lang)}
           >
-            {lang.toUpperCase()}
+            {getLangFlag(lang)}
           </button>
         ))}
       </div>
@@ -55,12 +56,12 @@ export default function LanguageSelector({
       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
         handleLanguageChange(e.target.value)
       }
-      className={`px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${className}`}
+      className={`px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent ${className}`}
       aria-label="Sélectionner une langue"
     >
       {supportedLangs.map(lang => (
         <option key={lang} value={lang}>
-          {getLangName(lang)}
+          {getLangFlag(lang)} {getLangName(lang)}
         </option>
       ))}
     </select>
