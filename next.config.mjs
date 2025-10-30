@@ -15,7 +15,8 @@ let nextConfig = {
   i18n: {
     locales: process.env.NEXT_PUBLIC_SUPPORTED_LANGS?.split(',') ?? ['fr'],
     defaultLocale: process.env.NEXT_PUBLIC_DEFAULT_LANG ?? 'fr',
-    localeDetection: true, // Détection automatique de la langue du navigateur
+    // localeDetection est activé par défaut (true)
+    // La détection automatique est gérée par notre middleware.ts
   },
   webpack: config => {
     config.resolve.alias.canvas = false;
