@@ -491,11 +491,27 @@ export default function Home({ vehicles, services, testimonials }: HomeProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  // Retourner des données vides pour éviter les erreurs de connexion DB
-  // Les données seront ajoutées via le back office Payload CMS
+  // Récupérer les véhicules depuis l'API Payload CMS
+  let vehicles = [];
+
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+    const response = await fetch(`${backendUrl}/api/vehicles?limit=10&sort=-createdAt`);
+
+    if (response.ok) {
+      const data = await response.json();
+      vehicles = data.docs || [];
+      console.log(`✅ ${vehicles.length} véhicules récupérés pour la page d'accueil`);
+    } else {
+      console.warn('⚠️ Impossible de récupérer les véhicules:', response.status);
+    }
+  } catch (error) {
+    console.error('❌ Erreur lors de la récupération des véhicules:', error);
+  }
+
   return {
     props: {
-      vehicles: [],
+      vehicles,
       services: [],
       testimonials: [],
     },
