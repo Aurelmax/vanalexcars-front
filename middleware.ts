@@ -11,10 +11,12 @@ const defaultLang = process.env.NEXT_PUBLIC_DEFAULT_LANG ?? 'fr'
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Ignore les ressources statiques, API et fichiers
+  // Ignore les ressources statiques, API, fichiers et pages admin
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
+    pathname.startsWith('/admin-') ||
+    pathname.startsWith('/simple-login') ||
     pathname.includes('.')
   ) {
     return NextResponse.next()
