@@ -260,28 +260,31 @@ export default function VehicleDetail({ vehicle }: VehicleDetailProps) {
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/api/vehicles`
-    );
-    const data = await response.json();
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+    const vehicleId = params?.id;
 
-    if (data.success && data.data) {
-      const vehicle = data.data.find((v: Vehicle) => v.id === params?.id);
-
-      if (vehicle) {
-        return {
-          props: {
-            vehicle,
-          },
-        };
-      }
+    if (!vehicleId) {
+      return { notFound: true };
     }
 
+    // Récupérer le véhicule directement par son ID
+    const response = await fetch(`${backendUrl}/api/vehicles/${vehicleId}`);
+
+    if (!response.ok) {
+      console.warn(`⚠️ Véhicule ${vehicleId} non trouvé:`, response.status);
+      return { notFound: true };
+    }
+
+    const vehicle = await response.json();
+    console.log(`✅ Véhicule récupéré: ${vehicle.title || vehicleId}`);
+
     return {
-      notFound: true,
+      props: {
+        vehicle,
+      },
     };
   } catch (error) {
-    console.error('Error fetching vehicle:', error);
+    console.error('❌ Erreur lors de la récupération du véhicule:', error);
     return {
       notFound: true,
     };
