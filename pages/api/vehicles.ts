@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 /**
- * Proxy API pour les véhicules
+ * Proxy API pour les véhicules (GET, POST)
  * Résout les problèmes CORS en faisant le pont entre le frontend et le backend Payload
  */
 export default async function handler(
@@ -15,8 +15,10 @@ export default async function handler(
     const queryString = new URLSearchParams(req.query as Record<string, string>).toString()
     const url = `${backendUrl}/api/vehicles${queryString ? `?${queryString}` : ''}`
 
-    console.log('🔄 Proxying request to:', url)
-    console.log('📝 Method:', req.method)
+    console.log(`🔄 [${req.method}] Proxying to:`, url)
+    if (req.body) {
+      console.log('📦 Body:', JSON.stringify(req.body).substring(0, 200) + '...')
+    }
 
     // Préparer les headers
     const headers: HeadersInit = {
@@ -35,15 +37,25 @@ export default async function handler(
     }
 
     // Ajouter le body pour POST/PUT/PATCH
-    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
-      options.body = JSON.stringify(req.body)
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+      if (req.body) {
+        options.body = JSON.stringify(req.body)
+      }
     }
 
     // Faire la requête au backend
     const response = await fetch(url, options)
-    const data = await response.json()
 
-    console.log('✅ Backend response status:', response.status)
+    // Vérifier si la réponse est du JSON
+    const contentType = response.headers.get('content-type')
+    let data
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json()
+    } else {
+      data = { success: response.ok, status: response.status }
+    }
+
+    console.log(`✅ Backend response [${req.method}]:`, response.status)
 
     // Retourner la réponse du backend
     return res.status(response.status).json(data)
