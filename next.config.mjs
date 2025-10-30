@@ -11,6 +11,12 @@ let nextConfig = {
     // Désactiver la vérification TypeScript pendant la build pour Railway
     ignoreBuildErrors: true,
   },
+  // Configuration i18n pour le routage multilingue
+  i18n: {
+    locales: process.env.NEXT_PUBLIC_SUPPORTED_LANGS?.split(',') ?? ['fr'],
+    defaultLocale: process.env.NEXT_PUBLIC_DEFAULT_LANG ?? 'fr',
+    localeDetection: true, // Détection automatique de la langue du navigateur
+  },
   webpack: config => {
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
