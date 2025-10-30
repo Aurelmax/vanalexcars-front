@@ -265,7 +265,9 @@ export default function VehicleManager({
 
       const result = await response.json();
 
-      if (result.success) {
+      // Vérifier le status HTTP plutôt que result.success
+      // Payload retourne 200/201 en cas de succès
+      if (response.ok) {
         await fetchVehicles();
         resetForm();
         onVehicleUpdate?.();
@@ -276,9 +278,10 @@ export default function VehicleManager({
             : 'Véhicule mis à jour avec succès !',
         });
       } else {
+        console.error('Erreur backend:', result);
         setNotification({
           type: 'error',
-          message: 'Erreur lors de la sauvegarde du véhicule',
+          message: result.message || 'Erreur lors de la sauvegarde du véhicule',
         });
       }
     } catch (error) {
