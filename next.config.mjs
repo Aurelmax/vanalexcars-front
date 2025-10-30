@@ -1,5 +1,9 @@
 import { corsHeaders, securityHeaders } from './security-headers.js';
 
+// Configuration des langues supportées
+const supportedLangs = ['fr', 'en', 'es', 'it'];
+const defaultLang = 'fr';
+
 /** @type {import('next').NextConfig} */
 let nextConfig = {
   reactStrictMode: true,
@@ -13,8 +17,8 @@ let nextConfig = {
   },
   // Configuration i18n pour le routage multilingue
   i18n: {
-    locales: process.env.NEXT_PUBLIC_SUPPORTED_LANGS?.split(',') ?? ['fr'],
-    defaultLocale: process.env.NEXT_PUBLIC_DEFAULT_LANG ?? 'fr',
+    locales: supportedLangs,
+    defaultLocale: defaultLang,
     // localeDetection est activé par défaut (true)
     // La détection automatique est gérée par notre middleware.ts
   },
