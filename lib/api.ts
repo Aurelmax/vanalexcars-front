@@ -128,21 +128,24 @@ export const authenticatedApiClient = new ApiClient({
 });
 
 /**
- * Construit une URL complète pour l'API backend Payload
+ * Construit une URL pour l'API proxy Next.js (résout les problèmes CORS)
  * @param path - Le chemin de l'endpoint (ex: '/api/vehicles')
- * @returns URL complète vers le backend
+ * @returns URL vers l'API proxy locale de Next.js
  */
 export const buildApiUrl = (path: string): string => {
-  const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
-  if (!process.env.NEXT_PUBLIC_API_URL) {
-    console.warn('⚠️ NEXT_PUBLIC_API_URL non défini, utilisation de http://localhost:4200');
-  }
-  // Normaliser le path
+  // Utilise l'API proxy locale de Next.js pour éviter les problèmes CORS
+  // Le proxy se charge de transférer la requête vers le backend Payload
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  // Enlever le slash final du base si présent
-  const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
 
-  return `${normalizedBase}${normalizedPath}`;
+  // En production ou si on est côté serveur, utilise le backend direct
+  if (typeof window === 'undefined' || process.env.NODE_ENV === 'production') {
+    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+    const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+    return `${normalizedBase}${normalizedPath}`;
+  }
+
+  // Côté client en développement, utilise l'API proxy locale
+  return normalizedPath;
 };
 
 export default apiClient;
