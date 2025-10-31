@@ -209,11 +209,26 @@ Mapping des IDs de marques utilisés par ImporteMoi (vérifiés) :
 
 Pour chaque véhicule :
 - ✅ Informations de base (titre, marque, modèle, prix, année)
-- ✅ Caractéristiques (kilométrage, carburant, transmission)
-- ✅ Spécifications (moteur, puissance, consommation, couleur)
-- ✅ Équipements (liste des features)
+- ✅ Caractéristiques (kilométrage, carburant, transmission, portes, places)
+- ✅ Type de carrosserie (sedan, suv, sportback, touring, etc.)
+- ✅ Couleurs (extérieure, intérieure/sellerie)
+- ✅ Spécifications (moteur, puissance HP/kW, consommation, CO2)
+- ✅ Équipements structurés (liste de features extraites du HTML)
 - ✅ Métadonnées (ID externe, référence, source, date de publication)
 - ⏳ Images (téléchargement désactivé par défaut)
+
+### Gestion du cycle de vie
+
+**Création/Mise à jour:**
+- Détection automatique des doublons via `externalReference`
+- Création si nouveau véhicule
+- Mise à jour si véhicule existant
+
+**Suppression des véhicules obsolètes:**
+- ⏳ **À implémenter**: Système de nettoyage automatique
+- Les véhicules vendus/retirés d'ImporteMoi doivent être détectés
+- Stratégie recommandée: Marquer comme "sold" après 7 jours sans mise à jour
+- Alternative: Suppression automatique après 30 jours d'inactivité
 
 ---
 
@@ -297,10 +312,104 @@ En cas de problème :
 
 ---
 
-## 📝 TODO
+## 📝 Roadmap
 
-- [ ] Implémenter le téléchargement d'images
-- [ ] Ajouter un système de notification (email/Slack)
-- [ ] Créer un dashboard admin pour gérer le scraping
-- [ ] Ajouter des tests unitaires
-- [ ] Améliorer la gestion des erreurs réseau
+### 🔴 Haute Priorité
+
+- [ ] **Gestion des véhicules obsolètes**
+  - Ajouter champ `lastScrapedAt` (timestamp de dernière mise à jour)
+  - Script de nettoyage: marquer "sold" si non mis à jour depuis 7 jours
+  - Option: suppression automatique après 30 jours d'inactivité
+  - Endpoint API: `POST /api/cleanup-old-vehicles`
+
+- [ ] **Téléchargement et gestion des images**
+  - Télécharger images depuis ImporteMoi CDN
+  - Upload dans Payload CMS media library
+  - Optimisation automatique (WebP, compression)
+  - Associer 5-10 images par véhicule
+
+### 🟡 Priorité Moyenne
+
+- [ ] **Dashboard de monitoring visuel**
+  - Page admin: `/admin/scraper-stats`
+  - Tableau de bord avec métriques en temps réel:
+    - Dernier import par marque (timestamp, durée)
+    - Nombre de véhicules actifs par marque
+    - Taux de mise à jour (créés vs mis à jour)
+    - Graphiques: évolution stock, prix moyen, erreurs
+    - Logs des 100 dernières opérations
+  - API backend: `GET /api/scraper/stats`
+  - Alertes visuelles si erreurs > 10%
+
+- [ ] **Système de notifications**
+  - Email/Slack après chaque import quotidien
+  - Alertes en cas d'erreurs critiques
+  - Résumé hebdomadaire des imports
+
+### 🟢 Améliorations Futures
+
+- [ ] **Tests et qualité**
+  - Tests unitaires pour le parser
+  - Tests d'intégration pour l'API
+  - Validation des données scrapées
+
+- [ ] **Optimisations**
+  - Cache des pages déjà scrapées (Redis)
+  - Parallélisation du scraping (Promise.all)
+  - Gestion avancée du rate limiting
+  - Retry automatique avec backoff exponentiel
+
+- [ ] **Features avancées**
+  - Scraping d'autres plateformes (AutoScout24, Mobile.de)
+  - Détection de variations de prix (alertes baisse)
+  - Analyse de marché (prix moyens, tendances)
+  - Export CSV/Excel des données
+
+---
+
+## 📊 API Endpoints Proposés
+
+### `/api/scraper/stats` (GET)
+Retourne les statistiques de scraping:
+```json
+{
+  "lastImport": {
+    "mini": { "timestamp": "2025-10-31T02:00:00Z", "duration": 45, "created": 12, "updated": 24, "errors": 0 },
+    "bmw": { "timestamp": "2025-10-31T02:01:00Z", "duration": 120, "created": 45, "updated": 63, "errors": 2 }
+  },
+  "activeVehicles": {
+    "mini": 156,
+    "bmw": 289,
+    "audi": 234,
+    "total": 679
+  },
+  "updateRate": {
+    "created": 57,
+    "updated": 87,
+    "percentage": 39.6
+  },
+  "recentErrors": [
+    { "brand": "bmw", "vehicle": "BMW X5 ...", "error": "Validation failed", "timestamp": "..." }
+  ]
+}
+```
+
+### `/api/cleanup-old-vehicles` (POST)
+Nettoie les véhicules obsolètes:
+```json
+{
+  "dryRun": false,
+  "daysThreshold": 7,
+  "action": "mark_sold" // ou "delete"
+}
+```
+
+Retourne:
+```json
+{
+  "affected": 23,
+  "vehicles": [
+    { "id": "...", "title": "Mini Cooper ...", "lastScraped": "2025-10-20" }
+  ]
+}
+```

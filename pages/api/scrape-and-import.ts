@@ -1,8 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import {
-  scrapeImporteMoiBrand,
-  downloadImage,
-} from '../../scripts/scrape-importemoi';
+import { scrapeImporteMoiBrand } from '../../scripts/scrape-importemoi';
+// TODO: Implémenter le téléchargement d'images avec downloadImage
 
 interface ImportStats {
   total: number;
@@ -113,6 +111,7 @@ export default async function handler(
           sourceUrl: vehicle.sourceUrl,
           sourcePlatform: vehicle.sourcePlatform,
           publishedDate: vehicle.publishedDate,
+          lastScrapedAt: new Date().toISOString(), // Timestamp pour gestion obsolescence
           specifications: vehicle.specifications,
           features: vehicle.features?.map((f: string) => ({ feature: f })) || [],
         };
