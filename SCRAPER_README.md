@@ -215,7 +215,11 @@ Pour chaque véhicule :
 - ✅ Spécifications (moteur, puissance HP/kW, consommation, CO2)
 - ✅ Équipements structurés (liste de features extraites du HTML)
 - ✅ Métadonnées (ID externe, référence, source, date de publication)
-- ⏳ Images (téléchargement désactivé par défaut)
+- ✅ **URLs d'images** (6 URLs générées par véhicule)
+  - Note: ImporteMoi charge les images dynamiquement via JavaScript
+  - Les URLs sont générées selon le pattern: `https://importemoi.fr/media/vehicles/{id}/{index}.webp`
+  - Validation en temps réel nécessaire (certaines URLs peuvent être invalides)
+  - ⏳ Téléchargement automatique et traitement (remove.bg) à implémenter
 
 ### Gestion du cycle de vie
 
@@ -322,11 +326,15 @@ En cas de problème :
   - Option: suppression automatique après 30 jours d'inactivité
   - Endpoint API: `POST /api/cleanup-old-vehicles`
 
-- [ ] **Téléchargement et gestion des images**
-  - Télécharger images depuis ImporteMoi CDN
+- [ ] **Téléchargement et traitement des images**
+  - ✅ Génération des URLs d'images (6 par véhicule)
+  - Validation des URLs (vérifier HTTP 200)
+  - Téléchargement depuis ImporteMoi CDN
+  - Traitement avec remove.bg (fond neutre blanc)
   - Upload dans Payload CMS media library
-  - Optimisation automatique (WebP, compression)
+  - Optimisation automatique (WebP, compression, resize)
   - Associer 5-10 images par véhicule
+  - Module: `scripts/process-images-removebg.ts`
 
 ### 🟡 Priorité Moyenne
 

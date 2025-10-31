@@ -34,6 +34,7 @@ interface ScrapedVehicle {
   exteriorColor?: string;
   interiorColor?: string;
   images: string[];
+  imageUrls: string[]; // URLs absolues des images du véhicule
   sourceUrl: string;
   sourcePlatform: string;
   publishedDate?: string;
@@ -228,6 +229,14 @@ export async function scrapeImporteMoiPage(
       // Puissance en kW (si hp disponible: 1 ch ≈ 0.7355 kW)
       const powerKw = vehicle.hp ? Math.round(vehicle.hp * 0.7355) : undefined;
 
+      // Générer les URLs d'images
+      const imageUrls = generateImageUrls(vehicle.mongo_id, vehicle.id);
+
+      // Log du nombre d'images (seulement pour le premier véhicule pour éviter spam)
+      if (vehicles.indexOf(vehicle) === 0) {
+        logImageCount(imageUrls.length, title);
+      }
+
       return {
         externalId: vehicle.id.toString(),
         externalReference: `IMP-${vehicle.id}`,
@@ -250,6 +259,7 @@ export async function scrapeImporteMoiPage(
         exteriorColor: exteriorColor,
         interiorColor: interiorColor,
         images: [],
+        imageUrls: imageUrls,
         sourceUrl: `https://importemoi.fr/vehicule/${brand}-${vehicle.id}`,
         sourcePlatform: 'importemoi.fr',
         specifications: {
@@ -341,6 +351,40 @@ export async function downloadImage(url: string): Promise<Buffer | null> {
 }
 
 // === Fonctions utilitaires ===
+
+/**
+ * Génère les URLs d'images probables pour un véhicule ImporteMoi
+ * Note: ImporteMoi charge les images dynamiquement via JS, donc nous construisons
+ * les URLs basées sur les patterns observés
+ *
+ * @param mongoId - ID MongoDB du véhicule
+ * @param vehicleId - ID numérique du véhicule
+ * @returns Tableau d'URLs d'images (max 6)
+ */
+function generateImageUrls(mongoId: string, vehicleId: number): string[] {
+  const imageUrls: string[] = [];
+
+  // Pattern observé: https://importemoi.fr/api/vehicles/{mongo_id}/images/{index}
+  // ou https://cdn.importemoi.fr/vehicles/{mongo_id}/{index}.webp
+  // Générer 6 URLs potentielles
+  for (let i = 0; i < 6; i++) {
+    // Format probable basé sur les CDN classiques
+    imageUrls.push(`https://importemoi.fr/media/vehicles/${vehicleId}/${i}.webp`);
+  }
+
+  return imageUrls;
+}
+
+/**
+ * Log du nombre d'images trouvées pour un véhicule
+ */
+function logImageCount(count: number, vehicleTitle: string): void {
+  if (count > 0) {
+    console.log(`🖼️  ${count} images générées pour ${vehicleTitle}`);
+  } else {
+    console.warn(`⚠️  Aucune image disponible pour ${vehicleTitle}`);
+  }
+}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
