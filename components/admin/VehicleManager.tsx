@@ -24,6 +24,21 @@ interface Vehicle {
     alt: string;
     isMain: boolean;
   }>;
+  imageUrls?: Array<{ url: string }>;
+  processedImages?: {
+    hero?: string;
+    card?: string;
+    thumbnail?: string;
+    social?: string;
+  };
+  // Champs virtuels ajoutés par le hook backend
+  mainImage?: string | null;
+  galleryImages?: string[];
+  brand?: string;
+  model?: string;
+  externalReference?: string;
+  sourcePlatform?: string;
+  lastScrapedAt?: string;
   specifications?: {
     engine: string;
     power: string;
@@ -64,6 +79,7 @@ export default function VehicleManager({
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [processingImages, setProcessingImages] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState<{
     type: 'success' | 'error' | 'warning' | 'info';
@@ -417,6 +433,118 @@ export default function VehicleManager({
     }));
   };
 
+  // Traiter les images avec Remove.bg + Studio
+  const processImages = async () => {
+    if (!selectedVehicle || !selectedVehicle.imageUrls || selectedVehicle.imageUrls.length === 0) {
+      setNotification({
+        type: 'error',
+        message: 'Aucune image URL disponible pour le traitement',
+      });
+      return;
+    }
+
+    setProcessingImages(true);
+    setNotification({
+      type: 'info',
+      message: 'Traitement des images en cours (Remove.bg + Studio)...',
+    });
+
+    try {
+      const response = await fetch('/api/process-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          vehicleId: selectedVehicle.id,
+          imageUrls: selectedVehicle.imageUrls.map(img => img.url),
+          vehicleInfo: {
+            title: selectedVehicle.title,
+            brand: selectedVehicle.brand,
+            model: selectedVehicle.model,
+            year: selectedVehicle.year,
+            price: selectedVehicle.price,
+            reference: selectedVehicle.externalReference,
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Mettre à jour le formData avec les images traitées
+        const updatedFormData = {
+          ...formData,
+          processedImages: result.processedImages,
+        };
+        setFormData(updatedFormData);
+
+        // Sauvegarder automatiquement dans la base de données
+        try {
+          const saveResponse = await fetch(
+            buildApiUrl(`/api/vehicles/${selectedVehicle.id}`),
+            {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(updatedFormData),
+            }
+          );
+
+          if (saveResponse.ok) {
+            // Rafraîchir la liste des véhicules
+            await fetchVehicles();
+
+            // Recharger le véhicule sélectionné avec les nouvelles données
+            const updatedVehicleResponse = await fetch(
+              buildApiUrl(`/api/vehicles/${selectedVehicle.id}`)
+            );
+            if (updatedVehicleResponse.ok) {
+              const updatedVehicle = await updatedVehicleResponse.json();
+              setSelectedVehicle(updatedVehicle);
+              setFormData({
+                ...updatedVehicle,
+                images: updatedVehicle.images || [],
+                imageUrls: updatedVehicle.imageUrls || [],
+                features: updatedVehicle.features || [],
+              });
+            }
+
+            setNotification({
+              type: 'success',
+              message: 'Images traitées et sauvegardées avec succès! 4 variantes générées.',
+            });
+          } else {
+            setNotification({
+              type: 'warning',
+              message: 'Images traitées mais erreur lors de la sauvegarde. Cliquez sur "Sauvegarder" pour réessayer.',
+            });
+          }
+        } catch (saveError) {
+          console.error('Erreur sauvegarde après traitement:', saveError);
+          setNotification({
+            type: 'warning',
+            message: 'Images traitées mais erreur lors de la sauvegarde. Cliquez sur "Sauvegarder" pour réessayer.',
+          });
+        }
+      } else {
+        setNotification({
+          type: 'error',
+          message: result.error || 'Erreur lors du traitement des images',
+        });
+      }
+    } catch (error) {
+      console.error('Erreur traitement images:', error);
+      setNotification({
+        type: 'error',
+        message: 'Erreur lors du traitement des images',
+      });
+    } finally {
+      setProcessingImages(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className='flex items-center justify-center h-64'>
@@ -547,16 +675,20 @@ export default function VehicleManager({
                   onClick={() => editVehicle(vehicle)}
                 >
                   <div className='flex items-center space-x-3'>
-                    {vehicle.images && vehicle.images.length > 0 ? (
+                    {(vehicle.images && vehicle.images.length > 0) || (vehicle.imageUrls && vehicle.imageUrls.length > 0) ? (
                       <Image
-                        src={vehicle.images[0].url}
+                        src={
+                          vehicle.images && vehicle.images.length > 0
+                            ? vehicle.images[0].url
+                            : vehicle.imageUrls![0].url
+                        }
                         alt={vehicle.title}
                         width={60}
                         height={40}
                         className='rounded object-cover'
                       />
                     ) : (
-                      <div className='w-15 h-10 bg-gray-200 rounded flex items-center justify-center'>
+                      <div className='w-[60px] h-10 bg-gray-200 rounded flex items-center justify-center'>
                         <svg
                           className='w-6 h-6 text-gray-400'
                           fill='none'
@@ -915,6 +1047,114 @@ export default function VehicleManager({
                     </div>
                   )}
                 </div>
+
+                {/* Images ImporteMoi (imageUrls) + Process Images */}
+                {selectedVehicle && selectedVehicle.imageUrls && selectedVehicle.imageUrls.length > 0 && (
+                  <div className='border-t pt-6'>
+                    <div className='flex items-center justify-between mb-4'>
+                      <div>
+                        <h4 className='text-lg font-medium text-gray-900'>
+                          Images ImporteMoi
+                        </h4>
+                        <p className='text-sm text-gray-500'>
+                          {selectedVehicle.imageUrls.length} image(s) disponible(s)
+                        </p>
+                      </div>
+                      <button
+                        onClick={processImages}
+                        disabled={processingImages}
+                        className={`px-4 py-2 rounded-md font-medium flex items-center space-x-2 ${
+                          processingImages
+                            ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                            : 'bg-linear-to-r from-amber-400 to-amber-600 text-white hover:from-amber-500 hover:to-amber-700'
+                        }`}
+                      >
+                        {processingImages ? (
+                          <>
+                            <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
+                            <span>Traitement...</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' />
+                            </svg>
+                            <span>Process Images Studio</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Grille des images ImporteMoi */}
+                    <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4'>
+                      {selectedVehicle.imageUrls.map((img, index) => (
+                        <div key={index} className='relative group'>
+                          <Image
+                            src={img.url}
+                            alt={`ImporteMoi ${index + 1}`}
+                            width={200}
+                            height={150}
+                            className='w-full aspect-4/3 object-cover rounded-lg border-2 border-gray-200'
+                          />
+                          <div className='absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full'>
+                            {index + 1}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Preview des images traitées */}
+                    {formData.processedImages && (
+                      <div className='mt-6 bg-gray-50 p-4 rounded-lg'>
+                        <h5 className='text-sm font-semibold text-gray-700 mb-3'>
+                          Images traitées (Studio)
+                        </h5>
+                        <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                          {formData.processedImages.hero && (
+                            <div>
+                              <div className='text-xs font-medium text-gray-600 mb-1'>Hero (1600x900)</div>
+                              <img
+                                src={formData.processedImages.hero}
+                                alt='Hero variant'
+                                className='w-full h-auto rounded border'
+                              />
+                            </div>
+                          )}
+                          {formData.processedImages.card && (
+                            <div>
+                              <div className='text-xs font-medium text-gray-600 mb-1'>Card (600x400)</div>
+                              <img
+                                src={formData.processedImages.card}
+                                alt='Card variant'
+                                className='w-full h-auto rounded border'
+                              />
+                            </div>
+                          )}
+                          {formData.processedImages.thumbnail && (
+                            <div>
+                              <div className='text-xs font-medium text-gray-600 mb-1'>Thumbnail (400x300)</div>
+                              <img
+                                src={formData.processedImages.thumbnail}
+                                alt='Thumbnail variant'
+                                className='w-full h-auto rounded border'
+                              />
+                            </div>
+                          )}
+                          {formData.processedImages.social && (
+                            <div>
+                              <div className='text-xs font-medium text-gray-600 mb-1'>Social (1200x630)</div>
+                              <img
+                                src={formData.processedImages.social}
+                                alt='Social variant'
+                                className='w-full h-auto rounded border'
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Description */}
                 <div>

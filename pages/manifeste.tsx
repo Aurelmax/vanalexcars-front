@@ -13,7 +13,7 @@ export default function Manifeste() {
         />
       </Head>
 
-      <div className='min-h-screen bg-gradient-to-b from-premium-black via-gray-950 to-black'>
+      <div className='min-h-screen bg-linear-to-b from-premium-black via-gray-950 to-black'>
         <Header />
 
         <main className='pt-32 pb-20'>
@@ -37,7 +37,7 @@ export default function Manifeste() {
               {/* 1. Ma conviction */}
               <section className='bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-premium-gold/50 transition-all duration-300'>
                 <div className='flex items-start space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
+                  <div className='shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
                     <span className='text-2xl font-bold text-premium-black'>1</span>
                   </div>
                   <div className='flex-1'>
@@ -61,7 +61,7 @@ export default function Manifeste() {
               {/* 2. Mon parcours */}
               <section className='bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-premium-gold/50 transition-all duration-300'>
                 <div className='flex items-start space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
+                  <div className='shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
                     <span className='text-2xl font-bold text-premium-black'>2</span>
                   </div>
                   <div className='flex-1'>
@@ -88,9 +88,9 @@ export default function Manifeste() {
               </section>
 
               {/* 3. Ma différence */}
-              <section className='bg-gradient-to-br from-premium-gold/10 to-transparent border border-premium-gold/30 rounded-2xl p-8 hover:border-premium-gold/70 transition-all duration-300'>
+              <section className='bg-linear-to-br from-premium-gold/10 to-transparent border border-premium-gold/30 rounded-2xl p-8 hover:border-premium-gold/70 transition-all duration-300'>
                 <div className='flex items-start space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
+                  <div className='shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
                     <span className='text-2xl font-bold text-premium-black'>3</span>
                   </div>
                   <div className='flex-1'>
@@ -116,7 +116,7 @@ export default function Manifeste() {
               {/* 4. Ma méthode */}
               <section className='bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-premium-gold/50 transition-all duration-300'>
                 <div className='flex items-start space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
+                  <div className='shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
                     <span className='text-2xl font-bold text-premium-black'>4</span>
                   </div>
                   <div className='flex-1'>
@@ -148,7 +148,7 @@ export default function Manifeste() {
                           key={index}
                           className='flex items-start space-x-3 p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-premium-gold/50 transition-all'
                         >
-                          <span className='text-2xl flex-shrink-0'>{step.icon}</span>
+                          <span className='text-2xl shrink-0'>{step.icon}</span>
                           <p className='text-gray-300 leading-relaxed'>{step.text}</p>
                         </div>
                       ))}
@@ -163,7 +163,7 @@ export default function Manifeste() {
               {/* 5. Mon rapport au digital */}
               <section className='bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-premium-gold/50 transition-all duration-300'>
                 <div className='flex items-start space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
+                  <div className='shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
                     <span className='text-2xl font-bold text-premium-black'>5</span>
                   </div>
                   <div className='flex-1'>
@@ -187,7 +187,7 @@ export default function Manifeste() {
               {/* 6. Mon engagement */}
               <section className='bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-premium-gold/50 transition-all duration-300'>
                 <div className='flex items-start space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
+                  <div className='shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
                     <span className='text-2xl font-bold text-premium-black'>6</span>
                   </div>
                   <div className='flex-1'>
@@ -232,9 +232,9 @@ export default function Manifeste() {
               </section>
 
               {/* 7. Mon ambition */}
-              <section className='bg-gradient-to-br from-premium-gold/20 via-premium-gold/10 to-transparent border border-premium-gold rounded-2xl p-8'>
+              <section className='bg-linear-to-br from-premium-gold/20 via-premium-gold/10 to-transparent border border-premium-gold rounded-2xl p-8'>
                 <div className='flex items-start space-x-4'>
-                  <div className='flex-shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
+                  <div className='shrink-0 w-12 h-12 bg-premium-gold rounded-full flex items-center justify-center'>
                     <span className='text-2xl font-bold text-premium-black'>7</span>
                   </div>
                   <div className='flex-1'>
@@ -268,7 +268,7 @@ export default function Manifeste() {
                     <div className='text-3xl font-bold text-premium-gold'>✍️</div>
                     <div className='space-y-2'>
                       <p className='text-2xl font-bold text-white'>Aurélien Lavayssière</p>
-                      <div className='h-px bg-gradient-to-r from-transparent via-premium-gold to-transparent'></div>
+                      <div className='h-px bg-linear-to-r from-transparent via-premium-gold to-transparent'></div>
                       <p className='text-gray-300 italic'>
                         VanalexCars — L&apos;import automobile sur mesure,<br />
                         par un professionnel qui aime son métier.

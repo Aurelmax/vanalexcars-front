@@ -84,11 +84,11 @@ export default function Notification({
     >
       <div className='p-4'>
         <div className='flex items-start'>
-          <div className='flex-shrink-0'>{getIcon()}</div>
+          <div className='shrink-0'>{getIcon()}</div>
           <div className='ml-3 w-0 flex-1 pt-0.5'>
             <p className='text-sm font-medium'>{message}</p>
           </div>
-          <div className='ml-4 flex-shrink-0 flex'>
+          <div className='ml-4 shrink-0 flex'>
             <button
               className='bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
               onClick={onClose}

@@ -205,7 +205,7 @@ const AdminFormulaires: React.FC = () => {
         <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-8'>
           <div className='bg-white rounded-lg shadow p-6'>
             <div className='flex items-center'>
-              <div className='flex-shrink-0'>
+              <div className='shrink-0'>
                 <div className='w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center'>
                   <span className='text-white text-sm font-bold'>📝</span>
                 </div>
@@ -221,7 +221,7 @@ const AdminFormulaires: React.FC = () => {
 
           <div className='bg-white rounded-lg shadow p-6'>
             <div className='flex items-center'>
-              <div className='flex-shrink-0'>
+              <div className='shrink-0'>
                 <div className='w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center'>
                   <span className='text-white text-sm font-bold'>⏳</span>
                 </div>
@@ -240,7 +240,7 @@ const AdminFormulaires: React.FC = () => {
 
           <div className='bg-white rounded-lg shadow p-6'>
             <div className='flex items-center'>
-              <div className='flex-shrink-0'>
+              <div className='shrink-0'>
                 <div className='w-8 h-8 bg-green-500 rounded-md flex items-center justify-center'>
                   <span className='text-white text-sm font-bold'>✅</span>
                 </div>
@@ -258,7 +258,7 @@ const AdminFormulaires: React.FC = () => {
 
           <div className='bg-white rounded-lg shadow p-6'>
             <div className='flex items-center'>
-              <div className='flex-shrink-0'>
+              <div className='shrink-0'>
                 <div className='w-8 h-8 bg-gray-500 rounded-md flex items-center justify-center'>
                   <span className='text-white text-sm font-bold'>📁</span>
                 </div>

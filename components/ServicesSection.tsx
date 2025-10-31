@@ -101,7 +101,7 @@ export default function ServicesSection() {
                     className='flex items-center text-sm text-gray-600'
                   >
                     <svg
-                      className='w-4 h-4 text-premium-gold mr-2 flex-shrink-0'
+                      className='w-4 h-4 text-premium-gold mr-2 shrink-0'
                       fill='currentColor'
                       viewBox='0 0 20 20'
                     >

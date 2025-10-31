@@ -64,7 +64,7 @@ export default function Manifeste() {
         />
       </Head>
 
-      <div className='min-h-screen bg-gradient-to-b from-premium-black via-gray-950 to-black'>
+      <div className='min-h-screen bg-linear-to-b from-premium-black via-gray-950 to-black'>
         <Header />
 
         <main className='pt-32 pb-20'>

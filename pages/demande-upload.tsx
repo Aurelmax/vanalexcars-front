@@ -230,7 +230,7 @@ export default function FormulaireDemandeUpload() {
             {/* Composant RGPD */}
             <div className='bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-8 border border-blue-200 mb-8'>
               <div className='flex items-start space-x-4'>
-                <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0'>
+                <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shrink-0'>
                   <svg
                     className='w-6 h-6 text-white'
                     fill='currentColor'

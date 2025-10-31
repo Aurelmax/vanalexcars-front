@@ -50,7 +50,7 @@ function ForfaitCard({
         {features.map((feature, index) => (
           <li key={index} className='flex items-start'>
             <svg
-              className='w-5 h-5 text-premium-gold mt-0.5 mr-3 flex-shrink-0'
+              className='w-5 h-5 text-premium-gold mt-0.5 mr-3 shrink-0'
               fill='currentColor'
               viewBox='0 0 20 20'
             >
@@ -161,7 +161,7 @@ export default function Forfaits() {
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div className='flex items-start'>
             <svg
-              className='w-6 h-6 text-premium-gold mt-1 mr-3 flex-shrink-0'
+              className='w-6 h-6 text-premium-gold mt-1 mr-3 shrink-0'
               fill='currentColor'
               viewBox='0 0 20 20'
             >
@@ -184,7 +184,7 @@ export default function Forfaits() {
 
           <div className='flex items-start'>
             <svg
-              className='w-6 h-6 text-premium-gold mt-1 mr-3 flex-shrink-0'
+              className='w-6 h-6 text-premium-gold mt-1 mr-3 shrink-0'
               fill='currentColor'
               viewBox='0 0 20 20'
             >
@@ -207,7 +207,7 @@ export default function Forfaits() {
 
           <div className='flex items-start'>
             <svg
-              className='w-6 h-6 text-premium-gold mt-1 mr-3 flex-shrink-0'
+              className='w-6 h-6 text-premium-gold mt-1 mr-3 shrink-0'
               fill='currentColor'
               viewBox='0 0 20 20'
             >
@@ -229,7 +229,7 @@ export default function Forfaits() {
 
           <div className='flex items-start'>
             <svg
-              className='w-6 h-6 text-premium-gold mt-1 mr-3 flex-shrink-0'
+              className='w-6 h-6 text-premium-gold mt-1 mr-3 shrink-0'
               fill='currentColor'
               viewBox='0 0 20 20'
             >

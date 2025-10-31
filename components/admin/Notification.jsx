@@ -76,7 +76,7 @@ export default function Notification({
       role="alert"
     >
       {/* Icône */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <span className="text-2xl" aria-hidden="true">
           {styles.icon}
         </span>
@@ -90,7 +90,7 @@ export default function Notification({
       {/* Bouton de fermeture */}
       <button
         onClick={onClose}
-        className="flex-shrink-0 ml-2 hover:opacity-70 transition-opacity"
+        className="shrink-0 ml-2 hover:opacity-70 transition-opacity"
         aria-label="Fermer la notification"
       >
         <svg

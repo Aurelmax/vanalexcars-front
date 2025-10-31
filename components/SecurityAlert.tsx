@@ -66,7 +66,7 @@ const SecurityAlert: React.FC<SecurityAlertProps> = ({
     <div className={`fixed top-4 right-4 z-50 max-w-md w-full mx-4`}>
       <div className={`border rounded-lg p-4 shadow-lg ${getAlertStyles()}`}>
         <div className='flex items-start'>
-          <div className='flex-shrink-0'>
+          <div className='shrink-0'>
             <span className='text-xl'>{getIcon()}</span>
           </div>
           <div className='ml-3 flex-1'>
@@ -81,7 +81,7 @@ const SecurityAlert: React.FC<SecurityAlertProps> = ({
               {details && <p className='mt-1 text-xs opacity-75'>{details}</p>}
             </div>
           </div>
-          <div className='ml-4 flex-shrink-0'>
+          <div className='ml-4 shrink-0'>
             <button
               onClick={() => {
                 setIsVisible(false);
