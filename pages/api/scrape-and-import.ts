@@ -19,6 +19,9 @@ export default async function handler(
   const authHeader = req.headers.authorization;
   const expectedAuth = `Bearer ${process.env.SCRAPER_SECRET || 'your-secret-key'}`;
 
+  console.log('🔐 Auth Debug - Header:', authHeader);
+  console.log('🔐 Auth Debug - Expected:', expectedAuth);
+
   if (authHeader !== expectedAuth) {
     return res.status(401).json({ error: 'Non autorisé' });
   }
@@ -87,21 +90,47 @@ export default async function handler(
           existingVehicle = checkData.docs?.[0];
         }
 
+        // Mapper bodyType vers les valeurs acceptées par category
+        const categoryMap: Record<string, string> = {
+          sedan: 'berline',
+          wagon: 'break',
+          touring: 'break',
+          suv: 'suv',
+          coupe: 'coupe',
+          convertible: 'cabriolet',
+          cabrio: 'cabriolet',
+          van: 'monospace',
+          sportback: 'berline',
+          hatchback: 'berline',
+          limousine: 'berline',
+          other: 'other',
+        };
+
+        // Déterminer la catégorie valide
+        const validCategory = vehicle.bodyType
+          ? categoryMap[vehicle.bodyType.toLowerCase()] || 'other'
+          : vehicle.category
+          ? categoryMap[vehicle.category.toLowerCase()] || 'other'
+          : 'other';
+
         // Préparer les données avec tous les champs structurés
         const vehicleData = {
           title: vehicle.title,
           brand: vehicle.brand,
           model: vehicle.model,
-          category: vehicle.category, // Type de carrosserie (pour compatibilité)
-          price: vehicle.price,
-          year: vehicle.year,
-          mileage: vehicle.mileage,
+          category: validCategory, // Toujours envoyer une catégorie valide
+          price: vehicle.price || 0,
+          year: vehicle.year || new Date().getFullYear(),
+          mileage: vehicle.mileage || 0,
           doors: vehicle.doors,
           seats: vehicle.seats,
           bodyType: vehicle.bodyType,
-          fuel: vehicle.fuel,
-          transmission: vehicle.transmission,
+          fuel: vehicle.fuel || 'essence', // Valeur par défaut si manquante
+          transmission: vehicle.transmission || 'automatic',
           location: vehicle.location || 'Allemagne',
+          dealer: vehicle.dealer || null,
+          dealerCity: vehicle.dealerCity || null,
+          dealerContact: vehicle.dealerContact || null,
           status: 'active',
           description: vehicle.description || '',
           exteriorColor: vehicle.exteriorColor,
@@ -113,7 +142,12 @@ export default async function handler(
           publishedDate: vehicle.publishedDate,
           lastScrapedAt: new Date().toISOString(), // Timestamp pour gestion obsolescence
           specifications: vehicle.specifications,
-          features: vehicle.features?.map((f: string) => ({ feature: f })) || [],
+          // Corriger: le scraper retourne déjà features au format {feature: string}[]
+          features: Array.isArray(vehicle.features)
+            ? vehicle.features.map((f: any) =>
+                typeof f === 'string' ? { feature: f } : f
+              )
+            : [],
           imageUrls: vehicle.imageUrls?.map((url: string) => ({ url })) || [],
         };
 

@@ -15,6 +15,21 @@ let nextConfig = {
     // Désactiver la vérification TypeScript pendant la build pour Railway
     ignoreBuildErrors: true,
   },
+  // Configuration des images externes
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'storage.importemoi.fr',
+        pathname: '/ad/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'importemoi.fr',
+        pathname: '/**',
+      },
+    ],
+  },
   // Configuration i18n pour le routage multilingue
   i18n: {
     locales: supportedLangs,

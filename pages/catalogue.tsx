@@ -15,6 +15,13 @@ interface Vehicle {
   category?: string;
   status: string;
   imageUrls?: Array<{ url: string }>;
+  // Champs virtuels ajoutés par le hook backend
+  mainImage?: string | null;
+  galleryImages?: string[];
+  // Nouveaux champs dealer
+  dealer?: string;
+  dealerCity?: string;
+  dealerContact?: string;
 }
 
 interface CatalogueProps {
@@ -30,6 +37,10 @@ interface CatalogueProps {
     fuel?: string;
     transmission?: string;
   };
+  availableBrands: string[];
+  availableCategories: string[];
+  availableFuels: string[];
+  availableTransmissions: string[];
 }
 
 export default function Catalogue({
@@ -38,6 +49,10 @@ export default function Catalogue({
   currentPage,
   totalPages,
   filters,
+  availableBrands,
+  availableCategories,
+  availableFuels,
+  availableTransmissions,
 }: CatalogueProps) {
   const router = useRouter();
   const [selectedBrand, setSelectedBrand] = useState(filters.brand ?? '');
@@ -50,11 +65,6 @@ export default function Catalogue({
     min: filters.minPrice ?? '',
     max: filters.maxPrice ?? '',
   });
-
-  const brands = ['Audi', 'BMW', 'Mercedes', 'Porsche', 'Volkswagen', 'Mini'];
-  const categories = ['SUV', 'Berline', 'Coupé', 'Break', 'Monospace', 'Cabriolet'];
-  const fuels = ['Essence', 'Diesel', 'Électrique', 'Hybride'];
-  const transmissions = ['Manuelle', 'Automatique'];
 
   const applyFilters = () => {
     const query: any = {};
@@ -122,9 +132,9 @@ export default function Catalogue({
                   className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent'
                 >
                   <option value=''>Toutes les marques</option>
-                  {brands.map((brand) => (
-                    <option key={brand} value={brand.toLowerCase()}>
-                      {brand}
+                  {availableBrands.map((brand) => (
+                    <option key={brand} value={brand}>
+                      {brand.charAt(0).toUpperCase() + brand.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -141,9 +151,9 @@ export default function Catalogue({
                   className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent'
                 >
                   <option value=''>Toutes les catégories</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category.toLowerCase()}>
-                      {category}
+                  {availableCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -187,9 +197,9 @@ export default function Catalogue({
                   className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent'
                 >
                   <option value=''>Tous les carburants</option>
-                  {fuels.map((fuel) => (
-                    <option key={fuel} value={fuel.toLowerCase()}>
-                      {fuel}
+                  {availableFuels.map((fuel) => (
+                    <option key={fuel} value={fuel}>
+                      {fuel.charAt(0).toUpperCase() + fuel.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -206,9 +216,9 @@ export default function Catalogue({
                   className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent'
                 >
                   <option value=''>Toutes</option>
-                  {transmissions.map((transmission) => (
-                    <option key={transmission} value={transmission.toLowerCase()}>
-                      {transmission}
+                  {availableTransmissions.map((transmission) => (
+                    <option key={transmission} value={transmission}>
+                      {transmission.charAt(0).toUpperCase() + transmission.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -260,16 +270,16 @@ export default function Catalogue({
                   {vehicles.map((vehicle) => (
                     <Link
                       key={vehicle.id}
-                      href={`/vehicles/${vehicle.id}`}
+                      href={`/vehicules/${vehicle.id}`}
                       className='group bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden'
                     >
-                      {/* Image du véhicule */}
+                      {/* Image du véhicule - Priorité aux images Studio */}
                       <div className='aspect-video bg-linear-to-br from-gray-200 to-gray-300 relative'>
-                        {vehicle.imageUrls?.[0]?.url ? (
+                        {vehicle.mainImage ? (
                           <img
-                            src={vehicle.imageUrls[0].url}
+                            src={vehicle.mainImage}
                             alt={vehicle.title}
-                            className='w-full h-full object-cover'
+                            className='w-full h-full object-contain'
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                               if (e.currentTarget.nextElementSibling) {
@@ -281,7 +291,7 @@ export default function Catalogue({
                         ) : null}
                         <div
                           className='w-full h-full flex items-center justify-center absolute top-0 left-0'
-                          style={{ display: vehicle.imageUrls?.[0]?.url ? 'none' : 'flex' }}
+                          style={{ display: vehicle.mainImage ? 'none' : 'flex' }}
                         >
                           <svg
                             className='w-12 h-12 text-gray-400'
@@ -373,17 +383,35 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
   let vehicles: Vehicle[] = [];
   let totalCount = 0;
+  let availableBrands: string[] = [];
+  let availableCategories: string[] = [];
+  let availableFuels: string[] = [];
+  let availableTransmissions: string[] = [];
 
   try {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
 
-    // Construire les paramètres de requête
+    // Récupérer les valeurs disponibles pour les filtres (tous les véhicules actifs)
+    const allVehiclesResponse = await fetch(`${backendUrl}/api/vehicles?limit=1000&where[status][equals]=active`);
+    if (allVehiclesResponse.ok) {
+      const allData = await allVehiclesResponse.json();
+      const allVehicles = allData.docs || [];
+
+      // Extraire les valeurs uniques
+      availableBrands = [...new Set(allVehicles.map((v: Vehicle) => v.brand).filter(Boolean))].sort();
+      availableCategories = [...new Set(allVehicles.map((v: Vehicle) => v.category).filter(Boolean))].sort();
+      availableFuels = [...new Set(allVehicles.map((v: Vehicle) => v.fuel).filter(Boolean))].sort();
+      availableTransmissions = [...new Set(allVehicles.map((v: Vehicle) => v.transmission).filter(Boolean))].sort();
+    }
+
+    // Construire les paramètres de requête pour les véhicules filtrés
     const params = new URLSearchParams();
     params.append('limit', '12');
     params.append('page', page as string);
     params.append('sort', '-createdAt');
+    params.append('where[status][equals]', 'active'); // Seulement les véhicules actifs
 
-    // Ajouter les filtres
+    // Ajouter les filtres utilisateur
     if (brand) params.append('where[brand][equals]', brand as string);
     if (category) params.append('where[category][equals]', category as string);
     if (fuel) params.append('where[fuel][equals]', fuel as string);
@@ -422,6 +450,10 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
         fuel: fuel ?? null,
         transmission: transmission ?? null,
       },
+      availableBrands,
+      availableCategories,
+      availableFuels,
+      availableTransmissions,
     },
   };
 };

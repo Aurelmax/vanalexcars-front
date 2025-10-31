@@ -30,6 +30,8 @@ interface ScrapedVehicle {
   power?: string;
   location?: string;
   dealer?: string;
+  dealerCity?: string;
+  dealerContact?: string;
   description?: string;
   exteriorColor?: string;
   interiorColor?: string;
@@ -62,9 +64,11 @@ interface ImporteMoiVehicle {
   mileage: number;
   transmission_type: number; // 1=auto, 2=manual
   body_type: number; // Type de carrosserie
+  body_color?: number; // Couleur de carrosserie
   hp?: number; // Puissance
   fuel_category?: number; // Type de carburant
   description?: string;
+  image?: string; // Nom du fichier image (ex: "mini-one-2022-1.webp")
   images?: any[];
   number_of_seats?: number;
   number_of_doors?: number;
@@ -180,9 +184,14 @@ export async function scrapeImporteMoiPage(
       vehicles = JSON.parse(jsonString);
       console.log(`✅ ${vehicles.length} véhicules extraits du JSON`);
 
-      // Debug: afficher le premier véhicule brut
+      // Debug: sauvegarder le premier véhicule brut
       if (vehicles.length > 0) {
-        console.log('🔍 DEBUG - Premier véhicule brut:', JSON.stringify(vehicles[0], null, 2).substring(0, 800));
+        const fs = await import('fs/promises');
+        await fs.writeFile(
+          './debug-vehicle.json',
+          JSON.stringify(vehicles[0], null, 2)
+        );
+        console.log('🔍 DEBUG - Premier véhicule sauvegardé dans debug-vehicle.json');
       }
     } catch (error) {
       console.error('❌ Erreur parsing JSON:', error);
@@ -230,7 +239,7 @@ export async function scrapeImporteMoiPage(
       const powerKw = vehicle.hp ? Math.round(vehicle.hp * 0.7355) : undefined;
 
       // Générer les URLs d'images
-      const imageUrls = generateImageUrls(vehicle.mongo_id, vehicle.id);
+      const imageUrls = generateImageUrls(vehicle.mongo_id, vehicle.image);
 
       // Log du nombre d'images (seulement pour le premier véhicule pour éviter spam)
       if (vehicles.indexOf(vehicle) === 0) {
@@ -268,7 +277,7 @@ export async function scrapeImporteMoiPage(
           powerHp: vehicle.hp,
         },
         features: parsedEquipment.features.length > 0
-          ? parsedEquipment.features.slice(0, 30) // Limiter à 30 équipements
+          ? parsedEquipment.features.slice(0, 30).map(f => ({ feature: f })) // Format Payload
           : [],
       };
     });
@@ -353,23 +362,26 @@ export async function downloadImage(url: string): Promise<Buffer | null> {
 // === Fonctions utilitaires ===
 
 /**
- * Génère les URLs d'images probables pour un véhicule ImporteMoi
- * Note: ImporteMoi charge les images dynamiquement via JS, donc nous construisons
- * les URLs basées sur les patterns observés
+ * Génère les URLs d'images pour un véhicule ImporteMoi
+ * Pattern découvert: https://storage.importemoi.fr/ad/{mongo_id}/{base_filename}-{index}.webp
  *
  * @param mongoId - ID MongoDB du véhicule
- * @param vehicleId - ID numérique du véhicule
+ * @param imageFilename - Nom du fichier image (ex: "mini-one-2022-1.webp")
  * @returns Tableau d'URLs d'images (max 6)
  */
-function generateImageUrls(mongoId: string, vehicleId: number): string[] {
+function generateImageUrls(mongoId: string, imageFilename: string | undefined): string[] {
   const imageUrls: string[] = [];
 
-  // Pattern observé: https://importemoi.fr/api/vehicles/{mongo_id}/images/{index}
-  // ou https://cdn.importemoi.fr/vehicles/{mongo_id}/{index}.webp
-  // Générer 6 URLs potentielles
-  for (let i = 0; i < 6; i++) {
-    // Format probable basé sur les CDN classiques
-    imageUrls.push(`https://importemoi.fr/media/vehicles/${vehicleId}/${i}.webp`);
+  if (!imageFilename) {
+    return imageUrls;
+  }
+
+  // Extraire le nom de base (enlever -1.webp pour obtenir mini-one-2022)
+  const baseFilename = imageFilename.replace(/-\d+\.webp$/, '');
+
+  // Pattern: https://storage.importemoi.fr/ad/{mongo_id}/{base}-{index}.webp
+  for (let i = 1; i <= 6; i++) {
+    imageUrls.push(`https://storage.importemoi.fr/ad/${mongoId}/${baseFilename}-${i}.webp`);
   }
 
   return imageUrls;

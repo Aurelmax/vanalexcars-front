@@ -80,6 +80,14 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href='/blog'
+                  className='text-gray-300 hover:text-premium-gold transition'
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
                   href='/demande'
                   className='text-gray-300 hover:text-premium-gold transition'
                 >
@@ -110,6 +118,15 @@ export default function Footer() {
           <div>
             <h3 className='text-white font-semibold mb-6'>Informations</h3>
             <ul className='space-y-3'>
+              <li>
+                <Link
+                  href='/manifeste'
+                  className='text-gray-300 hover:text-premium-gold transition flex items-center space-x-2'
+                >
+                  <span>🚗</span>
+                  <span>Mon manifeste</span>
+                </Link>
+              </li>
               <li>
                 <Link
                   href='/mentions-legales'

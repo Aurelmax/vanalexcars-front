@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 
 interface Vehicle {
   id: string;
@@ -24,6 +24,7 @@ interface Vehicle {
     interior?: string;
   };
   features?: (string | { feature: string })[];
+  imageUrls?: Array<{ url: string }>;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,6 +35,27 @@ interface VehicleDetailProps {
 
 function VehicleDetail({ vehicle }: VehicleDetailProps) {
   const router = useRouter();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Filtrer les images valides
+  const validImages = vehicle.imageUrls?.filter((img) => img.url) || [];
+  const hasImages = validImages.length > 0;
+
+  const nextImage = () => {
+    if (validImages.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % validImages.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (validImages.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + validImages.length) % validImages.length);
+    }
+  };
+
+  const goToImage = (index: number) => {
+    setCurrentImageIndex(index);
+  };
 
   if (router.isFallback) {
     return (
@@ -87,10 +109,63 @@ function VehicleDetail({ vehicle }: VehicleDetailProps) {
 
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-          {/* Images */}
+          {/* Images - Carrousel */}
           <div className='space-y-4'>
-            <div className='aspect-w-16 aspect-h-12 bg-gray-200 rounded-lg overflow-hidden'>
-              <div className='w-full h-96 bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center'>
+            {/* Image principale */}
+            <div className='relative bg-gray-200 rounded-lg overflow-hidden group'>
+              {hasImages ? (
+                <>
+                  <img
+                    src={validImages[currentImageIndex].url}
+                    alt={`${vehicle.title} - Image ${currentImageIndex + 1}`}
+                    className='w-full h-96 object-cover rounded-lg'
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (placeholder) {
+                        placeholder.style.display = 'flex';
+                      }
+                    }}
+                  />
+
+                  {/* Boutons de navigation (gauche/droite) */}
+                  {validImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className='absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100'
+                        aria-label='Image précédente'
+                      >
+                        <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className='absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all opacity-0 group-hover:opacity-100'
+                        aria-label='Image suivante'
+                      >
+                        <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+
+                  {/* Indicateur de position */}
+                  {validImages.length > 1 && (
+                    <div className='absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm'>
+                      {currentImageIndex + 1} / {validImages.length}
+                    </div>
+                  )}
+                </>
+              ) : null}
+
+              {/* Placeholder si pas d'image */}
+              <div
+                className='w-full h-96 bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center'
+                style={{ display: hasImages ? 'none' : 'flex' }}
+              >
                 <div className='text-center'>
                   <div className='w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-4'>
                     <svg
@@ -111,6 +186,32 @@ function VehicleDetail({ vehicle }: VehicleDetailProps) {
                 </div>
               </div>
             </div>
+
+            {/* Vignettes */}
+            {validImages.length > 1 && (
+              <div className='grid grid-cols-6 gap-2'>
+                {validImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToImage(index)}
+                    className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
+                      currentImageIndex === index
+                        ? 'border-yellow-500 ring-2 ring-yellow-500 ring-offset-2'
+                        : 'border-gray-300 hover:border-yellow-400'
+                    }`}
+                  >
+                    <img
+                      src={image.url}
+                      alt={`Vignette ${index + 1}`}
+                      className='w-full h-full object-cover'
+                      onError={(e) => {
+                        e.currentTarget.src = '';
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Détails */}
