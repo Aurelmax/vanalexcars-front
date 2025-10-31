@@ -89,26 +89,32 @@ export default async function handler(
           existingVehicle = checkData.docs?.[0];
         }
 
-        // Préparer les données
+        // Préparer les données avec tous les champs structurés
         const vehicleData = {
           title: vehicle.title,
           brand: vehicle.brand,
           model: vehicle.model,
+          category: vehicle.category, // Type de carrosserie (pour compatibilité)
           price: vehicle.price,
           year: vehicle.year,
           mileage: vehicle.mileage,
+          doors: vehicle.doors,
+          seats: vehicle.seats,
+          bodyType: vehicle.bodyType,
           fuel: vehicle.fuel,
           transmission: vehicle.transmission,
           location: vehicle.location || 'Allemagne',
           status: 'active',
           description: vehicle.description || '',
+          exteriorColor: vehicle.exteriorColor,
+          interiorColor: vehicle.interiorColor,
           externalId: vehicle.externalId,
           externalReference: vehicle.externalReference,
           sourceUrl: vehicle.sourceUrl,
           sourcePlatform: vehicle.sourcePlatform,
           publishedDate: vehicle.publishedDate,
           specifications: vehicle.specifications,
-          features: vehicle.features || [],
+          features: vehicle.features?.map((f: string) => ({ feature: f })) || [],
         };
 
         // Log pour debug (premier véhicule uniquement)

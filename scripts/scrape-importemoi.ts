@@ -3,6 +3,14 @@
  * Extrait les données JSON embarquées dans les pages de véhicules
  */
 
+import {
+  parseEquipmentFromDescription,
+  BODY_COLOR_MAP,
+  BODY_TYPE_MAP,
+  FUEL_TYPE_MAP,
+  cleanText,
+} from './parse-equipment';
+
 interface ScrapedVehicle {
   externalId: string;
   externalReference: string;
@@ -10,15 +18,21 @@ interface ScrapedVehicle {
   title: string;
   brand: string;
   model: string;
+  category?: string;
   price: number;
   year: number;
   mileage: number;
+  doors?: number;
+  seats?: number;
+  bodyType?: string;
   fuel: string;
   transmission: string;
   power?: string;
   location?: string;
   dealer?: string;
   description?: string;
+  exteriorColor?: string;
+  interiorColor?: string;
   images: string[];
   sourceUrl: string;
   sourcePlatform: string;
@@ -26,9 +40,11 @@ interface ScrapedVehicle {
   specifications?: {
     engine?: string;
     power?: string;
+    powerKw?: number;
+    powerHp?: number;
     consumption?: string;
-    color?: string;
-    interior?: string;
+    acceleration?: string;
+    co2?: string;
   };
   features?: string[];
 }
@@ -185,6 +201,33 @@ export async function scrapeImporteMoiPage(
       const brandName = brand.charAt(0).toUpperCase() + brand.slice(1);
       const title = `${brandName} ${modelText}`;
 
+      // Parser la description HTML pour extraire les équipements
+      const parsedEquipment = parseEquipmentFromDescription(vehicle.description || '');
+
+      // Mapper le type de carrosserie
+      const bodyType = vehicle.body_type !== undefined
+        ? BODY_TYPE_MAP[vehicle.body_type]
+        : undefined;
+
+      // Mapper le type de carburant
+      const fuel = vehicle.fuel_category !== undefined
+        ? FUEL_TYPE_MAP[vehicle.fuel_category] || 'essence'
+        : 'essence';
+
+      // Mapper la couleur extérieure
+      const exteriorColor = vehicle.body_color !== undefined
+        ? BODY_COLOR_MAP[vehicle.body_color]
+        : parsedEquipment.exteriorColor;
+
+      // Couleur intérieure depuis le parsing
+      const interiorColor = parsedEquipment.interiorColor || parsedEquipment.upholstery;
+
+      // Créer la description nettoyée
+      const cleanDescription = cleanText(vehicle.description || '');
+
+      // Puissance en kW (si hp disponible: 1 ch ≈ 0.7355 kW)
+      const powerKw = vehicle.hp ? Math.round(vehicle.hp * 0.7355) : undefined;
+
       return {
         externalId: vehicle.id.toString(),
         externalReference: `IMP-${vehicle.id}`,
@@ -192,21 +235,31 @@ export async function scrapeImporteMoiPage(
         title: title,
         brand: brand,
         model: modelText,
+        category: bodyType,
         price: vehicle.total_price || 0,
         year: vehicle.first_registration_date || new Date().getFullYear(),
         mileage: vehicle.mileage || 0,
-        fuel: 'essence', // Par défaut essence (sera amélioré plus tard)
+        doors: vehicle.number_of_doors,
+        seats: vehicle.number_of_seats,
+        bodyType: bodyType,
+        fuel: fuel,
         transmission: TRANSMISSION_IDS[vehicle.transmission_type] || 'automatic',
         power: vehicle.hp ? `${vehicle.hp} ch` : undefined,
         location: 'Allemagne',
-        description: vehicle.description || '',
+        description: cleanDescription,
+        exteriorColor: exteriorColor,
+        interiorColor: interiorColor,
         images: [],
         sourceUrl: `https://importemoi.fr/vehicule/${brand}-${vehicle.id}`,
         sourcePlatform: 'importemoi.fr',
         specifications: {
           power: vehicle.hp ? `${vehicle.hp} ch` : undefined,
+          powerKw: powerKw,
+          powerHp: vehicle.hp,
         },
-        features: [],
+        features: parsedEquipment.features.length > 0
+          ? parsedEquipment.features.slice(0, 30) // Limiter à 30 équipements
+          : [],
       };
     });
 
@@ -288,75 +341,6 @@ export async function downloadImage(url: string): Promise<Buffer | null> {
 }
 
 // === Fonctions utilitaires ===
-
-function normalizeFuelType(fuel: string): string {
-  if (!fuel) return 'essence'; // Default to essence instead of unknown
-
-  const normalized = fuel.toLowerCase();
-
-  if (normalized.includes('essence') || normalized.includes('petrol') || normalized.includes('gazole'))
-    return 'essence';
-  if (normalized.includes('diesel'))
-    return 'diesel';
-  if (normalized.includes('électrique') || normalized.includes('electric') || normalized.includes('elektro'))
-    return 'electric';
-  if (normalized.includes('hybride') || normalized.includes('hybrid'))
-    return 'hybrid';
-
-  // Default fallback
-  return 'essence';
-}
-
-function normalizeTransmission(transmission: string): string {
-  if (!transmission) return 'automatic'; // Default to automatic instead of unknown
-
-  const normalized = transmission.toLowerCase();
-
-  if (normalized.includes('auto') || normalized.includes('automatik'))
-    return 'automatic';
-  if (normalized.includes('manuel') || normalized.includes('manual') || normalized.includes('schalt'))
-    return 'manual';
-
-  // Default fallback
-  return 'automatic';
-}
-
-function generateSlug(vehicle: ImporteMoiVehicle): string {
-  const title = vehicle.title || `${vehicle.brand}-${vehicle.model}`;
-  const slug = title
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-  return `${slug}-${vehicle.reference?.replace('IMP-', '') || vehicle.id}`;
-}
-
-function extractSpecifications(vehicle: ImporteMoiVehicle): any {
-  return {
-    engine: vehicle.engine || undefined,
-    power: vehicle.power || undefined,
-    consumption: vehicle.consumption || undefined,
-    color: vehicle.color || vehicle.exterior_color || undefined,
-    interior: vehicle.interior_color || undefined,
-  };
-}
-
-function extractFeatures(vehicle: ImporteMoiVehicle): string[] {
-  const features: string[] = [];
-
-  // Extraire les équipements s'ils existent
-  if (vehicle.equipment && Array.isArray(vehicle.equipment)) {
-    features.push(...vehicle.equipment);
-  }
-
-  if (vehicle.options && Array.isArray(vehicle.options)) {
-    features.push(...vehicle.options);
-  }
-
-  return features.filter(Boolean);
-}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
