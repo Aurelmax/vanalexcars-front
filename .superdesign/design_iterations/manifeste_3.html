@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notre Manifeste - Excellence Automobile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: '#2D2D2D',
+                        'charcoal-light': '#4A4A4A',
+                        'warm-white': '#FAFAFA'
+                    },
+                    fontFamily: {
+                        'serif': ['Georgia', 'serif'],
+                        'sans': ['Inter', 'sans-serif']
+                    },
+                    spacing: {
+                        '18': '4.5rem',
+                        '22': '5.5rem',
+                        '26': '6.5rem',
+                        '30': '7.5rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .luxury-gradient {
+            background: linear-gradient(135deg, #000000 0%, #2D2D2D 100%);
+        }
+        .text-shadow-luxury {
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .border-luxury {
+            border-color: rgba(45, 45, 45, 0.1);
+        }
+        .hover-luxury {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-luxury:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-warm-white text-charcoal font-sans antialiased">
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center px-8 py-16 luxury-gradient text-white relative overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-1/4 left-1/4 w-96 h-96 border border-white rounded-full"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-64 h-64 border border-white rounded-full"></div>
+        </div>
+        
+        <div class="max-w-6xl mx-auto text-center relative z-10">
+            <div class="mb-16">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight mb-8 text-shadow-luxury">
+                    NOTRE<br>
+                    <span class="font-semibold">MANIFESTE</span>
+                </h1>
+                <div class="w-24 h-0.5 bg-white mx-auto mb-12"></div>
+                <p class="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed max-w-4xl mx-auto opacity-90">
+                    L'excellence automobile n'est pas un objectif,<br>
+                    c'est notre essence même.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Principles Section -->
+    <section class="py-32 px-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-24">
+                <h2 class="text-4xl md:text-5xl font-light tracking-tight mb-8 text-charcoal">
+                    Nos Principes
+                </h2>
+                <div class="w-16 h-0.5 bg-charcoal mx-auto"></div>
+            </div>
+            
+            <div class="space-y-16">
+                <div class="flex items-start group hover-luxury">
+                    <div class="shrink-0 w-16 h-16 bg-charcoal text-white flex items-center justify-center text-xl font-light mr-8 rounded-sm">
+                        01
+                    </div>
+                    <div class="pt-2">
+                        <h3 class="text-2xl md:text-3xl font-light mb-4 text-charcoal">Excellence Sans Compromis</h3>
+                        <p class="text-lg leading-relaxed text-charcoal-light">
+                            Chaque véhicule que nous proposons incarne la perfection technique et esthétique.
+                            Nous ne tolérons aucun détail négligé, aucune finition approximative.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-start group hover-luxury">
+                    <div class="shrink-0 w-16 h-16 bg-charcoal text-white flex items-center justify-center text-xl font-light mr-8 rounded-sm">
+                        02
+                    </div>
+                    <div class="pt-2">
+                        <h3 class="text-2xl md:text-3xl font-light mb-4 text-charcoal">Sélection Rigoureuse</h3>
+                        <p class="text-lg leading-relaxed text-charcoal-light">
+                            Notre expertise nous permet d'identifier et de sélectionner uniquement
+                            les véhicules qui répondent à nos standards d'excellence les plus élevés.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-start group hover-luxury">
+                    <div class="shrink-0 w-16 h-16 bg-charcoal text-white flex items-center justify-center text-xl font-light mr-8 rounded-sm">
+                        03
+                    </div>
+                    <div class="pt-2">
+                        <h3 class="text-2xl md:text-3xl font-light mb-4 text-charcoal">Service Personnalisé</h3>
+                        <p class="text-lg leading-relaxed text-charcoal-light">
+                            Chaque client bénéficie d'une attention particulière et d'un service 
+                            sur mesure, adapté à ses besoins et à ses attentes spécifiques.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quality Commitment -->
+    <section class="py-32 px-8 bg-black text-white">
+        <div class="max-w-5xl mx-auto text-center">
+            <h2 class="text-4xl md:text-6xl font-light tracking-tight mb-16 text-shadow-luxury">
+                Notre Engagement Qualité
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8 text-left">
+                    <div class="border-l-2 border-white pl-8">
+                        <h3 class="text-xl md:text-2xl font-light mb-4">Inspection Minutieuse</h3>
+                        <p class="text-lg opacity-90 leading-relaxed">
+                            Chaque véhicule subit un contrôle technique approfondi de plus de 150 points 
+                            par nos experts certifiés.
+                        </p>
+                    </div>
+                    
+                    <div class="border-l-2 border-white pl-8">
+                        <h3 class="text-xl md:text-2xl font-light mb-4">Garantie Premium</h3>
+                        <p class="text-lg opacity-90 leading-relaxed">
+                            Tous nos véhicules bénéficient d'une garantie étendue et d'un service 
+                            après-vente d'excellence.
+                        </p>
+                    </div>
+                    
+                    <div class="border-l-2 border-white pl-8">
+                        <h3 class="text-xl md:text-2xl font-light mb-4">Transparence Totale</h3>
+                        <p class="text-lg opacity-90 leading-relaxed">
+                            Historique complet, documentation authentifiée, et transparence absolue 
+                            sur l'état de chaque véhicule.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <!-- CSS Placeholder for premium car -->
+                    <div class="aspect-square bg-linear-to-br from-charcoal to-black rounded-sm relative overflow-hidden">
+                        <div class="absolute inset-8 border border-white opacity-20 rounded-sm"></div>
+                        <div class="absolute inset-16 border border-white opacity-40 rounded-sm"></div>
+                        <div class="absolute inset-24 bg-white opacity-5 rounded-sm flex items-center justify-center">
+                            <div class="text-white opacity-60 text-center">
+                                <div class="w-12 h-8 bg-white opacity-30 mx-auto mb-4 rounded-sm"></div>
+                                <p class="text-sm font-light">EXCELLENCE</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Heritage Section -->
+    <section class="py-32 px-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-20 items-center">
+                <div>
+                    <!-- CSS Placeholder for heritage -->
+                    <div class="aspect-4/3 bg-linear-to-br from-gray-100 to-gray-200 rounded-sm relative overflow-hidden">
+                        <div class="absolute inset-8 border-2 border-charcoal opacity-10 rounded-sm"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="w-20 h-16 bg-charcoal opacity-20 mx-auto mb-4 rounded-sm"></div>
+                                <p class="text-charcoal opacity-40 font-light text-lg">HERITAGE</p>
+                                <p class="text-charcoal opacity-30 font-light text-sm mt-2">DEPUIS 1985</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-8">
+                    <h2 class="text-4xl md:text-5xl font-light tracking-tight text-charcoal">
+                        Héritage &<br>Expertise
+                    </h2>
+                    
+                    <div class="w-16 h-0.5 bg-charcoal"></div>
+                    
+                    <p class="text-xl leading-relaxed text-charcoal-light">
+                        Depuis plus de trois décennies, nous cultivons l'art de l'automobile d'exception. 
+                        Notre expertise, transmise de génération en génération, nous permet d'offrir 
+                        à nos clients une expérience unique dans l'univers de l'automobile de prestige.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-8 pt-8">
+                        <div class="text-center">
+                            <div class="text-4xl font-light text-charcoal mb-2">35+</div>
+                            <p class="text-sm font-light text-charcoal-light uppercase tracking-wide">Années d'Excellence</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-light text-charcoal mb-2">5000+</div>
+                            <p class="text-sm font-light text-charcoal-light uppercase tracking-wide">Clients Satisfaits</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Service Philosophy -->
+    <section class="py-32 px-8 bg-charcoal text-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl md:text-5xl font-light tracking-tight mb-16 text-shadow-luxury">
+                Philosophie du Service Exclusif
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="group hover-luxury">
+                    <div class="w-20 h-20 border border-white rounded-full flex items-center justify-center mx-auto mb-8 group-hover:bg-white group-hover:text-charcoal transition-all duration-300">
+                        <span class="text-xl font-light">I</span>
+                    </div>
+                    <h3 class="text-xl font-light mb-4">Intimité</h3>
+                    <p class="text-base opacity-80 leading-relaxed">
+                        Chaque interaction est personnelle, confidentielle et adaptée à vos besoins uniques.
+                    </p>
+                </div>
+                
+                <div class="group hover-luxury">
+                    <div class="w-20 h-20 border border-white rounded-full flex items-center justify-center mx-auto mb-8 group-hover:bg-white group-hover:text-charcoal transition-all duration-300">
+                        <span class="text-xl font-light">II</span>
+                    </div>
+                    <h3 class="text-xl font-light mb-4">Innovation</h3>
+                    <p class="text-base opacity-80 leading-relaxed">
+                        Nous anticipons vos besoins avec des solutions innovantes et des services avant-gardistes.
+                    </p>
+                </div>
+                
+                <div class="group hover-luxury">
+                    <div class="w-20 h-20 border border-white rounded-full flex items-center justify-center mx-auto mb-8 group-hover:bg-white group-hover:text-charcoal transition-all duration-300">
+                        <span class="text-xl font-light">III</span>
+                    </div>
+                    <h3 class="text-xl font-light mb-4">Intégrité</h3>
+                    <p class="text-base opacity-80 leading-relaxed">
+                        Notre transparence et notre honnêteté constituent le socle de notre relation de confiance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact/Engagement Section -->
+    <section class="py-32 px-8 bg-warm-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl md:text-6xl font-light tracking-tight mb-8 text-charcoal">
+                Rejoignez l'Excellence
+            </h2>
+            
+            <div class="w-24 h-0.5 bg-charcoal mx-auto mb-12"></div>
+            
+            <p class="text-xl md:text-2xl font-light leading-relaxed text-charcoal-light mb-16 max-w-3xl mx-auto">
+                Découvrez comment notre vision de l'excellence automobile peut transformer 
+                votre expérience de conduite. L'exception vous attend.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-8 justify-center items-center">
+                <a href="#" class="group inline-flex items-center px-12 py-4 bg-charcoal text-white hover:bg-black transition-all duration-300 hover-luxury rounded-sm">
+                    <span class="text-lg font-light tracking-wide">DÉCOUVRIR NOS VÉHICULES</span>
+                    <span class="ml-4 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                </a>
+                
+                <a href="#" class="group inline-flex items-center px-12 py-4 border border-charcoal text-charcoal hover:bg-charcoal hover:text-white transition-all duration-300 hover-luxury rounded-sm">
+                    <span class="text-lg font-light tracking-wide">NOUS CONTACTER</span>
+                    <span class="ml-4 group-hover:translate-x-1 transition-transform duration-300">→</span>
+                </a>
+            </div>
+            
+            <div class="mt-20 pt-16 border-t border-luxury">
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div>
+                        <h3 class="text-sm font-light uppercase tracking-wide text-charcoal mb-2">Showroom</h3>
+                        <p class="text-base text-charcoal-light">Sur rendez-vous uniquement</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-light uppercase tracking-wide text-charcoal mb-2">Excellence</h3>
+                        <p class="text-base text-charcoal-light">Garantie à vie</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-light uppercase tracking-wide text-charcoal mb-2">Service</h3>
+                        <p class="text-base text-charcoal-light">24h/24 - 7j/7</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 px-8 bg-black text-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center">
+                <div class="mb-8">
+                    <div class="w-12 h-8 bg-white mx-auto mb-4 rounded-sm opacity-80"></div>
+                    <p class="text-sm font-light uppercase tracking-widest opacity-60">Excellence Automobile</p>
+                </div>
+                <p class="text-xs opacity-40 font-light">
+                    © 2024 Excellence Automobile. Tous droits réservés.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
