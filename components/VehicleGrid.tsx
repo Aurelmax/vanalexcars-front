@@ -21,6 +21,7 @@ interface Vehicle {
     interior: string;
   };
   features?: string[];
+  imageUrls?: Array<{ url: string }>;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -92,10 +93,30 @@ function VehicleGridContent({
 
 // Composant pour afficher une carte de véhicule
 function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
+  // Récupérer la première image disponible
+  const firstImageUrl = vehicle.imageUrls?.[0]?.url;
+
   return (
     <div className='bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow'>
       <div className='relative h-48'>
-        <div className='w-full h-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center'>
+        {firstImageUrl ? (
+          <img
+            src={firstImageUrl}
+            alt={vehicle.title}
+            className='w-full h-full object-cover'
+            onError={(e) => {
+              // Fallback si l'image ne charge pas
+              e.currentTarget.style.display = 'none';
+              if (e.currentTarget.nextElementSibling) {
+                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+              }
+            }}
+          />
+        ) : null}
+        <div
+          className='w-full h-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center'
+          style={{ display: firstImageUrl ? 'none' : 'flex' }}
+        >
           <div className='text-center'>
             <div className='w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-2'>
               <svg

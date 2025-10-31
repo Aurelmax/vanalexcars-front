@@ -114,6 +114,7 @@ export default async function handler(
           lastScrapedAt: new Date().toISOString(), // Timestamp pour gestion obsolescence
           specifications: vehicle.specifications,
           features: vehicle.features?.map((f: string) => ({ feature: f })) || [],
+          imageUrls: vehicle.imageUrls?.map((url: string) => ({ url })) || [],
         };
 
         // Log pour debug (premier véhicule uniquement)
