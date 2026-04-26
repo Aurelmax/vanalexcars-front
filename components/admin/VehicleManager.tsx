@@ -446,7 +446,7 @@ export default function VehicleManager({
     setProcessingImages(true);
     setNotification({
       type: 'info',
-      message: 'Traitement des images en cours (Remove.bg + Studio)...',
+      message: 'Traitement des images en cours (Remove.bg + Studio + Upload Payload)...',
     });
 
     try {
@@ -472,60 +472,32 @@ export default function VehicleManager({
       const result = await response.json();
 
       if (result.success) {
-        // Mettre à jour le formData avec les images traitées
-        const updatedFormData = {
-          ...formData,
-          processedImages: result.processedImages,
-        };
-        setFormData(updatedFormData);
+        // Rafraîchir la liste et recharger le véhicule (l'API a déjà mis à jour le backend)
+        await fetchVehicles();
 
-        // Sauvegarder automatiquement dans la base de données
-        try {
-          const saveResponse = await fetch(
-            buildApiUrl(`/api/vehicles/${selectedVehicle.id}`),
-            {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(updatedFormData),
-            }
-          );
+        const updatedVehicleResponse = await fetch(
+          buildApiUrl(`/api/vehicles/${selectedVehicle.id}`)
+        );
+        if (updatedVehicleResponse.ok) {
+          const updatedVehicle = await updatedVehicleResponse.json();
+          setSelectedVehicle(updatedVehicle);
+          setFormData({
+            ...updatedVehicle,
+            images: updatedVehicle.images || [],
+            imageUrls: updatedVehicle.imageUrls || [],
+            features: updatedVehicle.features || [],
+          });
+        }
 
-          if (saveResponse.ok) {
-            // Rafraîchir la liste des véhicules
-            await fetchVehicles();
-
-            // Recharger le véhicule sélectionné avec les nouvelles données
-            const updatedVehicleResponse = await fetch(
-              buildApiUrl(`/api/vehicles/${selectedVehicle.id}`)
-            );
-            if (updatedVehicleResponse.ok) {
-              const updatedVehicle = await updatedVehicleResponse.json();
-              setSelectedVehicle(updatedVehicle);
-              setFormData({
-                ...updatedVehicle,
-                images: updatedVehicle.images || [],
-                imageUrls: updatedVehicle.imageUrls || [],
-                features: updatedVehicle.features || [],
-              });
-            }
-
-            setNotification({
-              type: 'success',
-              message: 'Images traitées et sauvegardées avec succès! 4 variantes générées.',
-            });
-          } else {
-            setNotification({
-              type: 'warning',
-              message: 'Images traitées mais erreur lors de la sauvegarde. Cliquez sur "Sauvegarder" pour réessayer.',
-            });
-          }
-        } catch (saveError) {
-          console.error('Erreur sauvegarde après traitement:', saveError);
+        if (result.uploadErrors && result.uploadErrors.length > 0) {
           setNotification({
             type: 'warning',
-            message: 'Images traitées mais erreur lors de la sauvegarde. Cliquez sur "Sauvegarder" pour réessayer.',
+            message: `Images traitées avec ${result.uploadErrors.length} erreur(s) d'upload: ${result.uploadErrors.join(', ')}`,
+          });
+        } else {
+          setNotification({
+            type: 'success',
+            message: 'Images traitées, uploadées sur Payload et sauvegardées avec succès!',
           });
         }
       } else {
@@ -1110,46 +1082,34 @@ export default function VehicleManager({
                           Images traitées (Studio)
                         </h5>
                         <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-                          {formData.processedImages.hero && (
-                            <div>
-                              <div className='text-xs font-medium text-gray-600 mb-1'>Hero (1600x900)</div>
-                              <img
-                                src={formData.processedImages.hero}
-                                alt='Hero variant'
-                                className='w-full h-auto rounded border'
-                              />
-                            </div>
-                          )}
-                          {formData.processedImages.card && (
-                            <div>
-                              <div className='text-xs font-medium text-gray-600 mb-1'>Card (600x400)</div>
-                              <img
-                                src={formData.processedImages.card}
-                                alt='Card variant'
-                                className='w-full h-auto rounded border'
-                              />
-                            </div>
-                          )}
-                          {formData.processedImages.thumbnail && (
-                            <div>
-                              <div className='text-xs font-medium text-gray-600 mb-1'>Thumbnail (400x300)</div>
-                              <img
-                                src={formData.processedImages.thumbnail}
-                                alt='Thumbnail variant'
-                                className='w-full h-auto rounded border'
-                              />
-                            </div>
-                          )}
-                          {formData.processedImages.social && (
-                            <div>
-                              <div className='text-xs font-medium text-gray-600 mb-1'>Social (1200x630)</div>
-                              <img
-                                src={formData.processedImages.social}
-                                alt='Social variant'
-                                className='w-full h-auto rounded border'
-                              />
-                            </div>
-                          )}
+                          {([
+                            { key: 'hero', label: 'Hero (1600x900)' },
+                            { key: 'card', label: 'Card (600x400)' },
+                            { key: 'thumbnail', label: 'Thumbnail (400x300)' },
+                            { key: 'social', label: 'Social (1200x630)' },
+                          ] as const).map(({ key, label }) => {
+                            const url = formData.processedImages?.[key];
+                            if (!url) return null;
+                            const isPermanent = !url.startsWith('/api/tmp/');
+                            const imgSrc = isPermanent ? buildApiUrl(url) : url;
+                            return (
+                              <div key={key} className='relative'>
+                                <div className='text-xs font-medium text-gray-600 mb-1'>{label}</div>
+                                <img
+                                  src={imgSrc}
+                                  alt={`${key} variant`}
+                                  className='w-full h-auto rounded border'
+                                />
+                                <span className={`absolute top-6 right-1 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                  isPermanent
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-orange-100 text-orange-700'
+                                }`}>
+                                  {isPermanent ? 'Persistant' : 'Temporaire'}
+                                </span>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
