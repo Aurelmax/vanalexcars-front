@@ -1,0 +1,17 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Plugin Next.js pour Netlify (SSR, API routes, ISR, i18n)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Redirects pour SPA fallback
+[[redirects]]
+  from = "/_next/image/*"
+  to = "/_next/image/:splat"
+  status = 200
