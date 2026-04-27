@@ -36,7 +36,7 @@ export const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self'",
-      "connect-src 'self'",
+      "connect-src 'self' https://api.import-voiture-allemagne.fr",
       "frame-ancestors 'self'",
       "base-uri 'self'",
       "form-action 'self'"
@@ -48,8 +48,8 @@ export const corsHeaders = [
   {
     key: 'Access-Control-Allow-Origin',
     value: process.env.NODE_ENV === 'production' 
-      ? 'https://payload-cms-production-b3cd.up.railway.app' 
-      : 'http://localhost:3001'
+      ? 'https://api.import-voiture-allemagne.fr'
+      : 'http://localhost:4200'
   },
   {
     key: 'Access-Control-Allow-Methods',
