@@ -314,7 +314,7 @@ export default function Catalogue({
                           <span>•</span>
                           <span>{vehicle.mileage.toLocaleString('fr-FR')} km</span>
                           <span>•</span>
-                          <span className='capitalize'>{vehicle.fuel}</span>
+                          <span>{({'essence':'Essence','diesel':'Diesel','electric':'Électrique','hybrid':'Hybride','plugin-hybrid':'Hybride +'}as Record<string,string>)[vehicle.fuel] || vehicle.fuel}</span>
                         </div>
 
                         <div className='flex items-center justify-between'>

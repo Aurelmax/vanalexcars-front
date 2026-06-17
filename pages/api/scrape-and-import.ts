@@ -89,10 +89,15 @@ export default async function handler(
       vehicles = fcVehicles.map((v: FirecrawlVehicle) => {
         const externalRef = extractVehicleId(v.vehicleUrl || '');
         const imageUrls = v.imageUrl ? generateImageUrls(v.imageUrl) : [];
+        const cleanBrand = (v.brand || brand).toLowerCase().replace('mercedes-benz', 'mercedes').replace('volkswagen', 'volkswagen');
+        const cleanModel = v.model || v.title;
+        // Titre propre : "Porsche 911 Carrera S" plutôt que le titre brut Firecrawl
+        const brandLabel = cleanBrand.charAt(0).toUpperCase() + cleanBrand.slice(1);
+        const cleanTitle = `${brandLabel} ${cleanModel}`;
         return {
-          title: v.title,
-          brand: (v.brand || brand).toLowerCase().replace('mercedes-benz', 'mercedes').replace('volkswagen', 'volkswagen'),
-          model: v.model || v.title,
+          title: cleanTitle,
+          brand: cleanBrand,
+          model: cleanModel,
           price: v.price || 0,
           year: v.year || new Date().getFullYear(),
           mileage: v.mileage || 0,
