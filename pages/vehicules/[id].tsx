@@ -1,9 +1,13 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { translateAutoTerms } from '../../lib/translations/auto-terms-de-fr';
+
+// Import dynamique pour éviter les erreurs SSR de Leaflet
+const DealerMap = dynamic(() => import('../../components/DealerMap'), { ssr: false });
 
 interface Vehicle {
   id: string;
@@ -23,6 +27,10 @@ interface Vehicle {
   dealer?: string;
   dealerCity?: string;
   dealerContact?: string;
+  dealerAddress?: string;
+  dealerPostalCode?: string;
+  dealerLat?: number;
+  dealerLng?: number;
   description?: string;
   exteriorColor?: string;
   interiorColor?: string;
@@ -376,7 +384,8 @@ export default function VehicleDetail() {
             <div className='mt-12 bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
               <h3 className='text-xl font-bold text-white mb-1'>🏢 Concession</h3>
               <p className='text-xs text-gray-500 mb-4'>Source : AutoScout24 via ImporteMoi</p>
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300'>
+
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300 mb-6'>
                 <div>
                   <div className='text-sm text-gray-400 mb-1'>Nom</div>
                   <div className='font-semibold'>
@@ -415,6 +424,19 @@ export default function VehicleDetail() {
                   </div>
                 )}
               </div>
+
+              {/* Carte de localisation — géocodage via Nominatim (OSM) */}
+              {(vehicle.dealerCity || vehicle.dealerLat) && (
+                <DealerMap
+                  dealerName={vehicle.dealer && !/importemoi/i.test(vehicle.dealer) ? vehicle.dealer : undefined}
+                  dealerCity={vehicle.dealerCity}
+                  dealerAddress={vehicle.dealerAddress}
+                  dealerPostalCode={vehicle.dealerPostalCode}
+                  dealerCountry={vehicle.location || 'Allemagne'}
+                  dealerLat={vehicle.dealerLat}
+                  dealerLng={vehicle.dealerLng}
+                />
+              )}
             </div>
           </div>
         </main>
