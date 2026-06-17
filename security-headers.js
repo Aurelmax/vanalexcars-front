@@ -34,9 +34,10 @@ export const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https:",
+      "img-src 'self' data: https: blob:",
       "font-src 'self'",
-      "connect-src 'self' https://api.import-voiture-allemagne.fr",
+      "connect-src 'self' https://api.import-voiture-allemagne.fr https://nominatim.openstreetmap.org",
+      "worker-src blob:",
       "frame-ancestors 'self'",
       "base-uri 'self'",
       "form-action 'self'"

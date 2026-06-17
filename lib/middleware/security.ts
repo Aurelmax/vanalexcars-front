@@ -169,7 +169,7 @@ export const securityMiddleware = (
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('X-Frame-Options', 'DENY');
       res.setHeader('X-XSS-Protection', '1; mode=block');
-      res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://api.import-voiture-allemagne.fr");
+      res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://api.import-voiture-allemagne.fr https://nominatim.openstreetmap.org; img-src 'self' data: https: blob:; worker-src blob:");
 
       // 3. Vérifier la méthode HTTP
       if (req.method !== 'POST' && req.method !== 'GET') {
