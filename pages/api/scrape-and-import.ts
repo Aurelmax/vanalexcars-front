@@ -91,9 +91,15 @@ export default async function handler(
         const imageUrls = v.imageUrl ? generateImageUrls(v.imageUrl) : [];
         const cleanBrand = (v.brand || brand).toLowerCase().replace('mercedes-benz', 'mercedes').replace('volkswagen', 'volkswagen');
         const cleanModel = v.model || v.title;
-        // Titre propre : "Porsche 911 Carrera S" plutôt que le titre brut Firecrawl
         const brandLabel = cleanBrand.charAt(0).toUpperCase() + cleanBrand.slice(1);
         const cleanTitle = `${brandLabel} ${cleanModel}`;
+
+        // Règle métier : ImporteMoi est la source de scraping, PAS le vendeur réel.
+        // Le dealer réel est le concessionnaire allemand (AutoScout24).
+        const rawDealer = v.dealerName || (v as any).dealer || '';
+        const isImporteMoi = /importemoi/i.test(rawDealer);
+        const realDealer = isImporteMoi || !rawDealer ? null : rawDealer;
+
         return {
           title: cleanTitle,
           brand: cleanBrand,
@@ -105,13 +111,17 @@ export default async function handler(
           transmission: mapTransmission(v.transmission),
           category: mapBodyType(v.bodyType),
           power: v.power || '',
-          location: v.location || 'Allemagne',
-          dealer: v.dealer || null,
+          location: v.dealerCountry || 'Allemagne',
+          dealer: realDealer,
+          dealerCity: v.dealerCity || null,
           description: '',
           externalId: externalRef,
           externalReference: externalRef,
+          // sourceUrl = lien importemoi (source de scraping)
           sourceUrl: v.vehicleUrl || '',
           sourcePlatform: 'importemoi.fr',
+          // originalListingUrl = lien AutoScout24 si trouvé
+          originalListingUrl: v.originalListingUrl || null,
           imageUrls,
           features: [],
           specifications: v.power ? { power: v.power } : undefined,
@@ -225,8 +235,11 @@ export default async function handler(
           interiorColor: vehicle.interiorColor,
           externalId: vehicle.externalId,
           externalReference: vehicle.externalReference,
+          // source = importemoi (site de scraping intermédiaire)
           sourceUrl: vehicle.sourceUrl,
           sourcePlatform: vehicle.sourcePlatform,
+          // originalListingUrl = lien AutoScout24 d'origine si trouvé
+          ...(vehicle.originalListingUrl ? { originalListingUrl: vehicle.originalListingUrl } : {}),
           publishedDate: vehicle.publishedDate,
           lastScrapedAt: new Date().toISOString(), // Timestamp pour gestion obsolescence
           specifications: vehicle.specifications,

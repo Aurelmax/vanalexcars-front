@@ -27,6 +27,7 @@ interface Vehicle {
   exteriorColor?: string;
   interiorColor?: string;
   sourceUrl?: string;
+  originalListingUrl?: string;
   imageUrls?: Array<{ url: string; id: string }>;
   processedImages?: {
     hero?: string;
@@ -191,17 +192,17 @@ export default function VehicleDetail() {
                   </div>
                 )}
 
-                {/* Lien vers l'annonce originale */}
-                {vehicle.sourceUrl && (
+                {/* Lien vers l'annonce originale AutoScout24 ou importemoi */}
+                {(vehicle.originalListingUrl || vehicle.sourceUrl) && (
                   <div className='mt-4'>
                     <a
-                      href={vehicle.sourceUrl}
+                      href={vehicle.originalListingUrl || vehicle.sourceUrl}
                       target='_blank'
                       rel='noopener noreferrer'
                       className='text-sm text-gray-500 hover:text-premium-gold transition-colors flex items-center gap-2'
                     >
                       <span>↗</span>
-                      <span>Voir l'annonce originale</span>
+                      <span>Voir l'annonce originale{vehicle.originalListingUrl ? ' (AutoScout24)' : ''}</span>
                     </a>
                   </div>
                 )}
@@ -371,30 +372,50 @@ export default function VehicleDetail() {
               </div>
             )}
 
-            {/* Dealer Info */}
-            {vehicle.dealer && (
-              <div className='mt-12 bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
-                <h3 className='text-xl font-bold text-white mb-4'>🏢 Concession</h3>
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300'>
-                  <div>
-                    <div className='text-sm text-gray-400 mb-1'>Nom</div>
-                    <div className='font-semibold'>{vehicle.dealer}</div>
+            {/* Dealer Info — concessionnaire réel AutoScout24 */}
+            <div className='mt-12 bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
+              <h3 className='text-xl font-bold text-white mb-1'>🏢 Concession</h3>
+              <p className='text-xs text-gray-500 mb-4'>Source : AutoScout24 via ImporteMoi</p>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300'>
+                <div>
+                  <div className='text-sm text-gray-400 mb-1'>Nom</div>
+                  <div className='font-semibold'>
+                    {vehicle.dealer && !/importemoi/i.test(vehicle.dealer)
+                      ? vehicle.dealer
+                      : 'Concessionnaire non identifié'}
                   </div>
-                  {vehicle.dealerCity && (
-                    <div>
-                      <div className='text-sm text-gray-400 mb-1'>Ville</div>
-                      <div className='font-semibold'>{vehicle.dealerCity}</div>
-                    </div>
-                  )}
-                  {vehicle.dealerContact && (
-                    <div>
-                      <div className='text-sm text-gray-400 mb-1'>Contact</div>
-                      <div className='font-semibold'>{vehicle.dealerContact}</div>
-                    </div>
-                  )}
                 </div>
+                {vehicle.dealerCity && (
+                  <div>
+                    <div className='text-sm text-gray-400 mb-1'>Ville</div>
+                    <div className='font-semibold'>{vehicle.dealerCity}</div>
+                  </div>
+                )}
+                <div>
+                  <div className='text-sm text-gray-400 mb-1'>Pays</div>
+                  <div className='font-semibold'>{vehicle.location || 'Allemagne'}</div>
+                </div>
+                {vehicle.dealerContact && (
+                  <div>
+                    <div className='text-sm text-gray-400 mb-1'>Contact</div>
+                    <div className='font-semibold'>{vehicle.dealerContact}</div>
+                  </div>
+                )}
+                {vehicle.originalListingUrl && (
+                  <div>
+                    <div className='text-sm text-gray-400 mb-1'>Annonce originale</div>
+                    <a
+                      href={vehicle.originalListingUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-premium-gold hover:underline text-sm font-semibold'
+                    >
+                      Voir sur AutoScout24 ↗
+                    </a>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </main>
 
