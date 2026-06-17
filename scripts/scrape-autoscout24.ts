@@ -46,8 +46,8 @@ const AS24VehicleListSchema = z.object({
     dealerCity: z.string().optional().describe('Ville du concessionnaire'),
     dealerCountry: z.string().optional().describe('Pays (Deutschland, Allemagne)'),
     dealerPhone: z.string().optional().describe('Téléphone du concessionnaire si affiché'),
-    // URLs
-    listingUrl: z.string().optional().describe('URL complète de la fiche véhicule sur AutoScout24'),
+    // URLs — CRITIQUE : extraire l'URL individuelle de chaque annonce
+    listingUrl: z.string().optional().describe('URL COMPLÈTE de la fiche individuelle du véhicule, format https://www.autoscout24.de/angebote/[slug]-[uuid]. OBLIGATOIRE — c\'est le lien cliquable sur le titre ou l\'image de chaque annonce.'),
     imageUrl: z.string().optional().describe('URL de la première image du véhicule'),
   }))
 });
@@ -75,7 +75,8 @@ Pour chaque véhicule, extrais :
 - URLs de toutes les images visibles (jusqu'à 6)
 - NOM EXACT du concessionnaire (le garage allemand, jamais "AutoScout24")
 - ville et pays du concessionnaire, téléphone si visible
-- URL complète de la fiche véhicule et URL de la première image`,
+- IMPORTANT: listingUrl = URL COMPLÈTE de la fiche individuelle au format https://www.autoscout24.de/angebote/[slug]-[uuid] (lien sur le titre ou l'image de chaque carte)
+- imageUrl = URL de la première photo`,
         schema: AS24VehicleListSchema,
       }],
     } as any);

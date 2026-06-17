@@ -163,7 +163,10 @@ function mergeVehicle(existing: any, detail: VehicleDetail): Record<string, any>
     if (value && !existing[field]) patch[field] = value;
   };
 
-  addIfMissing('power', detail.power);
+  // power → specifications.power (champ imbriqué Payload)
+  if (detail.power && !existing.specifications?.power) {
+    patch['specifications'] = { ...(existing.specifications || {}), power: detail.power };
+  }
   addIfMissing('exteriorColor', detail.exteriorColor);
   addIfMissing('interiorColor', detail.interiorColor);
   addIfMissing('doors', detail.doors);
@@ -212,10 +215,17 @@ async function main() {
   const { docs: vehicles } = await res.json();
   console.log(`📦 ${vehicles.length} véhicules AutoScout24 trouvés\n`);
 
+  // Résoudre l'URL individuelle : originalListingUrl prioritaire, sinon sourceUrl si c'est une fiche /angebote/
+  const resolveListingUrl = (v: any): string | null => {
+    if (v.originalListingUrl) return v.originalListingUrl;
+    if (v.sourceUrl && v.sourceUrl.includes('/angebote/')) return v.sourceUrl;
+    return null;
+  };
+
   // Calculer le score actuel et trier par score ascendant
   const withScores = vehicles
-    .filter((v: any) => v.originalListingUrl)
-    .map((v: any) => ({ ...v, ...calcCompletionScore(v) }))
+    .filter((v: any) => resolveListingUrl(v))
+    .map((v: any) => ({ ...v, listingUrlResolved: resolveListingUrl(v), ...calcCompletionScore(v) }))
     .filter((v: any) => v.score < minScore)
     .sort((a: any, b: any) => a.score - b.score)
     .slice(0, limit);
@@ -229,7 +239,7 @@ async function main() {
     console.log(`\n📋 ${vehicle.title}`);
     console.log(`   Score: ${score}% | Manque: ${missingFields.join(', ')}`);
 
-    const detail = await scrapeListingDetail(vehicle.originalListingUrl);
+    const detail = await scrapeListingDetail(vehicle.listingUrlResolved);
     if (!detail) { errors++; await sleep(2000); continue; }
 
     const patch = mergeVehicle(vehicle, detail);

@@ -123,7 +123,7 @@ async function main() {
         mileage: v.mileage || 0,
         fuel: mapFuel(v.fuel),
         transmission: mapTransmission(v.transmission),
-        power: v.power || '',
+        specifications: v.power ? { power: v.power } : {},
         exteriorColor: (v as any).exteriorColor || null,
         interiorColor: (v as any).interiorColor || null,
         doors: (v as any).doors || null,
