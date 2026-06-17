@@ -172,7 +172,11 @@ export function cleanText(text: string): string {
 
   return text
     .replace(/<[^>]+>/g, '') // Supprimer les balises HTML
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
     .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

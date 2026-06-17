@@ -207,7 +207,9 @@ export async function scrapeImporteMoiPage(
     // Transformer les données au format VanalexCars
     const scrapedVehicles: ScrapedVehicle[] = vehicles.map((vehicle) => {
       const brand = BRAND_IDS[vehicle.make] || 'other';
-      const modelText = vehicle.model_version_input || `Model ${vehicle.model}`;
+      const rawModelText = vehicle.model_version_input || `Model ${vehicle.model}`;
+      // Tronquer avant le premier " | " (données brutes importemoi)
+      const modelText = rawModelText.split(' | ')[0].trim();
       const brandName = brand.charAt(0).toUpperCase() + brand.slice(1);
       const title = `${brandName} ${modelText}`;
 

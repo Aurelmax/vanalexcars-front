@@ -1,6 +1,36 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { scrapeImporteMoiBrand } from '../../scripts/scrape-importemoi';
-// TODO: Implémenter le téléchargement d'images avec downloadImage
+import { scrapeImporteMoiBrandFirecrawl, type FirecrawlVehicle } from '../../scripts/scrape-firecrawl';
+
+/** Génère jusqu'à 6 URLs d'images depuis la première URL importemoi */
+function generateImageUrls(firstImageUrl: string): string[] {
+  // Pattern: https://storage.importemoi.fr/ad/{uuid}/{base}-1.webp
+  const match = firstImageUrl.match(/^(https:\/\/storage\.importemoi\.fr\/ad\/[^/]+\/)(.+)-\d+(\.\w+)$/);
+  if (!match) return [firstImageUrl];
+  const [, base, name, ext] = match;
+  return Array.from({ length: 6 }, (_, i) => `${base}${name}-${i + 1}${ext}`);
+}
+
+/** Extrait l'ID depuis l'URL véhicule importemoi */
+function extractVehicleId(vehicleUrl: string): string {
+  return vehicleUrl?.split('-').pop() || vehicleUrl || String(Date.now());
+}
+
+function mapFuel(fuel?: string): string {
+  const f = (fuel || '').toLowerCase();
+  if (f.includes('électrique') || f.includes('electrique') || f.includes('electric')) return 'electric';
+  if (f.includes('plugin') || f.includes('rechargeable') || f.includes('phev')) return 'plugin-hybrid';
+  if (f.includes('hybrid') || f.includes('hybride')) return 'hybrid';
+  if (f.includes('diesel')) return 'diesel';
+  return 'essence';
+}
+
+function mapTransmission(transmission?: string): string {
+  const t = (transmission || '').toLowerCase();
+  if (t.includes('auto') || t.includes('dsg') || t.includes('pdk')) return 'automatic';
+  if (t.includes('man') || t.includes('manu')) return 'manual';
+  return 'automatic';
+}
 
 interface ImportStats {
   total: number;
@@ -31,19 +61,48 @@ export default async function handler(
   }
 
   try {
-    const { brand, maxPages, downloadImages } = req.body;
+    const { brand, maxPages, downloadImages, useFirecrawl } = req.body;
 
     if (!brand) {
       return res.status(400).json({ error: 'Paramètre "brand" requis' });
     }
 
-    console.log(`🚀 Début de l'import pour ${brand.toUpperCase()}`);
+    console.log(`🚀 Début de l'import pour ${brand.toUpperCase()} (${useFirecrawl ? 'Firecrawl' : 'scraper classique'})`);
 
     // 1. Scraper les véhicules
-    const vehicles = await scrapeImporteMoiBrand(
-      brand,
-      maxPages || 2
-    );
+    let vehicles: any[] = [];
+
+    if (useFirecrawl) {
+      const fcVehicles = await scrapeImporteMoiBrandFirecrawl(brand, maxPages || 2);
+      // Mapper les données Firecrawl vers le format attendu
+      vehicles = fcVehicles.map((v: FirecrawlVehicle) => {
+        const externalRef = extractVehicleId(v.vehicleUrl || '');
+        const imageUrls = v.imageUrl ? generateImageUrls(v.imageUrl) : [];
+        return {
+          title: v.title,
+          brand: (v.brand || brand).toLowerCase().replace('mercedes-benz', 'mercedes').replace('volkswagen', 'volkswagen'),
+          model: v.model || v.title,
+          price: v.price || 0,
+          year: v.year || new Date().getFullYear(),
+          mileage: v.mileage || 0,
+          fuel: mapFuel(v.fuel),
+          transmission: mapTransmission(v.transmission),
+          power: v.power || '',
+          location: v.location || 'Allemagne',
+          dealer: v.dealer || null,
+          description: '',
+          externalId: externalRef,
+          externalReference: externalRef,
+          sourceUrl: v.vehicleUrl || '',
+          sourcePlatform: 'importemoi.fr',
+          imageUrls,
+          features: [],
+          specifications: v.power ? { power: v.power } : undefined,
+        };
+      });
+    } else {
+      vehicles = await scrapeImporteMoiBrand(brand, maxPages || 2);
+    }
 
     if (vehicles.length === 0) {
       return res.status(404).json({
