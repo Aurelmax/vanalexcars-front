@@ -155,15 +155,11 @@ export default function VehicleDetail() {
     );
   }
 
-  // Images: processedImages en priorité, sinon imageUrls Payload
+  // Images: hero traité en premier, puis toutes les photos brutes AS24
+  const rawImageUrls = vehicle.imageUrls?.map(img => img.url) || [];
   const displayImages = vehicle.processedImages?.hero
-    ? [
-        vehicle.processedImages.hero,
-        vehicle.processedImages.card,
-        vehicle.processedImages.thumbnail,
-        vehicle.processedImages.social,
-      ].filter(Boolean) as string[]
-    : vehicle.imageUrls?.map(img => img.url) || [];
+    ? [vehicle.processedImages.hero, ...rawImageUrls].filter(Boolean) as string[]
+    : rawImageUrls;
 
   const mainImage = displayImages[selectedImage] || '/placeholder-car.jpg';
 

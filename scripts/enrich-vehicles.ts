@@ -124,28 +124,69 @@ const VehicleDetailSchema = z.object({
 type VehicleDetail = z.infer<typeof VehicleDetailSchema>;
 
 export async function scrapeListingDetail(listingUrl: string): Promise<VehicleDetail | null> {
+  // Extraire l'UUID de la fiche depuis l'URL AS24 (dernier segment après le dernier tiret)
+  const listingUuidMatch = listingUrl.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:[^/]*)?$/i);
+  const listingUuid = listingUuidMatch ? listingUuidMatch[1] : null;
+
   try {
     console.log(`  🔥 Firecrawl fiche: ${listingUrl}`);
     const result = await app.scrapeUrl(listingUrl, {
-      formats: [{
-        type: 'json',
-        prompt: `Extrait toutes les informations techniques de cette fiche véhicule :
+      formats: [
+        {
+          type: 'json',
+          prompt: `Extrait toutes les informations techniques de cette fiche véhicule :
 - puissance moteur (en PS, kW ou ch)
 - couleur extérieure de la carrosserie
 - couleur/matière de la sellerie intérieure
 - nombre de portes et de places
 - description complète de l'annonce
 - liste COMPLÈTE de tous les équipements et options (chaque item séparé)
-- URLs de toutes les photos du véhicule (galerie)
+- URLs de TOUTES les photos du véhicule (cherche dans la galerie, le carousel, les miniatures)
 - nom exact du concessionnaire vendeur (pas "AutoScout24")
 - ville, adresse et téléphone du concessionnaire`,
-        schema: VehicleDetailSchema,
-      }],
+          schema: VehicleDetailSchema,
+        },
+        'html',
+      ],
+      actions: [
+        { type: 'wait', milliseconds: 2000 },
+        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
+        { type: 'wait', milliseconds: 700 },
+        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
+        { type: 'wait', milliseconds: 700 },
+        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
+        { type: 'wait', milliseconds: 700 },
+        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
+        { type: 'wait', milliseconds: 700 },
+        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
+        { type: 'wait', milliseconds: 700 },
+        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
+        { type: 'wait', milliseconds: 700 },
+      ],
     } as any);
 
     const detail = (result as any).json;
+    const html: string = (result as any).html || '';
     const credits = (result as any).metadata?.creditsUsed || 0;
-    console.log(`  ✅ Enrichi (${credits} crédits) — power:${detail?.power || '?'} color:${detail?.exteriorColor || '?'} equipment:${detail?.equipment?.length || 0} items`);
+
+    // Extraire les URLs d'images AS24 depuis le HTML post-actions
+    // Filtrer par UUID de la fiche pour éviter les images des véhicules similaires dans la sidebar
+    if (detail && (!detail.imageUrls || detail.imageUrls.length < 3)) {
+      const as24ImgRegex = /https:\/\/prod\.pictures\.autoscout24\.net\/listing-images\/[\w/_-]+\.(?:jpg|jpeg|webp|png)/gi;
+      const allFromHtml = [...new Set([...html.matchAll(as24ImgRegex)].map(m => m[0]))];
+
+      // Filtrer par UUID de la fiche si connu, sinon garder toutes
+      const found = listingUuid
+        ? allFromHtml.filter(url => url.includes(listingUuid))
+        : allFromHtml;
+
+      if (found.length > 0) {
+        detail.imageUrls = found;
+        console.log(`  📸 ${found.length} images extraites (${allFromHtml.length} brutes → filtré par UUID ${listingUuid ? listingUuid.substring(0, 8) : 'n/a'})`);
+      }
+    }
+
+    console.log(`  ✅ Enrichi (${credits} crédits) — power:${detail?.power || '?'} color:${detail?.exteriorColor || '?'} images:${detail?.imageUrls?.length || 0} equipment:${detail?.equipment?.length || 0} items`);
     return detail || null;
   } catch (e: any) {
     console.error(`  ❌ Erreur Firecrawl: ${e.message}`);
