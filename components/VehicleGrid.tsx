@@ -193,7 +193,7 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
 
         <div className='flex space-x-2'>
           <Link
-            href={`/vehicles/${vehicle.id}`}
+            href={`/vehicules/${vehicle.id}`}
             className='flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded hover:bg-blue-700 transition-colors'
           >
             Voir détails
