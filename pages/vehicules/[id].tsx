@@ -452,7 +452,7 @@ export default function VehicleDetail() {
             {/* Dealer Info — concessionnaire réel AutoScout24 */}
             <div className='mt-12 bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
               <h3 className='text-xl font-bold text-white mb-1'>🏢 Concession</h3>
-              <p className='text-xs text-gray-500 mb-4'>Source : AutoScout24 via ImporteMoi</p>
+              <p className='text-xs text-gray-500 mb-4'>Source : AutoScout24</p>
 
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300 mb-6'>
                 <div>
