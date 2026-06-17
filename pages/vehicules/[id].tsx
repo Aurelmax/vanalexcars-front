@@ -254,42 +254,51 @@ export default function VehicleDetail() {
 
                 {/* Caractéristiques principales */}
                 <div className='grid grid-cols-2 gap-4 mb-8'>
-                  {vehicle.mileage != null && (
-                    <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
-                      <div className='text-gray-400 text-sm mb-1'>Kilométrage</div>
-                      <div className='text-white font-semibold text-lg'>
-                        {vehicle.mileage.toLocaleString('fr-FR')} km
-                      </div>
-                    </div>
-                  )}
 
-                  {vehicle.fuel && (
-                    <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
-                      <div className='text-gray-400 text-sm mb-1'>Carburant</div>
-                      <div className='text-white font-semibold text-lg'>
-                        {FUEL_LABELS[vehicle.fuel] || vehicle.fuel}
-                      </div>
+                  {/* Champs toujours affichés */}
+                  <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
+                    <div className='text-gray-400 text-sm mb-1'>Kilométrage</div>
+                    <div className='text-white font-semibold text-lg'>
+                      {vehicle.mileage != null ? `${vehicle.mileage.toLocaleString('fr-FR')} km` : '—'}
                     </div>
-                  )}
+                  </div>
 
-                  {vehicle.transmission && (
-                    <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
-                      <div className='text-gray-400 text-sm mb-1'>Transmission</div>
-                      <div className='text-white font-semibold text-lg'>
-                        {TRANSMISSION_LABELS[vehicle.transmission] || vehicle.transmission}
-                      </div>
+                  <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
+                    <div className='text-gray-400 text-sm mb-1'>Carburant</div>
+                    <div className='text-white font-semibold text-lg'>
+                      {FUEL_LABELS[vehicle.fuel] || vehicle.fuel || '—'}
                     </div>
-                  )}
+                  </div>
 
-                  {power && (
-                    <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
-                      <div className='text-gray-400 text-sm mb-1'>Puissance</div>
-                      <div className='text-white font-semibold text-lg'>
-                        {power}
-                      </div>
+                  <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
+                    <div className='text-gray-400 text-sm mb-1'>Transmission</div>
+                    <div className='text-white font-semibold text-lg'>
+                      {TRANSMISSION_LABELS[vehicle.transmission] || vehicle.transmission || '—'}
                     </div>
-                  )}
+                  </div>
 
+                  <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
+                    <div className='text-gray-400 text-sm mb-1'>Puissance</div>
+                    <div className='text-white font-semibold text-lg'>
+                      {power || '—'}
+                    </div>
+                  </div>
+
+                  <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
+                    <div className='text-gray-400 text-sm mb-1'>Année</div>
+                    <div className='text-white font-semibold text-lg'>
+                      {vehicle.year || '—'}
+                    </div>
+                  </div>
+
+                  <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
+                    <div className='text-gray-400 text-sm mb-1'>Carrosserie</div>
+                    <div className='text-white font-semibold text-lg capitalize'>
+                      {({'berline':'Berline','break':'Break','suv':'SUV','coupe':'Coupé','cabriolet':'Cabriolet','monospace':'Monospace','other':'—'} as Record<string,string>)[vehicle.category || ''] || '—'}
+                    </div>
+                  </div>
+
+                  {/* Champs affichés seulement si disponibles */}
                   {vehicle.doors && (
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                       <div className='text-gray-400 text-sm mb-1'>Portes</div>
