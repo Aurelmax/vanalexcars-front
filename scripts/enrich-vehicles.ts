@@ -128,13 +128,9 @@ export async function scrapeListingDetail(listingUrl: string): Promise<VehicleDe
   const listingUuidMatch = listingUrl.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:[^/]*)?$/i);
   const listingUuid = listingUuidMatch ? listingUuidMatch[1] : null;
 
-  try {
-    console.log(`  🔥 Firecrawl fiche: ${listingUrl}`);
-    const result = await app.scrapeUrl(listingUrl, {
-      formats: [
-        {
-          type: 'json',
-          prompt: `Extrait toutes les informations techniques de cette fiche véhicule :
+  const JSON_FORMAT = {
+    type: 'json',
+    prompt: `Extrait toutes les informations techniques de cette fiche véhicule :
 - puissance moteur (en PS, kW ou ch)
 - couleur extérieure de la carrosserie
 - couleur/matière de la sellerie intérieure
@@ -144,45 +140,55 @@ export async function scrapeListingDetail(listingUrl: string): Promise<VehicleDe
 - URLs de TOUTES les photos du véhicule (cherche dans la galerie, le carousel, les miniatures)
 - nom exact du concessionnaire vendeur (pas "AutoScout24")
 - ville, adresse et téléphone du concessionnaire`,
-          schema: VehicleDetailSchema,
-        },
-        'html',
-      ],
-      actions: [
+    schema: VehicleDetailSchema,
+  };
+
+  const GALLERY_CLICK = { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' };
+  const WAIT = { type: 'wait', milliseconds: 700 };
+
+  const extractImages = (html: string): string[] => {
+    const as24ImgRegex = /https:\/\/prod\.pictures\.autoscout24\.net\/listing-images\/[\w/_-]+\.(?:jpg|jpeg|webp|png)/gi;
+    const all = [...new Set([...html.matchAll(as24ImgRegex)].map(m => m[0]))];
+    return listingUuid ? all.filter(url => url.includes(listingUuid)) : all;
+  };
+
+  const scrapeWithOptions = async (withActions: boolean) => {
+    const options: any = { formats: [JSON_FORMAT, 'html'] };
+    if (withActions) {
+      options.actions = [
         { type: 'wait', milliseconds: 2000 },
-        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
-        { type: 'wait', milliseconds: 700 },
-        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
-        { type: 'wait', milliseconds: 700 },
-        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
-        { type: 'wait', milliseconds: 700 },
-        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
-        { type: 'wait', milliseconds: 700 },
-        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
-        { type: 'wait', milliseconds: 700 },
-        { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' },
-        { type: 'wait', milliseconds: 700 },
-      ],
-    } as any);
+        GALLERY_CLICK, WAIT, GALLERY_CLICK, WAIT, GALLERY_CLICK, WAIT,
+        GALLERY_CLICK, WAIT, GALLERY_CLICK, WAIT, GALLERY_CLICK, WAIT,
+      ];
+    }
+    return app.scrapeUrl(listingUrl, options);
+  };
+
+  try {
+    console.log(`  🔥 Firecrawl fiche: ${listingUrl}`);
+
+    let result: any;
+    try {
+      result = await scrapeWithOptions(true);
+    } catch (actionsErr: any) {
+      if (actionsErr.message?.includes('Element not found') || actionsErr.message?.includes('ActionError')) {
+        console.log(`  ⚠️  Actions échouées (${actionsErr.message.substring(0, 60)}), fallback sans actions`);
+        result = await scrapeWithOptions(false);
+      } else {
+        throw actionsErr;
+      }
+    }
 
     const detail = (result as any).json;
     const html: string = (result as any).html || '';
     const credits = (result as any).metadata?.creditsUsed || 0;
 
-    // Extraire les URLs d'images AS24 depuis le HTML post-actions
-    // Filtrer par UUID de la fiche pour éviter les images des véhicules similaires dans la sidebar
+    // Extraire les URLs d'images AS24 depuis le HTML (filtré par UUID de la fiche)
     if (detail && (!detail.imageUrls || detail.imageUrls.length < 3)) {
-      const as24ImgRegex = /https:\/\/prod\.pictures\.autoscout24\.net\/listing-images\/[\w/_-]+\.(?:jpg|jpeg|webp|png)/gi;
-      const allFromHtml = [...new Set([...html.matchAll(as24ImgRegex)].map(m => m[0]))];
-
-      // Filtrer par UUID de la fiche si connu, sinon garder toutes
-      const found = listingUuid
-        ? allFromHtml.filter(url => url.includes(listingUuid))
-        : allFromHtml;
-
+      const found = extractImages(html);
       if (found.length > 0) {
         detail.imageUrls = found;
-        console.log(`  📸 ${found.length} images extraites (${allFromHtml.length} brutes → filtré par UUID ${listingUuid ? listingUuid.substring(0, 8) : 'n/a'})`);
+        console.log(`  📸 ${found.length} images extraites (filtré par UUID ${listingUuid ? listingUuid.substring(0, 8) : 'n/a'})`);
       }
     }
 
