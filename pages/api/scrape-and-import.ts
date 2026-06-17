@@ -32,6 +32,17 @@ function mapTransmission(transmission?: string): string {
   return 'automatic';
 }
 
+function mapBodyType(bodyType?: string): string {
+  const b = (bodyType || '').toLowerCase();
+  if (b.includes('cabrio') || b.includes('convert') || b.includes('spider') || b.includes('roadster')) return 'cabriolet';
+  if (b.includes('suv') || b.includes('4x4') || b.includes('crossover')) return 'suv';
+  if (b.includes('break') || b.includes('wagon') || b.includes('touring') || b.includes('estate')) return 'break';
+  if (b.includes('coupe') || b.includes('coupé')) return 'coupe';
+  if (b.includes('monospace') || b.includes('van') || b.includes('minivan')) return 'monospace';
+  if (b.includes('berline') || b.includes('sedan') || b.includes('limousine') || b.includes('hatchback') || b.includes('sportback')) return 'berline';
+  return 'other';
+}
+
 interface ImportStats {
   total: number;
   created: number;
@@ -87,6 +98,7 @@ export default async function handler(
           mileage: v.mileage || 0,
           fuel: mapFuel(v.fuel),
           transmission: mapTransmission(v.transmission),
+          category: mapBodyType(v.bodyType),
           power: v.power || '',
           location: v.location || 'Allemagne',
           dealer: v.dealer || null,
@@ -149,6 +161,9 @@ export default async function handler(
           existingVehicle = checkData.docs?.[0];
         }
 
+        // Valeurs valides pour le champ category de Payload
+        const validCategories = new Set(['berline', 'break', 'suv', 'coupe', 'cabriolet', 'monospace', 'other']);
+
         // Mapper bodyType vers les valeurs acceptées par category
         const categoryMap: Record<string, string> = {
           sedan: 'berline',
@@ -156,21 +171,30 @@ export default async function handler(
           touring: 'break',
           suv: 'suv',
           coupe: 'coupe',
+          coupé: 'coupe',
           convertible: 'cabriolet',
           cabrio: 'cabriolet',
+          cabriolet: 'cabriolet',
+          décapotable: 'cabriolet',
+          decapotable: 'cabriolet',
+          roadster: 'cabriolet',
+          spider: 'cabriolet',
           van: 'monospace',
+          monospace: 'monospace',
           sportback: 'berline',
           hatchback: 'berline',
+          berline: 'berline',
+          break: 'break',
           limousine: 'berline',
           other: 'other',
         };
 
         // Déterminer la catégorie valide
-        const validCategory = vehicle.bodyType
-          ? categoryMap[vehicle.bodyType.toLowerCase()] || 'other'
-          : vehicle.category
-          ? categoryMap[vehicle.category.toLowerCase()] || 'other'
-          : 'other';
+        // Si vehicle.category est déjà une valeur Payload valide (ex: retourné par mapBodyType), l'utiliser directement
+        const rawCategory = (vehicle.bodyType || vehicle.category || '').toLowerCase();
+        const validCategory = validCategories.has(rawCategory)
+          ? rawCategory
+          : categoryMap[rawCategory] || 'other';
 
         // Préparer les données avec tous les champs structurés
         const vehicleData = {

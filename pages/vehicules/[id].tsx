@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { parseGermanDescription, translateAutoTerms } from '../../lib/translations/auto-terms-de-fr';
+import { translateAutoTerms } from '../../lib/translations/auto-terms-de-fr';
 
 interface Vehicle {
   id: string;
@@ -22,9 +22,11 @@ interface Vehicle {
   location?: string;
   dealer?: string;
   dealerCity?: string;
+  dealerContact?: string;
   description?: string;
   exteriorColor?: string;
   interiorColor?: string;
+  sourceUrl?: string;
   imageUrls?: Array<{ url: string; id: string }>;
   processedImages?: {
     hero?: string;
@@ -40,13 +42,25 @@ interface Vehicle {
   features?: Array<{ feature: string }>;
 }
 
+const FUEL_LABELS: Record<string, string> = {
+  essence: 'Essence',
+  diesel: 'Diesel',
+  electric: 'Électrique',
+  hybrid: 'Hybride',
+  'plugin-hybrid': 'Hybride rechargeable',
+};
+
+const TRANSMISSION_LABELS: Record<string, string> = {
+  automatic: 'Automatique',
+  manual: 'Manuelle',
+};
+
 export default function VehicleDetail() {
   const router = useRouter();
   const { id } = router.query;
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [parsedDescription, setParsedDescription] = useState<any>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -55,15 +69,8 @@ export default function VehicleDetail() {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200'}/api/vehicles/${id}`);
         if (!response.ok) throw new Error('Véhicule non trouvé');
-
         const data = await response.json();
         setVehicle(data);
-
-        // Parser la description allemande
-        if (data.description) {
-          const parsed = parseGermanDescription(data.description);
-          setParsedDescription(parsed);
-        }
       } catch (error) {
         console.error('Error fetching vehicle:', error);
       } finally {
@@ -105,17 +112,20 @@ export default function VehicleDetail() {
     );
   }
 
-  // Récupérer la meilleure image disponible
+  // Images: processedImages en priorité, sinon imageUrls Payload
   const displayImages = vehicle.processedImages?.hero
     ? [
         vehicle.processedImages.hero,
         vehicle.processedImages.card,
         vehicle.processedImages.thumbnail,
         vehicle.processedImages.social,
-      ].filter(Boolean)
+      ].filter(Boolean) as string[]
     : vehicle.imageUrls?.map(img => img.url) || [];
 
   const mainImage = displayImages[selectedImage] || '/placeholder-car.jpg';
+
+  const power = vehicle.specifications?.power || vehicle.power;
+  const features = vehicle.features?.map(f => f.feature).filter(Boolean) || [];
 
   return (
     <>
@@ -180,22 +190,42 @@ export default function VehicleDetail() {
                     ))}
                   </div>
                 )}
+
+                {/* Lien vers l'annonce originale */}
+                {vehicle.sourceUrl && (
+                  <div className='mt-4'>
+                    <a
+                      href={vehicle.sourceUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-sm text-gray-500 hover:text-premium-gold transition-colors flex items-center gap-2'
+                    >
+                      <span>↗</span>
+                      <span>Voir l'annonce originale</span>
+                    </a>
+                  </div>
+                )}
               </div>
 
               {/* Colonne droite: Informations */}
               <div>
                 {/* Titre et prix */}
                 <div className='mb-8'>
-                  <div className='flex items-center space-x-3 mb-2'>
+                  <div className='flex items-center flex-wrap gap-2 mb-2'>
                     <span className='px-3 py-1 bg-premium-gold/20 text-premium-gold rounded-full text-sm font-semibold'>
                       {vehicle.brand?.toUpperCase()}
                     </span>
                     {vehicle.year && (
                       <span className='text-gray-400 text-sm'>{vehicle.year}</span>
                     )}
+                    {vehicle.category && vehicle.category !== 'other' && (
+                      <span className='px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm capitalize'>
+                        {translateAutoTerms(vehicle.category)}
+                      </span>
+                    )}
                   </div>
                   <h1 className='text-3xl lg:text-4xl font-bold text-white mb-4'>
-                    {translateAutoTerms(vehicle.model || vehicle.title)}
+                    {vehicle.model || vehicle.title}
                   </h1>
                   <div className='text-4xl font-bold text-premium-gold'>
                     {vehicle.price?.toLocaleString('fr-FR')} €
@@ -204,7 +234,7 @@ export default function VehicleDetail() {
 
                 {/* Caractéristiques principales */}
                 <div className='grid grid-cols-2 gap-4 mb-8'>
-                  {vehicle.mileage && (
+                  {vehicle.mileage != null && (
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                       <div className='text-gray-400 text-sm mb-1'>Kilométrage</div>
                       <div className='text-white font-semibold text-lg'>
@@ -216,8 +246,8 @@ export default function VehicleDetail() {
                   {vehicle.fuel && (
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                       <div className='text-gray-400 text-sm mb-1'>Carburant</div>
-                      <div className='text-white font-semibold text-lg capitalize'>
-                        {translateAutoTerms(vehicle.fuel)}
+                      <div className='text-white font-semibold text-lg'>
+                        {FUEL_LABELS[vehicle.fuel] || vehicle.fuel}
                       </div>
                     </div>
                   )}
@@ -226,16 +256,16 @@ export default function VehicleDetail() {
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                       <div className='text-gray-400 text-sm mb-1'>Transmission</div>
                       <div className='text-white font-semibold text-lg'>
-                        {translateAutoTerms(vehicle.transmission)}
+                        {TRANSMISSION_LABELS[vehicle.transmission] || vehicle.transmission}
                       </div>
                     </div>
                   )}
 
-                  {vehicle.specifications?.power && (
+                  {power && (
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                       <div className='text-gray-400 text-sm mb-1'>Puissance</div>
                       <div className='text-white font-semibold text-lg'>
-                        {vehicle.specifications.power}
+                        {power}
                       </div>
                     </div>
                   )}
@@ -260,14 +290,23 @@ export default function VehicleDetail() {
 
                   {vehicle.exteriorColor && (
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
-                      <div className='text-gray-400 text-sm mb-1'>Couleur</div>
+                      <div className='text-gray-400 text-sm mb-1'>Couleur extérieure</div>
                       <div className='text-white font-semibold text-lg capitalize'>
-                        {translateAutoTerms(vehicle.exteriorColor)}
+                        {vehicle.exteriorColor}
                       </div>
                     </div>
                   )}
 
-                  {vehicle.location && (
+                  {vehicle.interiorColor && (
+                    <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
+                      <div className='text-gray-400 text-sm mb-1'>Sellerie</div>
+                      <div className='text-white font-semibold text-lg'>
+                        {vehicle.interiorColor}
+                      </div>
+                    </div>
+                  )}
+
+                  {(vehicle.dealerCity || vehicle.location) && (
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                       <div className='text-gray-400 text-sm mb-1'>Localisation</div>
                       <div className='text-white font-semibold text-lg'>
@@ -303,99 +342,31 @@ export default function VehicleDetail() {
               </div>
             </div>
 
-            {/* Section équipements */}
-            {parsedDescription && (
+            {/* Description */}
+            {vehicle.description && vehicle.description.length > 20 && (
+              <div className='mt-16'>
+                <h2 className='text-3xl font-bold text-white mb-6'>Description</h2>
+                <div className='bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
+                  <p className='text-gray-300 leading-relaxed whitespace-pre-line'>
+                    {vehicle.description}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Section équipements — features stockées dans Payload */}
+            {features.length > 0 && (
               <div className='mt-16'>
                 <h2 className='text-3xl font-bold text-white mb-8'>Équipements & Options</h2>
-
-                {/* Points forts */}
-                {parsedDescription.highlights.length > 0 && (
-                  <div className='mb-8 bg-linear-to-br from-premium-gold/10 to-transparent border border-premium-gold/30 rounded-2xl p-6'>
-                    <h3 className='text-xl font-bold text-premium-gold mb-4'>✨ Points Forts</h3>
-                    <ul className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-                      {parsedDescription.highlights.slice(0, 6).map((item: string, index: number) => (
-                        <li key={index} className='flex items-start space-x-2 text-gray-300'>
-                          <span className='text-premium-gold mt-1'>●</span>
-                          <span className='capitalize'>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Grille des équipements */}
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                  {/* Sécurité */}
-                  {parsedDescription.equipment.security.length > 0 && (
-                    <div className='bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
-                      <h3 className='text-lg font-bold text-white mb-4 flex items-center'>
-                        <span className='text-2xl mr-3'>🛡️</span>
-                        Sécurité
-                      </h3>
-                      <ul className='space-y-2'>
-                        {parsedDescription.equipment.security.slice(0, 8).map((item: string, index: number) => (
-                          <li key={index} className='text-gray-300 text-sm flex items-start'>
-                            <span className='text-premium-gold mr-2'>✓</span>
-                            <span className='capitalize'>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Multimédia */}
-                  {parsedDescription.equipment.multimedia.length > 0 && (
-                    <div className='bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
-                      <h3 className='text-lg font-bold text-white mb-4 flex items-center'>
-                        <span className='text-2xl mr-3'>📱</span>
-                        Multimédia
-                      </h3>
-                      <ul className='space-y-2'>
-                        {parsedDescription.equipment.multimedia.slice(0, 8).map((item: string, index: number) => (
-                          <li key={index} className='text-gray-300 text-sm flex items-start'>
-                            <span className='text-premium-gold mr-2'>✓</span>
-                            <span className='capitalize'>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Assistances */}
-                  {parsedDescription.equipment.assistance.length > 0 && (
-                    <div className='bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
-                      <h3 className='text-lg font-bold text-white mb-4 flex items-center'>
-                        <span className='text-2xl mr-3'>🤖</span>
-                        Aides à la Conduite
-                      </h3>
-                      <ul className='space-y-2'>
-                        {parsedDescription.equipment.assistance.slice(0, 8).map((item: string, index: number) => (
-                          <li key={index} className='text-gray-300 text-sm flex items-start'>
-                            <span className='text-premium-gold mr-2'>✓</span>
-                            <span className='capitalize'>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Confort */}
-                  {parsedDescription.equipment.interior.length > 0 && (
-                    <div className='bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
-                      <h3 className='text-lg font-bold text-white mb-4 flex items-center'>
-                        <span className='text-2xl mr-3'>🛋️</span>
-                        Confort Intérieur
-                      </h3>
-                      <ul className='space-y-2'>
-                        {parsedDescription.equipment.interior.slice(0, 8).map((item: string, index: number) => (
-                          <li key={index} className='text-gray-300 text-sm flex items-start'>
-                            <span className='text-premium-gold mr-2'>✓</span>
-                            <span className='capitalize'>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                <div className='bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
+                  <ul className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
+                    {features.map((item, index) => (
+                      <li key={index} className='flex items-start space-x-2 text-gray-300 text-sm'>
+                        <span className='text-premium-gold mt-0.5 shrink-0'>✓</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             )}

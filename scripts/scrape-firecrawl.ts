@@ -19,6 +19,7 @@ const VehicleListSchema = z.object({
     fuel: z.string().optional().describe('Carburant (essence, diesel, hybride, électrique)'),
     transmission: z.string().optional().describe('Boîte (manuelle, automatique)'),
     power: z.string().optional().describe('Puissance en ch'),
+    bodyType: z.string().optional().describe('Type de carrosserie : berline, break, suv, coupe, cabriolet, monospace, citadine, pickup'),
     dealer: z.string().optional().describe('Nom du concessionnaire'),
     location: z.string().optional().describe('Ville / pays'),
     imageUrl: z.string().optional().describe('URL de la première image'),

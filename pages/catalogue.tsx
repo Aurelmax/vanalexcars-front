@@ -153,7 +153,7 @@ export default function Catalogue({
                   <option value=''>Toutes les catégories</option>
                   {availableCategories.map((category) => (
                     <option key={category} value={category}>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                      {({'berline':'Berline','break':'Break','suv':'SUV','coupe':'Coupé','cabriolet':'Cabriolet','monospace':'Monospace','other':'Autre'} as Record<string,string>)[category] || category}
                     </option>
                   ))}
                 </select>
@@ -399,7 +399,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
       // Extraire les valeurs uniques
       availableBrands = [...new Set(allVehicles.map((v: Vehicle) => v.brand).filter(Boolean))].sort();
-      availableCategories = [...new Set(allVehicles.map((v: Vehicle) => v.category).filter(Boolean))].sort();
+      availableCategories = ['berline', 'break', 'suv', 'coupe', 'cabriolet', 'monospace', 'other'];
       availableFuels = [...new Set(allVehicles.map((v: Vehicle) => v.fuel).filter(Boolean))].sort();
       availableTransmissions = [...new Set(allVehicles.map((v: Vehicle) => v.transmission).filter(Boolean))].sort();
     }
