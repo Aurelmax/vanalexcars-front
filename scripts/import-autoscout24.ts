@@ -103,6 +103,16 @@ async function main() {
       const realDealer = v.dealerName && !/importemoi/i.test(v.dealerName) ? v.dealerName : null;
       const brandLabel = cleanBrand.charAt(0).toUpperCase() + cleanBrand.slice(1);
 
+      // Images : priorité imageUrls[], sinon imageUrl seul
+      const allImageUrls = (v.imageUrls && v.imageUrls.length > 0)
+        ? v.imageUrls.map((url: string) => ({ url }))
+        : v.imageUrl ? [{ url: v.imageUrl }] : [];
+
+      // Équipements
+      const equipmentFeatures = Array.isArray(v.equipment)
+        ? v.equipment.filter(Boolean).map((f: string) => ({ feature: f }))
+        : [];
+
       const vehicleData = {
         title: `${brandLabel} ${v.model || v.title}`,
         brand: cleanBrand,
@@ -114,21 +124,24 @@ async function main() {
         fuel: mapFuel(v.fuel),
         transmission: mapTransmission(v.transmission),
         power: v.power || '',
+        exteriorColor: (v as any).exteriorColor || null,
+        interiorColor: (v as any).interiorColor || null,
+        doors: (v as any).doors || null,
+        seats: (v as any).seats || null,
         location: v.dealerCountry || 'Allemagne',
         dealer: realDealer,
         dealerCity: v.dealerCity || null,
         dealerContact: v.dealerPhone || null,
-        exteriorColor: v.exteriorColor || null,
         status: 'active',
-        description: '',
+        description: (v as any).description || '',
         externalId: externalRef,
         externalReference: externalRef,
         sourceUrl: v.listingUrl || searchUrl,
         sourcePlatform: 'autoscout24.de',
         originalListingUrl: v.listingUrl || null,
         lastScrapedAt: new Date().toISOString(),
-        imageUrls: v.imageUrl ? [{ url: v.imageUrl }] : [],
-        features: [],
+        imageUrls: allImageUrls,
+        features: equipmentFeatures,
       };
 
       const method = existing ? 'PATCH' : 'POST';

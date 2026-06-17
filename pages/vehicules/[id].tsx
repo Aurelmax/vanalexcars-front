@@ -51,6 +51,40 @@ interface Vehicle {
   features?: Array<{ feature: string }>;
 }
 
+// ─── Score de complétude (version allégée pour la PDP) ───────────────────────
+
+function calcScore(v: Vehicle): { score: number; missingFields: string[] } {
+  const missing: string[] = [];
+  let earned = 0;
+
+  const weights: Array<[string, number, boolean]> = [
+    ['Prix',                  10, (v.price || 0) > 0],
+    ['Titre',                 10, !!v.title && v.title.length > 3],
+    ['Année',                 10, !!v.year && v.year > 1990],
+    ['Kilométrage',           10, v.mileage != null && v.mileage >= 0],
+    ['Carburant',             10, !!v.fuel],
+    ['Transmission',          10, !!v.transmission],
+    ['Images',                10, !!(v.imageUrls && v.imageUrls.length > 0) || !!v.processedImages?.hero],
+    ['Concessionnaire réel',  10, !!v.dealer && !/importemoi/i.test(v.dealer)],
+    ['Puissance',              5, !!(v.specifications?.power || v.power)],
+    ['Couleur extérieure',     5, !!v.exteriorColor],
+    ['Portes',                 5, !!v.doors],
+    ['Places',                 5, !!v.seats],
+    ['Équipements',            2, Array.isArray(v.features) && v.features.length > 0],
+    ['Description',            2, !!v.description && v.description.length > 20],
+    ['Couleur intérieure',     2, !!v.interiorColor],
+    ['Ville concessionnaire',  2, !!v.dealerCity],
+    ['Lien annonce originale', 2, !!v.originalListingUrl],
+  ];
+
+  for (const [label, weight, ok] of weights) {
+    if (ok) earned += weight;
+    else missing.push(label);
+  }
+
+  return { score: Math.round((earned / 110) * 100), missingFields: missing };
+}
+
 const FUEL_LABELS: Record<string, string> = {
   essence: 'Essence',
   diesel: 'Diesel',
@@ -135,6 +169,7 @@ export default function VehicleDetail() {
 
   const power = vehicle.specifications?.power || vehicle.power;
   const features = vehicle.features?.map(f => translateAutoTerms(f.feature)).filter(Boolean) || [];
+  const { score: completionScore, missingFields } = calcScore(vehicle);
 
   // Masquer la description si c'est du texte allemand concaténé (doublon des équipements)
   // Détection : trop de mots allemands, pas de ponctuation normale
@@ -162,17 +197,31 @@ export default function VehicleDetail() {
 
         <main className='pt-28 pb-20'>
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-            {/* Breadcrumb */}
-            <div className='mb-6 text-sm text-gray-400'>
-              <button onClick={() => router.push('/')} className='hover:text-premium-gold'>
-                Accueil
-              </button>
-              {' / '}
-              <button onClick={() => router.push('/catalogue')} className='hover:text-premium-gold'>
-                Catalogue
-              </button>
-              {' / '}
-              <span className='text-white'>{vehicle.brand}</span>
+            {/* Breadcrumb + score badge */}
+            <div className='mb-6 flex items-center justify-between flex-wrap gap-3'>
+              <div className='text-sm text-gray-400'>
+                <button onClick={() => router.push('/')} className='hover:text-premium-gold'>
+                  Accueil
+                </button>
+                {' / '}
+                <button onClick={() => router.push('/catalogue')} className='hover:text-premium-gold'>
+                  Catalogue
+                </button>
+                {' / '}
+                <span className='text-white'>{vehicle.brand}</span>
+              </div>
+              <span
+                title={missingFields.length > 0 ? `Manque : ${missingFields.join(', ')}` : 'Fiche complète'}
+                className={`text-xs px-3 py-1 rounded-full font-medium cursor-help ${
+                  completionScore >= 80
+                    ? 'bg-green-900/60 text-green-400 border border-green-700'
+                    : completionScore >= 50
+                    ? 'bg-yellow-900/60 text-yellow-400 border border-yellow-700'
+                    : 'bg-red-900/60 text-red-400 border border-red-700'
+                }`}
+              >
+                Fiche à {completionScore}%
+              </span>
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-12'>

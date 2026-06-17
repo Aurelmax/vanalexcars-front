@@ -32,10 +32,16 @@ const AS24VehicleListSchema = z.object({
     mileage: z.number().optional().describe('Kilométrage en km'),
     fuel: z.string().optional().describe('Carburant : Benzin, Diesel, Elektro, Hybrid'),
     transmission: z.string().optional().describe('Boîte : Automatik, Schaltgetriebe'),
-    power: z.string().optional().describe('Puissance (ex: "450 PS" ou "331 kW")'),
+    power: z.string().optional().describe('Puissance (ex: "450 PS" ou "331 kW / 450 ch")'),
     bodyType: z.string().optional().describe('Type de carrosserie tel qu\'affiché sur la page'),
-    exteriorColor: z.string().optional().describe('Couleur extérieure'),
-    // Concessionnaire réel — AutoScout24 affiche toujours le vendeur
+    exteriorColor: z.string().optional().describe('Couleur extérieure du véhicule'),
+    interiorColor: z.string().optional().describe('Couleur ou matière de la sellerie intérieure'),
+    doors: z.number().optional().describe('Nombre de portes'),
+    seats: z.number().optional().describe('Nombre de places assises'),
+    description: z.string().optional().describe('Description principale de l\'annonce'),
+    equipment: z.array(z.string()).optional().describe('Liste des équipements et options'),
+    imageUrls: z.array(z.string()).optional().describe('URLs de toutes les images visibles (jusqu\'à 6)'),
+    // Concessionnaire réel
     dealerName: z.string().optional().describe('Nom exact du concessionnaire ou vendeur particulier'),
     dealerCity: z.string().optional().describe('Ville du concessionnaire'),
     dealerCountry: z.string().optional().describe('Pays (Deutschland, Allemagne)'),
@@ -59,9 +65,17 @@ export async function scrapeAutoScout24Page(url: string): Promise<AS24Vehicle[]>
       formats: [{
         type: 'json',
         prompt: `Extrait la liste complète de tous les véhicules affichés sur cette page AutoScout24.
-Pour chaque véhicule, extrais : titre complet, marque, modèle, prix, année, kilométrage, carburant, boîte de vitesses, puissance, type de carrosserie, couleur extérieure.
-Pour le concessionnaire : extrait le NOM EXACT du garage/concession, la ville, et le téléphone si visible.
-Extrait aussi l'URL de la fiche véhicule et l'URL de l'image principale.`,
+Pour chaque véhicule, extrais :
+- titre complet, marque, modèle, prix, année, kilométrage
+- carburant, boîte de vitesses, puissance, type de carrosserie
+- couleur extérieure, couleur intérieure / sellerie
+- nombre de portes, nombre de places
+- description principale de l'annonce
+- liste des équipements et options si visible
+- URLs de toutes les images visibles (jusqu'à 6)
+- NOM EXACT du concessionnaire (le garage allemand, jamais "AutoScout24")
+- ville et pays du concessionnaire, téléphone si visible
+- URL complète de la fiche véhicule et URL de la première image`,
         schema: AS24VehicleListSchema,
       }],
     } as any);

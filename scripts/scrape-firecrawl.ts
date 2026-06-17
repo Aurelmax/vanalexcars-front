@@ -21,15 +21,20 @@ const VehicleListSchema = z.object({
     mileage: z.number().optional().describe('Kilométrage'),
     fuel: z.string().optional().describe('Carburant (essence, diesel, hybride, électrique)'),
     transmission: z.string().optional().describe('Boîte (manuelle, automatique)'),
-    power: z.string().optional().describe('Puissance en ch'),
+    power: z.string().optional().describe('Puissance (ex: "450 ch" ou "331 kW / 450 PS")'),
     bodyType: z.string().optional().describe('Type de carrosserie : berline, break, suv, coupe, cabriolet, monospace, citadine, pickup'),
-    // Concessionnaire RÉEL = le garage/concession en Allemagne qui vend le véhicule sur AutoScout24
-    // Ne JAMAIS retourner "ImporteMoi" ici — ImporteMoi est le site de scraping, pas le vendeur
-    dealerName: z.string().optional().describe('Nom du concessionnaire réel en Allemagne (ex: "Porsche Zentrum Göppingen", "BMW Niederlassung München"). NE PAS mettre "ImporteMoi".'),
-    dealerCity: z.string().optional().describe('Ville du concessionnaire en Allemagne (ex: "Göppingen", "München")'),
-    dealerCountry: z.string().optional().describe('Pays du concessionnaire (généralement "Allemagne" ou "Germany")'),
-    // URL de l'annonce originale sur AutoScout24 (si présente sur la page importemoi)
-    originalListingUrl: z.string().optional().describe('Lien vers l\'annonce originale AutoScout24 si présent sur la page'),
+    exteriorColor: z.string().optional().describe('Couleur extérieure du véhicule'),
+    interiorColor: z.string().optional().describe('Couleur ou matière de la sellerie intérieure'),
+    doors: z.number().optional().describe('Nombre de portes'),
+    seats: z.number().optional().describe('Nombre de places'),
+    description: z.string().optional().describe('Description ou équipements principaux mentionnés dans l\'annonce'),
+    equipment: z.array(z.string()).optional().describe('Liste des équipements et options du véhicule'),
+    imageUrls: z.array(z.string()).optional().describe('URLs des images du véhicule (jusqu\'à 6)'),
+    // Concessionnaire RÉEL — jamais ImporteMoi
+    dealerName: z.string().optional().describe('Nom du concessionnaire réel en Allemagne. NE PAS mettre "ImporteMoi".'),
+    dealerCity: z.string().optional().describe('Ville du concessionnaire'),
+    dealerCountry: z.string().optional().describe('Pays du concessionnaire'),
+    originalListingUrl: z.string().optional().describe('Lien vers l\'annonce originale AutoScout24 si présent'),
     imageUrl: z.string().optional().describe('URL de la première image du véhicule'),
     vehicleUrl: z.string().optional().describe('URL de la page du véhicule sur importemoi.fr'),
   }))
@@ -50,11 +55,18 @@ export async function scrapeImporteMoiPageFirecrawl(
     const result = await app.scrapeUrl(url, {
       formats: [{
         type: 'json',
-        prompt: `Extrait la liste de tous les véhicules visibles sur cette page.
-IMPORTANT: Pour chaque véhicule, extrais le nom du concessionnaire RÉEL (le garage en Allemagne qui vend la voiture, ex: "Porsche Zentrum Göppingen", "BMW Niederlassung München").
-NE JAMAIS mettre "ImporteMoi" comme concessionnaire — ImporteMoi est le site web sur lequel tu es, pas le vendeur du véhicule.
-Si le concessionnaire réel n'est pas visible sur la page pour un véhicule, laisse dealerName vide.
-Extrais aussi: titre, marque, modèle, prix, année, kilométrage, carburant, transmission, puissance, type de carrosserie, ville du concessionnaire, et l'URL de l'annonce AutoScout24 si présente.`,
+        prompt: `Extrait la liste complète de tous les véhicules sur cette page avec :
+- titre, marque, modèle, prix, année, kilométrage
+- carburant, transmission, puissance, type de carrosserie
+- couleur extérieure, couleur intérieure / sellerie
+- nombre de portes, nombre de places
+- description ou équipements mentionnés dans l'annonce
+- liste des équipements et options
+- URLs des images (jusqu'à 6)
+- concessionnaire RÉEL (le garage allemand qui vend la voiture, PAS "ImporteMoi")
+- ville et pays du concessionnaire
+- lien vers l'annonce AutoScout24 si présent
+- URL de la fiche véhicule sur importemoi.fr`,
         schema: VehicleListSchema,
       }],
     } as any);
@@ -99,8 +111,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log(`   Véhicules: ${vehicles.length}`);
     if (vehicles.length > 0) {
       console.log(`   Prix moyen: ${Math.round(vehicles.reduce((s, v) => s + (v.price || 0), 0) / vehicles.length)}€`);
-      console.log('\n📋 Exemples (avec dealers):');
-      vehicles.slice(0, 5).forEach(v => console.log(`  - ${v.title} | dealer: ${v.dealerName || '(non extrait)'} | ${v.dealerCity || ''}`));
+      console.log('\n📋 Exemples:');
+      vehicles.slice(0, 3).forEach(v => console.log(`  - ${v.title} | ${v.price}€ | dealer: ${v.dealerName || '?'} | power: ${v.power || '?'} | color: ${v.exteriorColor || '?'}`));
     }
   }).catch(err => { console.error('❌', err); process.exit(1); });
 }

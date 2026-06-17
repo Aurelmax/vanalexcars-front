@@ -100,6 +100,16 @@ export default async function handler(
         const isImporteMoi = /importemoi/i.test(rawDealer);
         const realDealer = isImporteMoi || !rawDealer ? null : rawDealer;
 
+        // Images : priorité imageUrls[] du schema, sinon générer depuis imageUrl
+        const allImageUrls = (v.imageUrls && v.imageUrls.length > 0)
+          ? v.imageUrls
+          : v.imageUrl ? generateImageUrls(v.imageUrl) : [];
+
+        // Équipements depuis le schema enrichi
+        const equipmentFeatures = Array.isArray(v.equipment)
+          ? v.equipment.filter(Boolean).map((f: string) => ({ feature: f }))
+          : [];
+
         return {
           title: cleanTitle,
           brand: cleanBrand,
@@ -111,19 +121,21 @@ export default async function handler(
           transmission: mapTransmission(v.transmission),
           category: mapBodyType(v.bodyType),
           power: v.power || '',
+          exteriorColor: v.exteriorColor || null,
+          interiorColor: v.interiorColor || null,
+          doors: v.doors || null,
+          seats: v.seats || null,
           location: v.dealerCountry || 'Allemagne',
           dealer: realDealer,
           dealerCity: v.dealerCity || null,
-          description: '',
+          description: v.description || '',
           externalId: externalRef,
           externalReference: externalRef,
-          // sourceUrl = lien importemoi (source de scraping)
           sourceUrl: v.vehicleUrl || '',
           sourcePlatform: 'importemoi.fr',
-          // originalListingUrl = lien AutoScout24 si trouvé
           originalListingUrl: v.originalListingUrl || null,
-          imageUrls,
-          features: [],
+          imageUrls: allImageUrls,
+          features: equipmentFeatures,
           specifications: v.power ? { power: v.power } : undefined,
         };
       });
