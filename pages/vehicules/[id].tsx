@@ -134,7 +134,18 @@ export default function VehicleDetail() {
   const mainImage = displayImages[selectedImage] || '/placeholder-car.jpg';
 
   const power = vehicle.specifications?.power || vehicle.power;
-  const features = vehicle.features?.map(f => f.feature).filter(Boolean) || [];
+  const features = vehicle.features?.map(f => translateAutoTerms(f.feature)).filter(Boolean) || [];
+
+  // Masquer la description si c'est du texte allemand concaténé (doublon des équipements)
+  // Détection : trop de mots allemands, pas de ponctuation normale
+  const isGermanDump = (text: string) => {
+    if (!text) return false;
+    const germanWords = /\b(und|mit|für|von|der|die|das|aus|bei|durch|nach|über|unter|vor)\b/gi;
+    const matches = (text.match(germanWords) || []).length;
+    const wordCount = text.split(/\s+/).length;
+    return matches / wordCount > 0.08; // >8% de mots de liaison allemands
+  };
+  const showDescription = vehicle.description && vehicle.description.length > 20 && !isGermanDump(vehicle.description);
 
   return (
     <>
@@ -352,7 +363,7 @@ export default function VehicleDetail() {
             </div>
 
             {/* Description */}
-            {vehicle.description && vehicle.description.length > 20 && (
+            {showDescription && (
               <div className='mt-16'>
                 <h2 className='text-3xl font-bold text-white mb-6'>Description</h2>
                 <div className='bg-gray-900/50 border border-gray-800 rounded-xl p-6'>

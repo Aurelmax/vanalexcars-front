@@ -175,6 +175,79 @@ export const AUTO_TERMS_DE_FR: Record<string, string> = {
   'wärmeschutzverglasung': 'Vitrage athermique',
   'regensensor': 'Détecteur de pluie',
   'lichtsensor': 'Détecteur de luminosité',
+
+  // BMW / connecté
+  'connecteddrive services': 'ConnectedDrive Services',
+  'connected package professional': 'Pack Connected Professional',
+  'laufzeitgebundener dienst': 'service à durée limitée',
+  'bmw laserlicht': 'Phares Laser BMW',
+  'bmw head-up display': 'Affichage tête haute BMW',
+  'bmw live cockpit professional': 'BMW Live Cockpit Professional',
+  'bmw apps': 'Applications BMW',
+  'wireless charging': 'Chargeur à induction',
+  'wlan hotspot': 'Hotspot Wi-Fi',
+  'innovationspaket antrieb': 'Pack Innovation Motorisation',
+  'fahrwerkallradautomaticm': 'Châssis 4x4 automatique M',
+  'rekuperationssystem': 'Récupération d\'énergie au freinage',
+  'driving assistant professional': 'Assistant de conduite Professional',
+  'parking assistant plus': 'Assistant de stationnement Plus',
+
+  // Sécurité et assistance
+  'aktiver fussgängerschutz': 'Protection active piétons',
+  'alarmanlage mit fernbedienung': 'Alarme avec télécommande',
+  'intelligenter notruf': 'Appel d\'urgence intelligent',
+  'fahrerassistenz': 'Assistance à la conduite',
+  'abgasnorm eu6': 'Norme Euro 6',
+  'rde': 'RDE (émissions réelles)',
+  'spurkorrektur': 'Correction de trajectoire',
+
+  // Confort
+  'komfortzugang': 'Accès Keyless-Go',
+  'sitzheizung für fahrer und beifahrer': 'Sièges chauffants conducteur et passager',
+  'sportsitze für fahrer und beifahrer': 'Sièges sport conducteur et passager',
+  'sport-lederlenkrad': 'Volant sport cuir',
+  'elektrisch verstellbar mit memory für fahrersitz': 'Réglage électrique mémoire siège conducteur',
+  'klimaautomatik mit erweiterten umfängen': 'Climatisation automatique étendue',
+  'garagentoröffner integriert': 'Ouvre-porte de garage intégré',
+  'sonnenschutzrollos für heckscheibe': 'Store occultant lunette arrière',
+  'hintere seitenscheiben mechanisch': 'Stores mécaniques vitres arrière',
+  'mittelkonsole': 'Console centrale',
+  'ambientes licht': 'Éclairage d\'ambiance',
+  'ambiente-licht': 'Éclairage d\'ambiance',
+  'durchladesystem': 'Trappe à skis',
+
+  // Extérieur
+  'außenspiegelpaket': 'Pack rétroviseurs',
+  'fernlichtassistenten': 'Assistant feux de route',
+  'reifendruck-kontrolle': 'Contrôle pression pneus',
+  'sportauspuffanlage': 'Échappement sport',
+  'm sportfahrwerk': 'Châssis M Sport',
+
+  // Sellerie
+  'sensatec perforiert': 'Sensatec perforé',
+  'schwarz': 'Noir',
+  'innenausstattung': 'Sellerie intérieure',
+  'sitzbezug': 'Revêtement de siège',
+
+  // Couleurs
+  'weiß': 'Blanc',
+  'blau': 'Bleu',
+  'rot': 'Rouge',
+  'grau': 'Gris',
+  'silber': 'Argent',
+  'braun': 'Marron',
+  'grün': 'Vert',
+  'gelb': 'Jaune',
+  'orange': 'Orange',
+  'violett': 'Violet',
+  'beige': 'Beige',
+  'metallic': 'Métallisé',
+  'matt': 'Mat',
+  'dunkel': 'Foncé',
+  'hell': 'Clair',
+  'oxid': 'Oxide',
+  'oxidsilber dunkel': 'Silverstone Foncé',
+  'interieuren': 'Intérieur',
 };
 
 /**
