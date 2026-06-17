@@ -1,0 +1,173 @@
+/**
+ * SSE streaming endpoint — Enrich vehicles via AS24 individual listing scrape
+ * POST /api/admin/enrich
+ * Auth: Authorization: Bearer {SCRAPER_SECRET}
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { calcCompletionScore } from '../../../lib/completion-score';
+import { scrapeListingDetail, mergeVehicle } from '../../../scripts/enrich-vehicles';
+
+export const config = { api: { responseLimit: false } };
+
+const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+
+function sendEvent(res: NextApiResponse, event: object) {
+  res.write('data: ' + JSON.stringify(event) + '\n\n');
+}
+
+function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
+
+function resolveListingUrl(v: any): string | null {
+  if (v.originalListingUrl) return v.originalListingUrl;
+  if (v.sourceUrl && v.sourceUrl.includes('/angebote/')) return v.sourceUrl;
+  return null;
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Auth check
+  const secret = process.env.SCRAPER_SECRET;
+  const authHeader = req.headers['authorization'];
+  const token = authHeader?.replace('Bearer ', '').trim();
+
+  if (!secret || token !== secret) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { minScore = 80, limit = 15, brand, category } = req.body as {
+    minScore?: number;
+    limit?: number;
+    brand?: string;
+    category?: string;
+  };
+
+  // SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders();
+
+  const stats = { total: 0, enriched: 0, skipped: 0, errors: 0 };
+
+  sendEvent(res, { type: 'log', message: `Démarrage enrichissement — score cible: <${minScore}% | limite: ${limit}` });
+  if (brand) sendEvent(res, { type: 'log', message: `Filtre marque: ${brand}` });
+  if (category) sendEvent(res, { type: 'log', message: `Filtre catégorie: ${category}` });
+
+  try {
+    // Build fetch URL with optional filters
+    let fetchUrl = `${BACKEND}/api/vehicles?limit=500&where[sourcePlatform][equals]=autoscout24.de`;
+    if (brand) fetchUrl += `&where[brand][equals]=${encodeURIComponent(brand)}`;
+    if (category) fetchUrl += `&where[category][equals]=${encodeURIComponent(category)}`;
+
+    sendEvent(res, { type: 'log', message: `Récupération des véhicules depuis le backend…` });
+    const fetchRes = await fetch(fetchUrl);
+
+    if (!fetchRes.ok) {
+      sendEvent(res, { type: 'log', message: `Erreur backend: ${fetchRes.status} ${fetchRes.statusText}` });
+      sendEvent(res, { type: 'done', stats });
+      return res.end();
+    }
+
+    const { docs: vehicles } = await fetchRes.json();
+    sendEvent(res, { type: 'log', message: `${vehicles.length} véhicules AutoScout24 récupérés` });
+
+    // Filter: must have a resolvable listing URL and score < minScore
+    const toEnrich = vehicles
+      .filter((v: any) => resolveListingUrl(v))
+      .map((v: any) => ({
+        ...v,
+        listingUrlResolved: resolveListingUrl(v),
+        ...calcCompletionScore(v),
+      }))
+      .filter((v: any) => v.score < minScore)
+      .sort((a: any, b: any) => a.score - b.score)
+      .slice(0, limit);
+
+    stats.total = toEnrich.length;
+    sendEvent(res, { type: 'log', message: `${toEnrich.length} véhicules à enrichir (score < ${minScore}%)` });
+
+    for (const vehicle of toEnrich) {
+      const { score: scoreBefore, missingFields } = calcCompletionScore(vehicle);
+
+      sendEvent(res, {
+        type: 'log',
+        message: `Traitement: ${vehicle.title} (score: ${scoreBefore}%) — manque: ${missingFields.join(', ')}`,
+      });
+
+      const detail = await scrapeListingDetail(vehicle.listingUrlResolved);
+
+      if (!detail) {
+        stats.errors++;
+        sendEvent(res, {
+          type: 'vehicle',
+          title: vehicle.title,
+          scoreBefore,
+          scoreAfter: scoreBefore,
+          status: 'error',
+          message: 'Impossible de scraper la fiche',
+        });
+        await sleep(2000);
+        continue;
+      }
+
+      const patch = mergeVehicle(vehicle, detail);
+
+      if (Object.keys(patch).length <= 1) {
+        // only lastScrapedAt — nothing to update
+        stats.skipped++;
+        sendEvent(res, {
+          type: 'vehicle',
+          title: vehicle.title,
+          scoreBefore,
+          scoreAfter: scoreBefore,
+          status: 'skipped',
+          message: 'Rien à enrichir',
+        });
+        await sleep(1000);
+        continue;
+      }
+
+      const patchRes = await fetch(`${BACKEND}/api/vehicles/${vehicle.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+
+      if (patchRes.ok) {
+        const merged = { ...vehicle, ...patch };
+        const scoreAfter = calcCompletionScore(merged).score;
+        stats.enriched++;
+        sendEvent(res, {
+          type: 'vehicle',
+          title: vehicle.title,
+          scoreBefore,
+          scoreAfter,
+          status: 'enriched',
+        });
+      } else {
+        stats.errors++;
+        const errText = await patchRes.text();
+        sendEvent(res, {
+          type: 'vehicle',
+          title: vehicle.title,
+          scoreBefore,
+          scoreAfter: scoreBefore,
+          status: 'error',
+          message: errText.substring(0, 120),
+        });
+      }
+
+      await sleep(1500);
+    }
+  } catch (e: any) {
+    sendEvent(res, { type: 'log', message: `Erreur fatale: ${e.message}` });
+  }
+
+  sendEvent(res, { type: 'done', stats });
+  res.end();
+}

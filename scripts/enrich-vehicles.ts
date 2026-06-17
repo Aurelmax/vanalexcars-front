@@ -123,7 +123,7 @@ const VehicleDetailSchema = z.object({
 
 type VehicleDetail = z.infer<typeof VehicleDetailSchema>;
 
-async function scrapeListingDetail(listingUrl: string): Promise<VehicleDetail | null> {
+export async function scrapeListingDetail(listingUrl: string): Promise<VehicleDetail | null> {
   try {
     console.log(`  🔥 Firecrawl fiche: ${listingUrl}`);
     const result = await app.scrapeUrl(listingUrl, {
@@ -155,7 +155,7 @@ async function scrapeListingDetail(listingUrl: string): Promise<VehicleDetail | 
 
 // ─── Merge intelligent : ne jamais écraser une valeur existante fiable ───────
 
-function mergeVehicle(existing: any, detail: VehicleDetail): Record<string, any> {
+export function mergeVehicle(existing: any, detail: VehicleDetail): Record<string, any> {
   const patch: Record<string, any> = {};
 
   // Règle : n'ajouter que si le champ existant est vide/null
