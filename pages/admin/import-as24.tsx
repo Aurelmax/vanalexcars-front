@@ -291,11 +291,15 @@ export default function ImportAS24Admin() {
   async function loadStats() {
     setTableLoading(true);
     try {
-      let url = `/api/admin/stats?secret=${encodeURIComponent(token)}`;
-      if (filterBrand) url += `&brand=${encodeURIComponent(filterBrand)}`;
-      if (filterCategory) url += `&category=${encodeURIComponent(filterCategory)}`;
+      let url = `/api/admin/stats`;
+      const params = new URLSearchParams();
+      if (filterBrand) params.set('brand', filterBrand);
+      if (filterCategory) params.set('category', filterCategory);
+      if ([...params].length) url += `?${params.toString()}`;
 
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!res.ok) {
         addLog(`Erreur stats: ${res.status}`);
         return;
