@@ -158,26 +158,24 @@ export async function scrapeListingDetail(listingUrl: string): Promise<VehicleDe
     let html: string = dataResult.html || '';
     const credits1 = dataResult.metadata?.creditsUsed || 0;
 
-    // Appel 2 (optionnel) : images via actions galerie — si pas encore d'images
+    // Appel 2 : images via Playwright backend (galerie AS24 complète)
     let foundImages = extractImages(html);
-    if (foundImages.length < 2 && listingUuid) {
-      try {
-        const GALLERY_CLICK = { type: 'click', selector: '[class*="gallery"] button, [class*="carousel"] button, button[class*="next"], [data-testid*="next"], [aria-label*="next" i], [aria-label*="weiter" i]' };
-        const imgResult: any = await app.scrapeUrl(listingUrl, {
-          formats: ['html'],
-          actions: [
-            { type: 'wait', milliseconds: 2500 },
-            GALLERY_CLICK, { type: 'wait', milliseconds: 600 },
-            GALLERY_CLICK, { type: 'wait', milliseconds: 600 },
-            GALLERY_CLICK, { type: 'wait', milliseconds: 600 },
-            GALLERY_CLICK, { type: 'wait', milliseconds: 600 },
-          ],
-        } as any);
-        html = imgResult.html || html;
-        foundImages = extractImages(html);
-      } catch {
-        // Galerie inaccessible — on garde les images du premier appel
+    try {
+      const playwrightRes = await fetch(`${BACKEND}/api/scrape-gallery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: listingUrl }),
+        signal: AbortSignal.timeout(45000),
+      });
+      if (playwrightRes.ok) {
+        const { images } = await playwrightRes.json() as { images: string[]; count: number };
+        if (images && images.length > foundImages.length) {
+          foundImages = images;
+          console.log(`  🎭 Playwright: ${images.length} images`);
+        }
       }
+    } catch {
+      // Playwright indisponible — on garde les images Firecrawl
     }
 
     if (foundImages.length > 0) {
