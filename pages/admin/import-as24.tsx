@@ -311,8 +311,8 @@ export default function ImportAS24Admin() {
   }
 
   useEffect(() => {
-    if (isAuthenticated) loadStats();
-  }, [isAuthenticated]);
+    if (isAuthenticated && token) loadStats();
+  }, [isAuthenticated, token]);
 
   // ── Filtered vehicles ────────────────────────────────────────────────────
   const filteredVehicles = vehicles.filter(v => {
