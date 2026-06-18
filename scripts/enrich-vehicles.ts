@@ -128,72 +128,65 @@ export async function scrapeListingDetail(listingUrl: string): Promise<VehicleDe
   const listingUuidMatch = listingUrl.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:[^/]*)?$/i);
   const listingUuid = listingUuidMatch ? listingUuidMatch[1] : null;
 
-  const JSON_FORMAT = {
-    type: 'json',
-    prompt: `Extrait toutes les informations techniques de cette fiche véhicule :
-- puissance moteur (en PS, kW ou ch)
-- couleur extérieure de la carrosserie
-- couleur/matière de la sellerie intérieure
-- nombre de portes et de places
-- description complète de l'annonce
-- liste COMPLÈTE de tous les équipements et options (chaque item séparé)
-- URLs de TOUTES les photos du véhicule (cherche dans la galerie, le carousel, les miniatures)
-- nom exact du concessionnaire vendeur (pas "AutoScout24")
-- ville, adresse et téléphone du concessionnaire`,
-    schema: VehicleDetailSchema,
-  };
-
-  const GALLERY_CLICK = { type: 'click', selector: 'button[aria-label*="next"], button[aria-label*="Next"], .gallery-next, [data-testid*="next"], [class*="next"], [aria-label*="Suivant"], [aria-label*="weiter"]' };
-  const WAIT = { type: 'wait', milliseconds: 700 };
-
   const extractImages = (html: string): string[] => {
     const as24ImgRegex = /https:\/\/prod\.pictures\.autoscout24\.net\/listing-images\/[\w/_-]+\.(?:jpg|jpeg|webp|png)/gi;
     const all = [...new Set([...html.matchAll(as24ImgRegex)].map(m => m[0]))];
     return listingUuid ? all.filter(url => url.includes(listingUuid)) : all;
   };
 
-  const scrapeWithOptions = async (withActions: boolean) => {
-    const options: any = { formats: [JSON_FORMAT, 'html'] };
-    if (withActions) {
-      options.actions = [
-        { type: 'wait', milliseconds: 2000 },
-        GALLERY_CLICK, WAIT, GALLERY_CLICK, WAIT, GALLERY_CLICK, WAIT,
-        GALLERY_CLICK, WAIT, GALLERY_CLICK, WAIT, GALLERY_CLICK, WAIT,
-      ];
-    }
-    return app.scrapeUrl(listingUrl, options);
-  };
-
   try {
     console.log(`  🔥 Firecrawl fiche: ${listingUrl}`);
 
-    let result: any;
-    try {
-      result = await scrapeWithOptions(true);
-    } catch (actionsErr: any) {
-      if (actionsErr.message?.includes('Element not found') || actionsErr.message?.includes('ActionError')) {
-        console.log(`  ⚠️  Actions échouées (${actionsErr.message.substring(0, 60)}), fallback sans actions`);
-        result = await scrapeWithOptions(false);
-      } else {
-        throw actionsErr;
+    // Appel 1 : données structurées uniquement (sans actions — toujours fiable)
+    const dataResult: any = await app.scrapeUrl(listingUrl, {
+      formats: [{
+        type: 'json',
+        prompt: `Extrait toutes les informations techniques de cette fiche véhicule :
+- puissance moteur (en PS, kW ou ch) — obligatoire
+- couleur extérieure de la carrosserie — obligatoire
+- couleur/matière de la sellerie intérieure
+- nombre de portes et de places
+- description complète de l'annonce
+- liste COMPLÈTE de tous les équipements et options (chaque item séparé)
+- nom exact du concessionnaire vendeur (pas "AutoScout24")
+- ville et téléphone du concessionnaire`,
+        schema: VehicleDetailSchema,
+      }, 'html'],
+    } as any);
+
+    const detail = dataResult.json || {};
+    let html: string = dataResult.html || '';
+    const credits1 = dataResult.metadata?.creditsUsed || 0;
+
+    // Appel 2 (optionnel) : images via actions galerie — si pas encore d'images
+    let foundImages = extractImages(html);
+    if (foundImages.length < 2 && listingUuid) {
+      try {
+        const GALLERY_CLICK = { type: 'click', selector: '[class*="gallery"] button, [class*="carousel"] button, button[class*="next"], [data-testid*="next"], [aria-label*="next" i], [aria-label*="weiter" i]' };
+        const imgResult: any = await app.scrapeUrl(listingUrl, {
+          formats: ['html'],
+          actions: [
+            { type: 'wait', milliseconds: 2500 },
+            GALLERY_CLICK, { type: 'wait', milliseconds: 600 },
+            GALLERY_CLICK, { type: 'wait', milliseconds: 600 },
+            GALLERY_CLICK, { type: 'wait', milliseconds: 600 },
+            GALLERY_CLICK, { type: 'wait', milliseconds: 600 },
+          ],
+        } as any);
+        html = imgResult.html || html;
+        foundImages = extractImages(html);
+      } catch {
+        // Galerie inaccessible — on garde les images du premier appel
       }
     }
 
-    const detail = (result as any).json;
-    const html: string = (result as any).html || '';
-    const credits = (result as any).metadata?.creditsUsed || 0;
-
-    // Extraire les URLs d'images AS24 depuis le HTML (filtré par UUID de la fiche)
-    if (detail && (!detail.imageUrls || detail.imageUrls.length < 3)) {
-      const found = extractImages(html);
-      if (found.length > 0) {
-        detail.imageUrls = found;
-        console.log(`  📸 ${found.length} images extraites (filtré par UUID ${listingUuid ? listingUuid.substring(0, 8) : 'n/a'})`);
-      }
+    if (foundImages.length > 0) {
+      detail.imageUrls = foundImages;
+      console.log(`  📸 ${foundImages.length} images (UUID ${listingUuid?.substring(0, 8) ?? 'n/a'})`);
     }
 
-    console.log(`  ✅ Enrichi (${credits} crédits) — power:${detail?.power || '?'} color:${detail?.exteriorColor || '?'} images:${detail?.imageUrls?.length || 0} equipment:${detail?.equipment?.length || 0} items`);
-    return detail || null;
+    console.log(`  ✅ (${credits1} crédits) — power:${detail?.power || '?'} color:${detail?.exteriorColor || '?'} imgs:${detail?.imageUrls?.length || 0} equip:${detail?.equipment?.length || 0}`);
+    return detail;
   } catch (e: any) {
     console.error(`  ❌ Erreur Firecrawl: ${e.message}`);
     return null;
@@ -205,13 +198,16 @@ export async function scrapeListingDetail(listingUrl: string): Promise<VehicleDe
 export function mergeVehicle(existing: any, detail: VehicleDetail): Record<string, any> {
   const patch: Record<string, any> = {};
 
-  // Règle : n'ajouter que si le champ existant est vide/null
+  // Valeurs parasites à ignorer (retournées par le LLM quand il ne sait pas)
+  const isUseless = (v: any) => !v || v === 'N/A' || v === 'n/a' || v === '?' || v === '-' || String(v).trim() === '';
+
+  // Règle : n'ajouter que si le champ existant est vide/null et la valeur est utile
   const addIfMissing = (field: string, value: any) => {
-    if (value && !existing[field]) patch[field] = value;
+    if (!isUseless(value) && !existing[field]) patch[field] = value;
   };
 
   // power → specifications.power (champ imbriqué Payload)
-  if (detail.power && !existing.specifications?.power) {
+  if (!isUseless(detail.power) && !existing.specifications?.power) {
     patch['specifications'] = { ...(existing.specifications || {}), power: detail.power };
   }
   addIfMissing('exteriorColor', detail.exteriorColor);
