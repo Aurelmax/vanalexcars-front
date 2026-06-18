@@ -51,7 +51,9 @@
     "scrape:audi": "tsx scripts/scrape-importemoi.ts audi 3",
     "scrape:porsche": "tsx scripts/scrape-importemoi.ts porsche 2",
     "scrape:volkswagen": "tsx scripts/scrape-importemoi.ts volkswagen 3",
-    "scrape:daily": "tsx scripts/cron-scraper.ts"
+    "scrape:daily": "tsx scripts/cron-scraper.ts",
+    "sync:as24-status": "tsx scripts/sync-as24-status.ts",
+    "sync:as24-status:dry": "tsx scripts/sync-as24-status.ts --dry-run"
   },
   "dependencies": {
     "@apollo/client": "^4.0.7",
