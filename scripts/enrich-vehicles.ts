@@ -163,7 +163,10 @@ export async function scrapeListingDetail(listingUrl: string): Promise<VehicleDe
     try {
       const playwrightRes = await fetch(`${BACKEND}/api/scrape-gallery`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-secret': process.env.SCRAPER_SECRET || '',
+        },
         body: JSON.stringify({ url: listingUrl }),
         signal: AbortSignal.timeout(45000),
       });
