@@ -91,7 +91,7 @@ export default function Header() {
           <div className='hidden md:flex items-center space-x-3'>
             {/* Bouton WhatsApp */}
             <a
-              href='https://wa.me/33612345678'
+              href='https://wa.me/33646022468'
               target='_blank'
               rel='noopener noreferrer'
               className='p-2 text-green-400 hover:text-green-300 hover:bg-green-400/10 rounded-lg transition-all duration-300 group'
@@ -135,7 +135,7 @@ export default function Header() {
 
             {/* Bouton Téléphone */}
             <a
-              href='tel:+33612345678'
+              href='tel:+33646022468'
               className='p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-all duration-300 group'
               title='Appeler'
             >
@@ -331,7 +331,7 @@ export default function Header() {
             {/* Actions rapides mobile */}
             <div className='pt-4 border-t border-gray-700 space-y-3'>
               <a
-                href='https://wa.me/33612345678'
+                href='https://wa.me/33646022468'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='flex items-center space-x-3 px-4 py-3 bg-green-600/20 text-green-400 hover:bg-green-600/30 rounded-xl transition-all duration-300 group'
@@ -348,7 +348,7 @@ export default function Header() {
               </a>
 
               <a
-                href='tel:+33612345678'
+                href='tel:+33646022468'
                 className='flex items-center space-x-3 px-4 py-3 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded-xl transition-all duration-300 group'
                 onClick={() => setIsMenuOpen(false)}
               >

@@ -400,13 +400,13 @@ export default function VehicleDetail() {
                     Demander des informations
                   </a>
                   <a
-                    href={`tel:+33612345678`}
+                    href={`tel:+33646022468`}
                     className='block w-full bg-gray-800 hover:bg-gray-700 text-white text-center font-semibold py-4 rounded-xl transition-all duration-300 border border-gray-700'
                   >
                     📞 Appeler maintenant
                   </a>
                   <a
-                    href={`https://wa.me/33612345678?text=${encodeURIComponent(`Bonjour, je suis intéressé par: ${vehicle.title}`)}`}
+                    href={`https://wa.me/33646022468?text=${encodeURIComponent(`Bonjour, je suis intéressé par: ${vehicle.title}`)}`}
                     target='_blank'
                     rel='noopener noreferrer'
                     className='block w-full bg-green-600 hover:bg-green-700 text-white text-center font-semibold py-4 rounded-xl transition-all duration-300'
