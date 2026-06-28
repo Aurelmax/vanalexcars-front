@@ -199,7 +199,7 @@ export default function FormulaireDemande() {
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>Téléphone</label>
                   <input
-                    type='tel' name='phone' placeholder='+33 6 12 34 56 78'
+                    type='tel' name='phone' placeholder='+33 6 46 02 24 68'
                     value={formData.phone} onChange={handleChange}
                     className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
                   />

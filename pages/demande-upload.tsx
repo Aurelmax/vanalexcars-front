@@ -201,7 +201,7 @@ export default function FormulaireDemandeUpload() {
                   <input
                     type='tel'
                     name='phone'
-                    placeholder='+33 6 12 34 56 78'
+                    placeholder='+33 6 46 02 24 68'
                     value={formData.phone}
                     onChange={handleChange}
                     className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent'

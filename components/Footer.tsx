@@ -51,7 +51,7 @@ export default function Footer() {
                   </span>
                 </div>
                 <div>
-                  <p className='text-white font-medium'>+33 6 12 34 56 78</p>
+                  <p className='text-white font-medium'>+33 6 46 02 24 68</p>
                   <p className='text-gray-300 text-sm'>Disponible 7j/7</p>
                 </div>
               </div>

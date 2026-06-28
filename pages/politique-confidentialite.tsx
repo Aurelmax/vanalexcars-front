@@ -50,7 +50,7 @@ export default function PolitiqueConfidentialite() {
                   <strong>Email :</strong> contact@vanalexcars.fr
                 </p>
                 <p className='text-gray-700'>
-                  <strong>Téléphone :</strong> +33 6 12 34 56 78
+                  <strong>Téléphone :</strong> +33 6 46 02 24 68
                 </p>
               </div>
             </section>
@@ -311,7 +311,7 @@ export default function PolitiqueConfidentialite() {
                   Email : contact@vanalexcars.fr
                 </p>
                 <p className='text-gray-700 mb-2'>
-                  Téléphone : +33 6 12 34 56 78
+                  Téléphone : +33 6 46 02 24 68
                 </p>
                 <p className='text-gray-700'>
                   Adresse : 123 Rue Exemple, 06160 Antibes, France

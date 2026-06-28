@@ -293,7 +293,7 @@ const TestRegistrationDocumentsForm: React.FC<
                 value={values.phone}
                 onChange={handleChange}
                 className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500'
-                placeholder='+33 6 12 34 56 78'
+                placeholder='+33 6 46 02 24 68'
               />
             </div>
 

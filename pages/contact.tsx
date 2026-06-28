@@ -103,7 +103,7 @@ export default function Contact() {
                   <span className='text-2xl'>📞</span>
                   <div>
                     <p className='font-semibold text-gray-900'>
-                      +33 6 12 34 56 78
+                      +33 6 46 02 24 68
                     </p>
                     <p className='text-gray-600'>Disponible 7j/7</p>
                   </div>

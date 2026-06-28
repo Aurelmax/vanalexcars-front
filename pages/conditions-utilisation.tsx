@@ -268,7 +268,7 @@ export default function ConditionsUtilisation() {
                   Email : contact@vanalexcars.fr
                 </p>
                 <p className='text-gray-700 mb-2'>
-                  Téléphone : +33 6 12 34 56 78
+                  Téléphone : +33 6 46 02 24 68
                 </p>
                 <p className='text-gray-700'>
                   Adresse : 123 Rue Exemple, 06160 Antibes, France

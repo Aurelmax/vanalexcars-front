@@ -165,7 +165,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
             value={values.phone}
             onChange={getField('phone').onChange}
             className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500'
-            placeholder='06 12 34 56 78'
+            placeholder='06 46 02 24 68'
           />
         </div>
 
