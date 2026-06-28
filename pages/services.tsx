@@ -33,274 +33,188 @@ export default function Services() {
               automobile.
             </p>
 
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-              {/* Forfait Essentiel */}
-              <div className='bg-gray-50 rounded-lg p-6 border border-gray-200 hover:border-premium-gold transition-all duration-300'>
-                <h3 className='text-xl font-bold text-gray-900 mb-2'>
-                  Forfait Essentiel
-                </h3>
-                <p className='text-sm text-gray-600 mb-4'>
-                  Vérification & Achat sur Place
-                </p>
-                <p className='text-gray-700 mb-6'>
-                  Idéal pour ceux qui veulent une vérification experte et un
-                  accompagnement sécurisé.
-                </p>
-                <ul className='space-y-3 mb-8'>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-gold mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-700'>
-                      Déplacement personnalisé en Allemagne
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-gold mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-700'>
-                      Paiement sécurisé sur place
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-gold mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-700'>
-                      Accompagnement administratif
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-gold mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-700'>
-                      Rapport complet remis
-                    </span>
-                  </li>
-                </ul>
-                <div className='text-center'>
-                  <div className='text-2xl font-bold text-premium-gold mb-2'>
-                    Sur devis
-                  </div>
-                  <button className='w-full bg-premium-gold text-premium-black py-2 rounded font-semibold hover:bg-yellow-400 transition'>
-                    Choisir ce forfait
-                  </button>
+            {/* Flèche de progression */}
+            <div className='hidden md:flex items-center justify-center gap-2 mb-6'>
+              <span className='text-xs text-gray-400 uppercase tracking-widest'>Recherche</span>
+              <div className='flex-1 h-px bg-linear-to-r from-gray-200 via-premium-gold to-gray-900'></div>
+              <span className='text-xs text-gray-400 uppercase tracking-widest'>Achat sécurisé</span>
+              <div className='flex-1 h-px bg-linear-to-r from-gray-400 to-gray-900'></div>
+              <span className='text-xs text-gray-400 uppercase tracking-widest'>Clés en main</span>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch'>
+
+              {/* BASIC */}
+              <div className='bg-gray-50 rounded-lg p-6 border border-gray-200 hover:border-premium-gold transition-all duration-300 flex flex-col'>
+                <div className='mb-5'>
+                  <span className='text-xs font-bold uppercase tracking-widest text-gray-400'>Basic</span>
+                  <h3 className='text-xl font-bold text-gray-900 mt-1 mb-1'>
+                    Je trouve votre véhicule
+                  </h3>
+                  <p className='text-sm italic text-gray-500'>
+                    Vous souhaitez trouver le bon véhicule.
+                  </p>
                 </div>
+
+                <div className='text-3xl font-bold text-premium-gold mb-1'>299 €</div>
+                <p className='text-xs text-gray-400 mb-6'>Frais de service</p>
+
+                <ul className='space-y-3 mb-8 flex-1'>
+                  {[
+                    'Analyse de votre besoin',
+                    'Recherche personnalisée sur AutoScout24.de',
+                    'Sélection de véhicules correspondants',
+                    'Rapport de présélection',
+                    'Vérification de disponibilité',
+                    'Support par e-mail',
+                  ].map((item) => (
+                    <li key={item} className='flex items-start'>
+                      <svg className='w-5 h-5 text-premium-gold mr-2 mt-0.5 shrink-0' fill='currentColor' viewBox='0 0 20 20'>
+                        <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd' />
+                      </svg>
+                      <span className='text-sm text-gray-700'>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link href='/demande' className='block w-full text-center bg-premium-gold text-premium-black py-2 rounded font-semibold hover:bg-yellow-400 transition'>
+                  Choisir Basic
+                </Link>
               </div>
 
-              {/* Forfait Confort */}
-              <div className='bg-white rounded-lg p-6 border-2 border-premium-gold shadow-lg relative hover:shadow-xl transition-all duration-300'>
+              {/* PREMIUM — recommandé */}
+              <div className='bg-white rounded-lg p-6 border-2 border-premium-gold shadow-lg relative hover:shadow-xl transition-all duration-300 flex flex-col'>
                 <div className='absolute -top-3 left-1/2 transform -translate-x-1/2'>
-                  <span className='bg-premium-gold text-premium-black text-xs font-bold px-3 py-1 rounded-full'>
-                    Plus Populaire
+                  <span className='bg-premium-gold text-premium-black text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap'>
+                    Recommandé
                   </span>
                 </div>
-                <h3 className='text-xl font-bold text-gray-900 mb-2'>
-                  Forfait Confort
-                </h3>
-                <p className='text-sm text-gray-600 mb-4'>
-                  Import & Rapatriement
-                </p>
-                <p className='text-gray-700 mb-6'>
-                  Le choix populaire pour une prise en charge complète de
-                  l&apos;importation et du transport.
-                </p>
-                <ul className='space-y-3 mb-8'>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-gold mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-700'>
-                      Tous les services du forfait Essentiel
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-gold mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-700'>
-                      Organisation du rapatriement
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-gold mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-700'>
-                      Suivi en temps réel du transport
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-gold mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-700'>
-                      Assistance quitus fiscal
-                    </span>
-                  </li>
-                </ul>
-                <div className='text-center'>
-                  <div className='text-2xl font-bold text-premium-gold mb-2'>
-                    Sur devis
-                  </div>
-                  <button className='w-full bg-premium-gold text-premium-black py-2 rounded font-semibold hover:bg-yellow-400 transition'>
-                    Choisir ce forfait
-                  </button>
+
+                <div className='mb-5'>
+                  <span className='text-xs font-bold uppercase tracking-widest text-premium-gold'>Premium</span>
+                  <h3 className='text-xl font-bold text-gray-900 mt-1 mb-1'>
+                    Je sécurise votre achat
+                  </h3>
+                  <p className='text-sm italic text-gray-500'>
+                    Vous souhaitez acheter en toute sécurité.
+                  </p>
                 </div>
+
+                <div className='text-3xl font-bold text-premium-gold mb-1'>599 €</div>
+                <p className='text-xs text-gray-400 mb-6'>Frais de service</p>
+
+                <div className='bg-gray-50 rounded px-3 py-2 mb-4 text-xs text-gray-500 border border-gray-100'>
+                  Tout le Basic, plus&nbsp;:
+                </div>
+
+                <ul className='space-y-3 mb-8 flex-1'>
+                  {[
+                    'Vérification auprès du concessionnaire officiel',
+                    'Analyse documentaire complète',
+                    'Vérification de l\'historique (CarVertical si nécessaire)',
+                    'Vérification de la garantie constructeur',
+                    'Négociation lorsque cela est possible',
+                    'Accompagnement téléphonique',
+                  ].map((item) => (
+                    <li key={item} className='flex items-start'>
+                      <svg className='w-5 h-5 text-premium-gold mr-2 mt-0.5 shrink-0' fill='currentColor' viewBox='0 0 20 20'>
+                        <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd' />
+                      </svg>
+                      <span className='text-sm text-gray-700'>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link href='/demande' className='block w-full text-center bg-premium-gold text-premium-black py-2 rounded font-semibold hover:bg-yellow-400 transition'>
+                  Choisir Premium
+                </Link>
               </div>
 
-              {/* Forfait VIP Premium */}
-              <div className='bg-linear-to-br from-premium-gold to-yellow-600 rounded-lg p-6 text-premium-black relative hover:scale-105 transition-all duration-300'>
+              {/* VIP */}
+              <div className='bg-linear-to-br from-premium-gold to-yellow-600 rounded-lg p-6 text-premium-black relative hover:scale-105 transition-all duration-300 flex flex-col'>
                 <div className='absolute -top-3 right-4'>
                   <span className='bg-premium-black text-premium-gold text-xs font-bold px-3 py-1 rounded-full'>
-                    VIP Premium
+                    VIP
                   </span>
                 </div>
-                <h3 className='text-xl font-bold mb-2'>Forfait VIP Premium</h3>
-                <p className='text-sm text-gray-800 mb-4'>Tout Inclus</p>
-                <p className='text-gray-700 mb-6'>
-                  L&apos;expérience ultime pour un service sans souci, de la
-                  négociation à la livraison.
-                </p>
-                <ul className='space-y-3 mb-8'>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-black mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-800'>
-                      Tous les services du forfait Confort
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-black mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-800'>
-                      Assistance personnalisée 24/7
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-black mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-800'>
-                      Gestion des négociations
-                    </span>
-                  </li>
-                  <li className='flex items-start'>
-                    <svg
-                      className='w-5 h-5 text-premium-black mr-2 mt-0.5'
-                      fill='currentColor'
-                      viewBox='0 0 20 20'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                    <span className='text-sm text-gray-800'>
-                      Expertise technique approfondie
-                    </span>
-                  </li>
+
+                <div className='mb-5'>
+                  <span className='text-xs font-bold uppercase tracking-widest text-gray-700'>VIP</span>
+                  <h3 className='text-xl font-bold mt-1 mb-1'>
+                    Je m&apos;occupe de tout
+                  </h3>
+                  <p className='text-sm italic text-gray-700'>
+                    Vous souhaitez que nous nous occupions de tout.
+                  </p>
+                </div>
+
+                <div className='text-3xl font-bold text-premium-black mb-1'>999 €</div>
+                <p className='text-xs text-gray-700 mb-6'>Frais de service</p>
+
+                <div className='bg-black/10 rounded px-3 py-2 mb-4 text-xs text-gray-700 border border-black/10'>
+                  Tout le Premium, plus&nbsp;:
+                </div>
+
+                <ul className='space-y-3 mb-8 flex-1'>
+                  {[
+                    'Coordination complète de l\'importation',
+                    'Gestion administrative du dossier',
+                    'Constitution du dossier d\'immatriculation',
+                    'Signature électronique du mandat',
+                    'Accompagnement jusqu\'à la remise du véhicule',
+                    'Assistance prioritaire',
+                  ].map((item) => (
+                    <li key={item} className='flex items-start'>
+                      <svg className='w-5 h-5 text-premium-black mr-2 mt-0.5 shrink-0' fill='currentColor' viewBox='0 0 20 20'>
+                        <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd' />
+                      </svg>
+                      <span className='text-sm text-gray-800'>{item}</span>
+                    </li>
+                  ))}
                 </ul>
-                <div className='text-center'>
-                  <div className='text-2xl font-bold text-premium-black mb-2'>
-                    Sur devis
+
+                <Link href='/demande' className='block w-full text-center bg-premium-black text-premium-gold py-2 rounded font-semibold hover:bg-gray-800 transition'>
+                  Choisir VIP
+                </Link>
+              </div>
+
+            </div>
+
+            {/* Prestations sur devis */}
+            <div className='mt-10 bg-gray-50 border border-gray-200 rounded-lg p-6'>
+              <div className='flex items-start gap-4'>
+                <div className='shrink-0 mt-1'>
+                  <span className='inline-flex items-center justify-center w-9 h-9 rounded-full bg-premium-gold/10 text-premium-gold'>
+                    <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' />
+                    </svg>
+                  </span>
+                </div>
+                <div className='flex-1'>
+                  <h3 className='text-base font-bold text-gray-900 mb-1'>Prestations sur devis</h3>
+                  <p className='text-sm text-gray-500 mb-5'>
+                    Les prestations nécessitant un déplacement en Allemagne ou l&apos;intervention d&apos;un prestataire externe sont proposées sur devis afin de s&apos;adapter à la localisation du véhicule et aux besoins spécifiques du client.
+                  </p>
+                  <div className='grid grid-cols-2 sm:grid-cols-3 gap-3'>
+                    {[
+                      'Inspection sur site en Allemagne',
+                      'Convoyage personnalisé',
+                      'Livraison du véhicule',
+                      'Expertise mécanique indépendante',
+                      'Accompagnement physique chez le concessionnaire',
+                      'Livraison express',
+                    ].map((item) => (
+                      <div key={item} className='flex items-center gap-2 text-sm text-gray-600'>
+                        <span className='w-1.5 h-1.5 rounded-full bg-premium-gold shrink-0'></span>
+                        {item}
+                      </div>
+                    ))}
                   </div>
-                  <button className='w-full bg-premium-black text-premium-gold py-2 rounded font-semibold hover:bg-gray-800 transition'>
-                    Choisir ce forfait
-                  </button>
+                  <div className='mt-5'>
+                    <Link href='/contact' className='inline-flex items-center text-sm font-semibold text-premium-gold hover:underline'>
+                      Demander un devis sur mesure →
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
