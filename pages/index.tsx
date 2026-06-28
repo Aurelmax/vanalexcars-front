@@ -248,7 +248,7 @@ export default function Home({
                       clipRule='evenodd'
                     />
                   </svg>
-                  Inspection sur place
+                  Vérification concessionnaire officiel
                 </li>
                 <li className='flex items-center'>
                   <svg
