@@ -47,7 +47,7 @@ export default function PolitiqueConfidentialite() {
                   France
                 </p>
                 <p className='text-gray-700 mb-2'>
-                  <strong>Email :</strong> contact@vanalexcars.fr
+                  <strong>Email :</strong> aurelien@vanalexcars.fr
                 </p>
                 <p className='text-gray-700'>
                   <strong>Téléphone :</strong> +33 6 46 02 24 68
@@ -258,7 +258,7 @@ export default function PolitiqueConfidentialite() {
                 </div>
                 <p className='text-gray-700 mt-4'>
                   Pour exercer ces droits, contactez-nous à :
-                  contact@vanalexcars.fr
+                  aurelien@vanalexcars.fr
                 </p>
               </div>
             </section>
@@ -308,7 +308,7 @@ export default function PolitiqueConfidentialite() {
                   confidentialité :
                 </p>
                 <p className='text-gray-700 mb-2'>
-                  Email : contact@vanalexcars.fr
+                  Email : aurelien@vanalexcars.fr
                 </p>
                 <p className='text-gray-700 mb-2'>
                   Téléphone : +33 6 46 02 24 68

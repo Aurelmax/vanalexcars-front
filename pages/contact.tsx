@@ -113,7 +113,7 @@ export default function Contact() {
                   <span className='text-2xl'>✉️</span>
                   <div>
                     <p className='font-semibold text-gray-900'>
-                      contact@vanalexcars.fr
+                      aurelien@vanalexcars.fr
                     </p>
                     <p className='text-gray-600'>Réponse sous 24h</p>
                   </div>

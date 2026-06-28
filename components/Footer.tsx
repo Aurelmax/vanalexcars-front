@@ -39,7 +39,7 @@ export default function Footer() {
                 </div>
                 <div>
                   <p className='text-white font-medium'>
-                    contact@vanalexcars.fr
+                    aurelien@vanalexcars.fr
                   </p>
                   <p className='text-gray-300 text-sm'>Réponse sous 24h</p>
                 </div>

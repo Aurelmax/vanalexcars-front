@@ -34,7 +34,7 @@ export default function MentionsLegales() {
                   <strong>Téléphone :</strong> +33 6 46 02 24 68
                 </p>
                 <p className='text-gray-700 mb-2'>
-                  <strong>Email :</strong> contact@vanalexcars.fr
+                  <strong>Email :</strong> aurelien@vanalexcars.fr
                 </p>
                 <p className='text-gray-700 mb-2'>
                   <strong>SIRET :</strong> 123 456 789 00012
@@ -55,7 +55,7 @@ export default function MentionsLegales() {
                 <p className='text-gray-700'>
                   Alexandre - Gérant de Vanalexcars
                 </p>
-                <p className='text-gray-700'>Email : contact@vanalexcars.fr</p>
+                <p className='text-gray-700'>Email : aurelien@vanalexcars.fr</p>
               </div>
             </section>
 
@@ -193,7 +193,7 @@ export default function MentionsLegales() {
                   Pour toute question concernant ces mentions légales :
                 </p>
                 <p className='text-gray-700 mb-2'>
-                  Email : contact@vanalexcars.fr
+                  Email : aurelien@vanalexcars.fr
                 </p>
                 <p className='text-gray-700'>Téléphone : +33 6 46 02 24 68</p>
               </div>

@@ -56,6 +56,7 @@ export default function FormulaireDemande() {
       data.append('access_key', '6f11c5bf-fe47-4bdc-90af-114658ee3a64');
       data.append('subject', `Nouvelle demande Vanalexcars — ${formData.forfait.toUpperCase()} — ${formData.voiture || 'sans modèle'}`);
       data.append('from_name', 'Vanalexcars');
+      data.append('replyto', formData.email);
       data.append('name', formData.name);
       data.append('email', formData.email);
       if (formData.phone) data.append('phone', formData.phone);

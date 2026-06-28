@@ -246,7 +246,7 @@ export default function CGV() {
                   Pour toute question concernant ces conditions générales :
                 </p>
                 <p className='text-gray-700 mb-2'>
-                  Email : contact@vanalexcars.fr
+                  Email : aurelien@vanalexcars.fr
                 </p>
                 <p className='text-gray-700'>Téléphone : +33 6 46 02 24 68</p>
               </div>
