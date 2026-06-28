@@ -148,9 +148,10 @@ export default function Home({
             <div className='bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200 hover:border-yellow-500 transition-colors'>
               <div className='text-center mb-6'>
                 <h3 className='text-2xl font-bold text-gray-900 mb-2'>Basic</h3>
-                <div className='text-4xl font-bold text-yellow-500 mb-2'>
+                <div className='text-4xl font-bold text-yellow-500 mb-1'>
                   299€
                 </div>
+                <p className='text-xs text-gray-400 mb-1'>À partir de</p>
                 <p className='text-gray-600'>Par véhicule</p>
               </div>
               <ul className='space-y-4 mb-8'>
@@ -216,9 +217,10 @@ export default function Home({
                 <h3 className='text-2xl font-bold text-gray-900 mb-2'>
                   Premium
                 </h3>
-                <div className='text-4xl font-bold text-yellow-500 mb-2'>
+                <div className='text-4xl font-bold text-yellow-500 mb-1'>
                   599€
                 </div>
+                <p className='text-xs text-gray-400 mb-1'>À partir de</p>
                 <p className='text-gray-600'>Par véhicule</p>
               </div>
               <ul className='space-y-4 mb-8'>
@@ -291,9 +293,10 @@ export default function Home({
             <div className='bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200 hover:border-yellow-500 transition-colors'>
               <div className='text-center mb-6'>
                 <h3 className='text-2xl font-bold text-gray-900 mb-2'>VIP</h3>
-                <div className='text-4xl font-bold text-yellow-500 mb-2'>
+                <div className='text-4xl font-bold text-yellow-500 mb-1'>
                   999€
                 </div>
+                <p className='text-xs text-gray-400 mb-1'>À partir de</p>
                 <p className='text-gray-600'>Par véhicule</p>
               </div>
               <ul className='space-y-4 mb-8'>

@@ -56,6 +56,7 @@ export default function Services() {
                   </p>
                 </div>
 
+                <p className='text-xs text-gray-400 mb-0.5'>À partir de</p>
                 <div className='text-3xl font-bold text-premium-gold mb-1'>299 €</div>
                 <p className='text-xs text-gray-400 mb-6'>Frais de service</p>
 
@@ -100,6 +101,7 @@ export default function Services() {
                   </p>
                 </div>
 
+                <p className='text-xs text-gray-400 mb-0.5'>À partir de</p>
                 <div className='text-3xl font-bold text-premium-gold mb-1'>599 €</div>
                 <p className='text-xs text-gray-400 mb-6'>Frais de service</p>
 
@@ -148,6 +150,7 @@ export default function Services() {
                   </p>
                 </div>
 
+                <p className='text-xs text-gray-700 mb-0.5'>À partir de</p>
                 <div className='text-3xl font-bold text-premium-black mb-1'>999 €</div>
                 <p className='text-xs text-gray-700 mb-6'>Frais de service</p>
 
