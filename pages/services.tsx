@@ -78,7 +78,7 @@ export default function Services() {
                   ))}
                 </ul>
 
-                <Link href='/demande' className='block w-full text-center bg-premium-gold text-premium-black py-2 rounded font-semibold hover:bg-yellow-400 transition'>
+                <Link href='/demande?forfait=basic' className='block w-full text-center bg-premium-gold text-premium-black py-2 rounded font-semibold hover:bg-yellow-400 transition'>
                   Choisir Basic
                 </Link>
               </div>
@@ -127,7 +127,7 @@ export default function Services() {
                   ))}
                 </ul>
 
-                <Link href='/demande' className='block w-full text-center bg-premium-gold text-premium-black py-2 rounded font-semibold hover:bg-yellow-400 transition'>
+                <Link href='/demande?forfait=premium' className='block w-full text-center bg-premium-gold text-premium-black py-2 rounded font-semibold hover:bg-yellow-400 transition'>
                   Choisir Premium
                 </Link>
               </div>
@@ -176,7 +176,7 @@ export default function Services() {
                   ))}
                 </ul>
 
-                <Link href='/demande' className='block w-full text-center bg-premium-black text-premium-gold py-2 rounded font-semibold hover:bg-gray-800 transition'>
+                <Link href='/demande?forfait=vip' className='block w-full text-center bg-premium-black text-premium-gold py-2 rounded font-semibold hover:bg-gray-800 transition'>
                   Choisir VIP
                 </Link>
               </div>

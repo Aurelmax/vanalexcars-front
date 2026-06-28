@@ -1,26 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import Confetti from '../components/Confetti';
 import Hero from '../components/Hero';
 
+const FORFAITS = [
+  { value: 'basic', label: 'Basic — Je trouve votre véhicule (à partir de 299 €)' },
+  { value: 'premium', label: 'Premium — Je sécurise votre achat (à partir de 599 €)' },
+  { value: 'vip', label: 'VIP — Je m\'occupe de tout (à partir de 999 €)' },
+  { value: 'sur-mesure', label: 'Sur mesure — À définir ensemble' },
+];
+
 export default function FormulaireDemande() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    demandeType: '',
+    demandeType: 'recherche',
     voiture: '',
     budget: '',
     urgence: '',
     forfait: '',
     message: '',
   });
+
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  // Pré-sélectionner le forfait depuis ?forfait=basic|premium|vip
+  useEffect(() => {
+    const { forfait } = router.query;
+    if (forfait && typeof forfait === 'string') {
+      const valid = FORFAITS.map(f => f.value);
+      if (valid.includes(forfait)) {
+        setFormData(prev => ({ ...prev, forfait }));
+      }
+    }
+  }, [router.query]);
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -30,469 +52,227 @@ export default function FormulaireDemande() {
     setIsSubmitting(true);
 
     try {
-      // Simuler l'envoi du formulaire
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Afficher les confettis
-      setShowConfetti(true);
-
-      // Réinitialiser le formulaire
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        demandeType: '',
-        voiture: '',
-        budget: '',
-        urgence: '',
-        forfait: '',
-        message: '',
+      const res = await fetch('/api/forms/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, type: 'demande', createdAt: new Date().toISOString() }),
       });
 
-      // Message de succès
-      alert('Demande envoyée, merci ! Je vous recontacte rapidement.');
-    } catch (error) {
-      console.error("Erreur lors de l'envoi:", error);
-      alert("Erreur lors de l'envoi de la demande. Veuillez réessayer.");
+      if (!res.ok) throw new Error('Erreur serveur');
+
+      setShowConfetti(true);
+      setSuccess(true);
+      setFormData({
+        name: '', email: '', phone: '', demandeType: 'recherche',
+        voiture: '', budget: '', urgence: '', forfait: '', message: '',
+      });
+    } catch {
+      alert("Erreur lors de l'envoi. Veuillez réessayer ou nous contacter directement.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (success) {
+    return (
+      <>
+        <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
+        <div className='min-h-screen flex items-center justify-center px-6'>
+          <div className='max-w-lg w-full text-center'>
+            <div className='w-20 h-20 bg-premium-gold/10 rounded-full flex items-center justify-center mx-auto mb-6'>
+              <svg className='w-10 h-10 text-premium-gold' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+              </svg>
+            </div>
+            <h2 className='text-3xl font-bold text-gray-900 mb-3'>Demande reçue !</h2>
+            <p className='text-gray-600 mb-2'>
+              Merci pour votre confiance. Je reviens vers vous sous <strong>24h</strong> pour discuter de votre projet.
+            </p>
+            <p className='text-sm text-gray-400 mb-8'>Un email de confirmation vous a été envoyé.</p>
+            <div className='flex flex-col sm:flex-row gap-3 justify-center'>
+              <Link href='/catalogue' className='bg-premium-gold text-premium-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition'>
+                Voir le catalogue
+              </Link>
+              <Link href='/' className='border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:border-gray-400 transition'>
+                Retour à l&apos;accueil
+              </Link>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
-      {/* Hero Section */}
       <Hero
         title='Demandez votre véhicule'
         subtitle="Service personnalisé d'import automobile"
         description="Décrivez le véhicule de vos rêves et je m'occupe de tout : recherche, vérification, achat et livraison en France."
-        primaryButton={{
-          text: 'Voir mes services',
-          href: '/services',
-        }}
-        secondaryButton={{
-          text: 'Me contacter',
-          href: '/contact',
-        }}
+        primaryButton={{ text: 'Voir mes services', href: '/services' }}
+        secondaryButton={{ text: 'Me contacter', href: '/contact' }}
       />
 
       <div className='px-6 py-16'>
-        <div className='max-w-4xl mx-auto'>
-          <h1 className='text-3xl font-bold mb-6 text-center'>
-            Formulaire de demande personnalisée
-          </h1>
+        <div className='max-w-3xl mx-auto'>
 
-          {/* Type de demande */}
-          <div className='bg-white rounded-lg shadow-lg p-8 mb-8'>
-            <h2 className='text-xl font-semibold text-gray-900 mb-6'>
-              Type de demande
-            </h2>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <label
-                className={`cursor-pointer p-4 border-2 rounded-lg transition-all ${
-                  formData.demandeType === 'recherche'
-                    ? 'border-premium-gold bg-premium-gold/10'
-                    : 'border-gray-200 hover:border-premium-gold/50'
-                }`}
-              >
-                <input
-                  type='radio'
-                  name='demandeType'
-                  value='recherche'
-                  checked={formData.demandeType === 'recherche'}
-                  onChange={handleChange}
-                  className='sr-only'
-                />
-                <div className='text-center'>
-                  <div className='text-3xl mb-2'>🔍</div>
-                  <h3 className='font-semibold text-gray-900'>
-                    Recherche ciblée
-                  </h3>
-                  <p className='text-sm text-gray-600'>
-                    Je recherche un véhicule spécifique
-                  </p>
-                </div>
-              </label>
-
-              <label
-                className={`cursor-pointer p-4 border-2 rounded-lg transition-all ${
-                  formData.demandeType === 'conseil'
-                    ? 'border-premium-gold bg-premium-gold/10'
-                    : 'border-gray-200 hover:border-premium-gold/50'
-                }`}
-              >
-                <input
-                  type='radio'
-                  name='demandeType'
-                  value='conseil'
-                  checked={formData.demandeType === 'conseil'}
-                  onChange={handleChange}
-                  className='sr-only'
-                />
-                <div className='text-center'>
-                  <div className='text-3xl mb-2'>💡</div>
-                  <h3 className='font-semibold text-gray-900'>
-                    Conseil & Expertise
-                  </h3>
-                  <p className='text-sm text-gray-600'>
-                    J&apos;ai besoin de conseils pour mon projet
-                  </p>
-                </div>
-              </label>
-
-              <label
-                className={`cursor-pointer p-4 border-2 rounded-lg transition-all ${
-                  formData.demandeType === 'devis'
-                    ? 'border-premium-gold bg-premium-gold/10'
-                    : 'border-gray-200 hover:border-premium-gold/50'
-                }`}
-              >
-                <input
-                  type='radio'
-                  name='demandeType'
-                  value='devis'
-                  checked={formData.demandeType === 'devis'}
-                  onChange={handleChange}
-                  className='sr-only'
-                />
-                <div className='text-center'>
-                  <div className='text-3xl mb-2'>💰</div>
-                  <h3 className='font-semibold text-gray-900'>
-                    Devis personnalisé
-                  </h3>
-                  <p className='text-sm text-gray-600'>
-                    Je veux un devis pour mes services
-                  </p>
-                </div>
-              </label>
-            </div>
-          </div>
+          <h1 className='text-3xl font-bold mb-2 text-center'>Votre demande personnalisée</h1>
+          <p className='text-gray-500 text-center mb-10'>Je vous recontacte sous 24h pour discuter de votre projet.</p>
 
           <form onSubmit={handleSubmit} className='space-y-8'>
+
+            {/* Forfait */}
+            <div className='bg-white rounded-lg shadow-lg p-8'>
+              <h2 className='text-xl font-semibold text-gray-900 mb-2'>Forfait souhaité</h2>
+              <p className='text-sm text-gray-500 mb-6'>Vous pouvez modifier ce choix après échange.</p>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                {FORFAITS.map(f => (
+                  <label
+                    key={f.value}
+                    className={`cursor-pointer p-4 border-2 rounded-lg transition-all ${
+                      formData.forfait === f.value
+                        ? 'border-premium-gold bg-premium-gold/10'
+                        : 'border-gray-200 hover:border-premium-gold/50'
+                    }`}
+                  >
+                    <input
+                      type='radio'
+                      name='forfait'
+                      value={f.value}
+                      checked={formData.forfait === f.value}
+                      onChange={handleChange}
+                      className='sr-only'
+                    />
+                    <span className='text-sm font-medium text-gray-800'>{f.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
             {/* Informations personnelles */}
             <div className='bg-white rounded-lg shadow-lg p-8'>
-              <h2 className='text-xl font-semibold text-gray-900 mb-6'>
-                Vos informations
-              </h2>
+              <h2 className='text-xl font-semibold text-gray-900 mb-6'>Vos coordonnées</h2>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Nom complet *
-                  </label>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>Nom complet *</label>
                   <input
-                    type='text'
-                    name='name'
-                    placeholder='Votre nom complet'
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
+                    type='text' name='name' placeholder='Votre nom complet'
+                    value={formData.name} onChange={handleChange} required
                     className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
                   />
                 </div>
-
                 <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Adresse e-mail *
-                  </label>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>Adresse e-mail *</label>
                   <input
-                    type='email'
-                    name='email'
-                    placeholder='votre@email.com'
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
+                    type='email' name='email' placeholder='votre@email.com'
+                    value={formData.email} onChange={handleChange} required
                     className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
                   />
                 </div>
-
                 <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Téléphone
-                  </label>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>Téléphone</label>
                   <input
-                    type='tel'
-                    name='phone'
-                    placeholder='+33 6 12 34 56 78'
-                    value={formData.phone}
-                    onChange={handleChange}
+                    type='tel' name='phone' placeholder='+33 6 12 34 56 78'
+                    value={formData.phone} onChange={handleChange}
                     className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
                   />
                 </div>
-
                 <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Urgence
-                  </label>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>Délai souhaité</label>
                   <select
-                    name='urgence'
-                    value={formData.urgence}
-                    onChange={handleChange}
+                    name='urgence' value={formData.urgence} onChange={handleChange}
                     className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
                   >
-                    <option value=''>Sélectionnez l&apos;urgence</option>
-                    <option value='immediate'>Immédiate (1-2 semaines)</option>
-                    <option value='normale'>Normale (1-2 mois)</option>
+                    <option value=''>Sélectionnez</option>
+                    <option value='immediate'>Dès que possible (1-2 semaines)</option>
+                    <option value='normale'>Sous 1-2 mois</option>
                     <option value='flexible'>Flexible (3+ mois)</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            {/* Détails du véhicule - Affiché seulement si recherche ciblée */}
-            {formData.demandeType === 'recherche' && (
-              <div className='bg-white rounded-lg shadow-lg p-8'>
-                <h2 className='text-xl font-semibold text-gray-900 mb-6'>
-                  Détails du véhicule recherché
-                </h2>
-                <div className='space-y-6'>
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2'>
-                      Véhicule recherché *
-                    </label>
-                    <input
-                      type='text'
-                      name='voiture'
-                      placeholder='Ex: Porsche 911 Carrera, BMW M3, Mercedes-AMG GT...'
-                      value={formData.voiture}
-                      onChange={handleChange}
-                      required
-                      className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent'
-                    />
-                  </div>
-
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-2'>
-                        Budget approximatif
-                      </label>
-                      <select
-                        name='budget'
-                        value={formData.budget}
-                        onChange={handleChange}
-                        className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent'
-                      >
-                        <option value=''>Sélectionnez votre budget</option>
-                        <option value='<30k'>Moins de 30 000€</option>
-                        <option value='30-50k'>30 000€ - 50 000€</option>
-                        <option value='50-80k'>50 000€ - 80 000€</option>
-                        <option value='80-120k'>80 000€ - 120 000€</option>
-                        <option value='120k+'>Plus de 120 000€</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-2'>
-                        Forfait souhaité
-                      </label>
-                      <select
-                        name='forfait'
-                        value={formData.forfait}
-                        onChange={handleChange}
-                        className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent'
-                      >
-                        <option value=''>Sélectionnez un forfait</option>
-                        <option value='essentiel'>Forfait Essentiel</option>
-                        <option value='confort'>Forfait Confort</option>
-                        <option value='vip'>Forfait VIP Premium</option>
-                        <option value='sur-mesure'>Sur mesure</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Collecte des documents d'immatriculation */}
-            {(formData.demandeType === 'recherche' ||
-              formData.demandeType === '') && (
-              <div className='bg-linear-to-r from-yellow-50 to-yellow-100 rounded-lg shadow-lg p-8 border border-yellow-200'>
-                <div className='flex items-center mb-6'>
-                  <div className='w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center mr-4'>
-                    <span className='text-2xl'>📋</span>
-                  </div>
-                  <div>
-                    <h2 className='text-xl font-semibold text-gray-900'>
-                      Documents d&apos;immatriculation
-                    </h2>
-                    <p className='text-gray-600 text-sm'>
-                      Collecte simplifiée pour vos démarches administratives
-                    </p>
-                  </div>
-                </div>
-
-                <div className='bg-white rounded-lg p-6 mb-6'>
-                  <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-                    Vous me transmettez :
-                  </h3>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                    <div className='flex items-center space-x-3'>
-                      <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
-                        <span className='text-green-600 font-bold'>1</span>
-                      </div>
-                      <span className='text-gray-700'>
-                        Votre pièce d&apos;identité
-                      </span>
-                    </div>
-                    <div className='flex items-center space-x-3'>
-                      <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
-                        <span className='text-green-600 font-bold'>2</span>
-                      </div>
-                      <span className='text-gray-700'>
-                        Un justificatif de domicile
-                      </span>
-                    </div>
-                    <div className='flex items-center space-x-3'>
-                      <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
-                        <span className='text-green-600 font-bold'>3</span>
-                      </div>
-                      <span className='text-gray-700'>Le mandat</span>
-                    </div>
-                    <div className='flex items-center space-x-3'>
-                      <div className='w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center'>
-                        <span className='text-yellow-600 font-bold'>✓</span>
-                      </div>
-                      <span className='text-gray-700'>
-                        Et je m&apos;occupe de tout le reste
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='bg-gray-50 rounded-lg p-6'>
-                  <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-                    Je m&apos;occupe de tout le reste :
-                  </h3>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                    <div className='flex items-center space-x-3'>
-                      <svg
-                        className='w-5 h-5 text-yellow-500'
-                        fill='currentColor'
-                        viewBox='0 0 20 20'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                          clipRule='evenodd'
-                        />
-                      </svg>
-                      <span className='text-gray-700'>Documents allemands</span>
-                    </div>
-                    <div className='flex items-center space-x-3'>
-                      <svg
-                        className='w-5 h-5 text-yellow-500'
-                        fill='currentColor'
-                        viewBox='0 0 20 20'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                          clipRule='evenodd'
-                        />
-                      </svg>
-                      <span className='text-gray-700'>Quitus fiscal</span>
-                    </div>
-                    <div className='flex items-center space-x-3'>
-                      <svg
-                        className='w-5 h-5 text-yellow-500'
-                        fill='currentColor'
-                        viewBox='0 0 20 20'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                          clipRule='evenodd'
-                        />
-                      </svg>
-                      <span className='text-gray-700'>
-                        COC (Certificat de Conformité)
-                      </span>
-                    </div>
-                    <div className='flex items-center space-x-3'>
-                      <svg
-                        className='w-5 h-5 text-yellow-500'
-                        fill='currentColor'
-                        viewBox='0 0 20 20'
-                      >
-                        <path
-                          fillRule='evenodd'
-                          d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                          clipRule='evenodd'
-                        />
-                      </svg>
-                      <span className='text-gray-700'>
-                        Démarches ANTS jusqu&apos;à la carte grise définitive
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='mt-6 p-4 bg-yellow-500/10 border border-yellow-300 rounded-lg'>
-                  <p className='text-sm text-gray-700'>
-                    <strong>💡 Astuce :</strong> Vous n&apos;avez qu&apos;à
-                    fournir ces 3 documents simples. Je m&apos;occupe de toute
-                    la complexité administrative pour vous !
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Message personnalisé */}
+            {/* Véhicule recherché */}
             <div className='bg-white rounded-lg shadow-lg p-8'>
-              <h2 className='text-xl font-semibold text-gray-900 mb-6'>
-                {formData.demandeType === 'recherche'
-                  ? 'Informations complémentaires'
-                  : formData.demandeType === 'conseil'
-                    ? 'Décrivez votre projet'
-                    : 'Détails de votre demande'}
-              </h2>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Message *
-                </label>
-                <textarea
-                  name='message'
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={6}
-                  placeholder={
-                    formData.demandeType === 'recherche'
-                      ? "Décrivez le véhicule de vos rêves, vos critères spécifiques, l'usage prévu..."
-                      : formData.demandeType === 'conseil'
-                        ? "Expliquez votre projet d'import automobile, vos questions, vos doutes..."
-                        : 'Décrivez vos besoins et attentes pour que je puisse vous proposer le meilleur service...'
-                  }
-                  className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
-                />
+              <h2 className='text-xl font-semibold text-gray-900 mb-6'>Le véhicule recherché</h2>
+              <div className='space-y-6'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>Marque, modèle, version *</label>
+                  <input
+                    type='text' name='voiture'
+                    placeholder='Ex: Porsche 911 Carrera S, BMW M3, Mercedes-AMG GT...'
+                    value={formData.voiture} onChange={handleChange} required
+                    className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
+                  />
+                </div>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>Budget véhicule</label>
+                  <select
+                    name='budget' value={formData.budget} onChange={handleChange}
+                    className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
+                  >
+                    <option value=''>Sélectionnez votre budget</option>
+                    <option value='<30k'>Moins de 30 000 €</option>
+                    <option value='30-50k'>30 000 € – 50 000 €</option>
+                    <option value='50-80k'>50 000 € – 80 000 €</option>
+                    <option value='80-120k'>80 000 € – 120 000 €</option>
+                    <option value='120k+'>Plus de 120 000 €</option>
+                  </select>
+                </div>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>Précisez vos critères</label>
+                  <textarea
+                    name='message' value={formData.message} onChange={handleChange}
+                    rows={5}
+                    placeholder="Couleur, kilométrage max, année, options souhaitées, usage prévu..."
+                    className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-premium-gold focus:border-transparent'
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Bouton de soumission */}
+            {/* Documents — uniquement pour VIP */}
+            {formData.forfait === 'vip' && (
+              <div className='bg-amber-50 border border-amber-200 rounded-lg p-6'>
+                <div className='flex items-start gap-3 mb-4'>
+                  <span className='text-2xl'>📋</span>
+                  <div>
+                    <h3 className='font-semibold text-gray-900'>Documents nécessaires — Forfait VIP</h3>
+                    <p className='text-sm text-gray-600'>Pour démarrer les démarches administratives, je vous demanderai :</p>
+                  </div>
+                </div>
+                <ul className='space-y-2 text-sm text-gray-700'>
+                  {['Pièce d\'identité', 'Justificatif de domicile', 'Signature du mandat de recherche'].map(doc => (
+                    <li key={doc} className='flex items-center gap-2'>
+                      <span className='w-1.5 h-1.5 rounded-full bg-premium-gold shrink-0'></span>
+                      {doc}
+                    </li>
+                  ))}
+                </ul>
+                <p className='text-xs text-gray-500 mt-3'>Ces documents seront demandés après notre premier échange. Inutile de les joindre ici.</p>
+              </div>
+            )}
+
+            {/* Soumission */}
             <div className='text-center'>
               <button
-                type='submit'
-                disabled={isSubmitting}
+                type='submit' disabled={isSubmitting}
                 className={`px-12 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 ${
                   isSubmitting
-                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-premium-gold text-premium-black hover:bg-yellow-400'
                 }`}
               >
-                {isSubmitting ? 'Envoi en cours...' : 'Envoyer ma demande'}
+                {isSubmitting ? 'Envoi en cours…' : 'Envoyer ma demande'}
               </button>
-              <p className='text-sm text-gray-500 mt-4'>
-                Je vous recontacte sous 24h pour discuter de votre projet
-              </p>
+              <p className='text-sm text-gray-400 mt-4'>Je vous recontacte sous 24h — aucun engagement de votre part.</p>
             </div>
+
           </form>
         </div>
       </div>
 
-      {/* Confettis */}
-      <Confetti
-        trigger={showConfetti}
-        onComplete={() => setShowConfetti(false)}
-      />
+      <Confetti trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
     </>
   );
 }

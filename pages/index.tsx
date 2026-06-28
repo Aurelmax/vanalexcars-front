@@ -199,7 +199,7 @@ export default function Home({
                 </li>
               </ul>
               <Link
-                href='/contact'
+                href='/demande?forfait=basic'
                 className='block w-full bg-gray-900 text-white text-center py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors'
               >
                 Choisir Basic
@@ -282,7 +282,7 @@ export default function Home({
                 </li>
               </ul>
               <Link
-                href='/contact'
+                href='/demande?forfait=premium'
                 className='block w-full bg-yellow-500 text-black text-center py-3 px-6 rounded-lg font-semibold hover:bg-yellow-400 transition-colors'
               >
                 Choisir Premium
@@ -358,7 +358,7 @@ export default function Home({
                 </li>
               </ul>
               <Link
-                href='/contact'
+                href='/demande?forfait=vip'
                 className='block w-full bg-gray-900 text-white text-center py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors'
               >
                 Choisir VIP
