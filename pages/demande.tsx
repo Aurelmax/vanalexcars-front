@@ -52,13 +52,26 @@ export default function FormulaireDemande() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch('/api/forms/submissions', {
+      const data = new FormData();
+      data.append('access_key', '6f11c5bf-fe47-4bdc-90af-114658ee3a64');
+      data.append('subject', `Nouvelle demande Vanalexcars — ${formData.forfait.toUpperCase()} — ${formData.voiture || 'sans modèle'}`);
+      data.append('from_name', 'Vanalexcars');
+      data.append('name', formData.name);
+      data.append('email', formData.email);
+      if (formData.phone) data.append('phone', formData.phone);
+      data.append('forfait', formData.forfait);
+      data.append('voiture', formData.voiture);
+      data.append('budget', formData.budget);
+      data.append('urgence', formData.urgence);
+      if (formData.message) data.append('message', formData.message);
+
+      const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, type: 'demande', createdAt: new Date().toISOString() }),
+        body: data,
       });
 
-      if (!res.ok) throw new Error('Erreur serveur');
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || 'Erreur Web3Forms');
 
       setShowConfetti(true);
       setSuccess(true);
