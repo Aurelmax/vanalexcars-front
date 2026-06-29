@@ -188,3 +188,5 @@ const AdminLoginPage: React.FC = () => {
 };
 
 export default AdminLoginPage;
+
+(AdminLoginPage as any).getLayout = (page: React.ReactNode) => page;

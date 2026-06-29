@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
@@ -26,3 +27,5 @@ const AdminFormulairesRedirect = () => {
 };
 
 export default AdminFormulairesRedirect;
+
+(AdminFormulairesRedirect as any).getLayout = (page: React.ReactNode) => page;

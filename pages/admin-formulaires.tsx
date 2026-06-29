@@ -468,3 +468,5 @@ const AdminFormulaires: React.FC = () => {
 };
 
 export default AdminFormulaires;
+
+(AdminFormulaires as any).getLayout = (page: React.ReactNode) => page;
