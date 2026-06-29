@@ -111,6 +111,15 @@ export default function Footer() {
                   <span>Documents Cartes Grises</span>
                 </Link>
               </li>
+              <li>
+                <Link
+                  href='/simulateur-carte-grise'
+                  className='text-gray-300 hover:text-premium-gold transition flex items-center space-x-2'
+                >
+                  <span>🧮</span>
+                  <span>Simulateur carte grise</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
