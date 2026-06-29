@@ -92,7 +92,7 @@ export default function Services() {
                   ))}
                 </ul>
                 <div className='mt-6 pt-5 border-t border-gray-100'>
-                  <p className='text-xs font-semibold text-gray-500 mb-2'>Non inclus (frais réglementaires) :</p>
+                  <p className='text-xs font-semibold text-gray-500 mb-2'>Frais réglementaires (estimés avant signature) :</p>
                   <ul className='space-y-1'>
                     {['Carte grise', 'Malus écologique (selon véhicule)'].map(item => (
                       <li key={item} className='flex items-center gap-2 text-xs text-gray-400'>
@@ -101,6 +101,7 @@ export default function Services() {
                       </li>
                     ))}
                   </ul>
+                  <p className='text-xs text-gray-400 mt-3 italic'>Ces montants vous sont communiqués avant tout engagement — aucune mauvaise surprise après livraison.</p>
                 </div>
               </div>
 

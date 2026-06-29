@@ -106,6 +106,52 @@ export default function Home({
         </div>
       </section>
 
+      {/* Promesse VanalexCars */}
+      <section className='py-14 bg-premium-black text-white'>
+        <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
+          <div className='flex flex-col md:flex-row items-start gap-10'>
+
+            {/* Promesse principale */}
+            <div className='flex-1'>
+              <p className='text-xs font-bold uppercase tracking-widest text-yellow-400 mb-3'>Notre engagement</p>
+              <h2 className='text-2xl font-bold text-white mb-4'>
+                Une importation clé en main,<br/>sans mauvaise surprise
+              </h2>
+              <p className='text-gray-300 leading-relaxed mb-6'>
+                Notre mission ne s&apos;arrête pas à la livraison du véhicule. Nous prenons en charge l&apos;intégralité des démarches administratives, du certificat provisoire d&apos;immatriculation (CPI) jusqu&apos;à l&apos;obtention de votre carte grise définitive. Avant tout engagement, vous êtes informé du coût du malus écologique et des taxes éventuelles — vous connaissez le coût total de votre importation avant de signer.
+              </p>
+            </div>
+
+            {/* Checklist coûts */}
+            <div className='w-full md:w-72 bg-white/5 border border-white/10 rounded-2xl p-6 shrink-0'>
+              <div className='flex items-center gap-2 mb-4'>
+                <span className='text-yellow-400 text-lg'>✅</span>
+                <p className='font-bold text-white'>Aucun coût caché</p>
+              </div>
+              <p className='text-xs text-gray-400 mb-5'>Vous connaissez avant de signer :</p>
+              <ul className='space-y-3'>
+                {[
+                  'Prix du véhicule',
+                  'Prestation VanalexCars (1 490 €)',
+                  'Transport dédié',
+                  'Malus écologique estimé',
+                  'Carte grise',
+                ].map(item => (
+                  <li key={item} className='flex items-center gap-3 text-sm text-gray-200'>
+                    <span className='w-1.5 h-1.5 rounded-full bg-yellow-400 shrink-0'></span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className='mt-5 pt-4 border-t border-white/10 text-xs text-gray-400'>
+                Accompagnement jusqu&apos;à la réception de votre carte grise définitive.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* Sélecteur de marques */}
       <BrandSelector brands={brandCounts} />
 
