@@ -103,7 +103,7 @@ export default function SimulateurCarteGrise() {
           </div>
 
           {/* Aucune mauvaise surprise */}
-          <div className='bg-premium-black text-white rounded-2xl p-8'>
+          <div className='bg-gray-900 text-white rounded-2xl p-8'>
             <div className='flex items-center gap-3 mb-4'>
               <span className='text-yellow-400 text-2xl'>✅</span>
               <h2 className='text-xl font-bold text-white'>Aucune mauvaise surprise</h2>
