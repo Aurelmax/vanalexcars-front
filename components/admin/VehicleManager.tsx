@@ -628,6 +628,28 @@ export default function VehicleManager({
         </div>
       </div>
 
+      {/* Compteurs par statut */}
+      <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
+        {[
+          { status: 'active',   label: 'Disponibles', color: 'bg-green-50 border-green-200 text-green-700' },
+          { status: 'reserved', label: 'Réservés',    color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+          { status: 'sold',     label: 'Vendus',      color: 'bg-red-50 border-red-200 text-red-700' },
+          { status: 'pending',  label: 'En cours',    color: 'bg-gray-50 border-gray-200 text-gray-600' },
+        ].map(({ status, label, color }) => {
+          const count = vehicles.filter(v => v.status === status).length;
+          return (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(statusFilter === status ? 'all' : status)}
+              className={`border rounded-xl p-4 text-left transition hover:shadow-sm ${color} ${statusFilter === status ? 'ring-2 ring-offset-1 ring-current' : ''}`}
+            >
+              <p className='text-2xl font-bold'>{count}</p>
+              <p className='text-sm font-medium mt-0.5'>{label}</p>
+            </button>
+          );
+        })}
+      </div>
+
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         {/* Liste des véhicules */}
         <div className='lg:col-span-1'>
@@ -635,81 +657,82 @@ export default function VehicleManager({
             <div className='p-4 border-b'>
               <h3 className='text-lg font-semibold'>Véhicules</h3>
             </div>
-            <div className='max-h-96 overflow-y-auto'>
+            <div className='max-h-[600px] overflow-y-auto'>
               {filteredVehicles.map(vehicle => (
                 <div
                   key={vehicle.id}
-                  className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
-                    selectedVehicle?.id === vehicle.id
-                      ? 'bg-blue-50 border-blue-200'
-                      : ''
+                  className={`p-3 border-b hover:bg-gray-50 ${
+                    selectedVehicle?.id === vehicle.id ? 'bg-blue-50 border-l-2 border-l-blue-500' : ''
                   }`}
-                  onClick={() => editVehicle(vehicle)}
                 >
-                  <div className='flex items-center space-x-3'>
-                    {(vehicle.images && vehicle.images.length > 0) || (vehicle.imageUrls && vehicle.imageUrls.length > 0) ? (
-                      <Image
-                        src={
-                          vehicle.images && vehicle.images.length > 0
-                            ? vehicle.images[0].url
-                            : vehicle.imageUrls![0].url
-                        }
-                        alt={vehicle.title}
-                        width={60}
-                        height={40}
-                        className='rounded object-cover'
-                      />
-                    ) : (
-                      <div className='w-[60px] h-10 bg-gray-200 rounded flex items-center justify-center'>
-                        <svg
-                          className='w-6 h-6 text-gray-400'
-                          fill='none'
-                          stroke='currentColor'
-                          viewBox='0 0 24 24'
-                        >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth={2}
-                            d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-                          />
-                        </svg>
-                      </div>
-                    )}
-                    <div className='flex-1 min-w-0'>
-                      <h4 className='text-sm font-medium text-gray-900 truncate'>
-                        {vehicle.title}
-                      </h4>
-                      <p className='text-sm text-gray-500'>
-                        €{vehicle.price.toLocaleString('fr-FR')}
-                      </p>
-                      <div className='flex items-center space-x-2 mt-1'>
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            vehicle.status === 'active'
-                              ? 'bg-green-100 text-green-800'
-                              : vehicle.status === 'sold'
-                                ? 'bg-red-100 text-red-800'
-                                : vehicle.status === 'reserved'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {vehicle.status}
-                        </span>
-                        {vehicle.is_featured && (
-                          <span className='inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800'>
-                            Vedette
-                          </span>
-                        )}
-                        {vehicle.is_new && (
-                          <span className='inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800'>
-                            Nouveau
-                          </span>
-                        )}
-                      </div>
+                  <div className='flex items-center gap-3'>
+                    {/* Miniature */}
+                    <div
+                      className='shrink-0 cursor-pointer'
+                      onClick={() => editVehicle(vehicle)}
+                    >
+                      {(vehicle.images && vehicle.images.length > 0) || (vehicle.imageUrls && vehicle.imageUrls.length > 0) ? (
+                        <Image
+                          src={vehicle.images && vehicle.images.length > 0 ? vehicle.images[0].url : vehicle.imageUrls![0].url}
+                          alt={vehicle.title}
+                          width={56}
+                          height={40}
+                          className='rounded object-cover w-14 h-10'
+                        />
+                      ) : (
+                        <div className='w-14 h-10 bg-gray-200 rounded flex items-center justify-center'>
+                          <svg className='w-5 h-5 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' />
+                          </svg>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Infos */}
+                    <div className='flex-1 min-w-0 cursor-pointer' onClick={() => editVehicle(vehicle)}>
+                      <p className='text-sm font-medium text-gray-900 truncate'>{vehicle.title}</p>
+                      <p className='text-xs text-gray-500'>€{vehicle.price.toLocaleString('fr-FR')}</p>
+                    </div>
+
+                    {/* Statut inline modifiable */}
+                    <select
+                      value={vehicle.status}
+                      onClick={e => e.stopPropagation()}
+                      onChange={async e => {
+                        e.stopPropagation();
+                        const newStatus = e.target.value;
+                        try {
+                          await fetch(buildApiUrl(`/api/vehicles/${vehicle.id}`), {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: newStatus }),
+                          });
+                          fetchVehicles();
+                        } catch {
+                          setNotification({ type: 'error', message: 'Erreur lors du changement de statut' });
+                        }
+                      }}
+                      className={`text-xs font-semibold rounded-full px-2 py-1 border-0 cursor-pointer focus:ring-2 focus:ring-blue-400 ${
+                        vehicle.status === 'active'   ? 'bg-green-100 text-green-800' :
+                        vehicle.status === 'sold'     ? 'bg-red-100 text-red-800' :
+                        vehicle.status === 'reserved' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      <option value='active'>Disponible</option>
+                      <option value='sold'>Vendu</option>
+                      <option value='reserved'>Réservé</option>
+                      <option value='pending'>En cours</option>
+                    </select>
                   </div>
+
+                  {/* Badges vedette / nouveau */}
+                  {(vehicle.is_featured || vehicle.is_new) && (
+                    <div className='flex gap-1 mt-1.5 ml-[68px]'>
+                      {vehicle.is_featured && <span className='text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium'>Vedette</span>}
+                      {vehicle.is_new && <span className='text-[10px] px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium'>Nouveau</span>}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
