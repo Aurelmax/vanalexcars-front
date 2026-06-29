@@ -107,7 +107,7 @@ export default function Home({
       </section>
 
       {/* Promesse VanalexCars */}
-      <section className='py-14 bg-premium-black text-white'>
+      <section className='py-14 bg-gray-900 text-white'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex flex-col md:flex-row items-start gap-10'>
 
