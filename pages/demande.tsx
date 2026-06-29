@@ -1,45 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Confetti from '../components/Confetti';
 import Hero from '../components/Hero';
 
-const FORFAITS = [
-  { value: 'basic', label: 'Basic — Je trouve votre véhicule (à partir de 299 €)' },
-  { value: 'premium', label: 'Premium — Je sécurise votre achat (à partir de 599 €)' },
-  { value: 'vip', label: 'VIP — Je m\'occupe de tout (à partir de 999 €)' },
-  { value: 'sur-mesure', label: 'Sur mesure — À définir ensemble' },
-];
-
 export default function FormulaireDemande() {
-  const router = useRouter();
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    demandeType: 'recherche',
     voiture: '',
     budget: '',
     urgence: '',
-    forfait: '',
     message: '',
   });
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  // Pré-sélectionner le forfait depuis ?forfait=basic|premium|vip
-  useEffect(() => {
-    const { forfait } = router.query;
-    if (forfait && typeof forfait === 'string') {
-      const valid = FORFAITS.map(f => f.value);
-      if (valid.includes(forfait)) {
-        setFormData(prev => ({ ...prev, forfait }));
-      }
-    }
-  }, [router.query]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -54,13 +31,12 @@ export default function FormulaireDemande() {
     try {
       const data = new FormData();
       data.append('access_key', '6f11c5bf-fe47-4bdc-90af-114658ee3a64');
-      data.append('subject', `Nouvelle demande Vanalexcars — ${formData.forfait.toUpperCase()} — ${formData.voiture || 'sans modèle'}`);
+      data.append('subject', `Nouvelle demande Vanalexcars — ${formData.voiture || 'sans modèle'}`);
       data.append('from_name', 'Vanalexcars');
       data.append('replyto', formData.email);
       data.append('name', formData.name);
       data.append('email', formData.email);
       if (formData.phone) data.append('phone', formData.phone);
-      data.append('forfait', formData.forfait);
       data.append('voiture', formData.voiture);
       data.append('budget', formData.budget);
       data.append('urgence', formData.urgence);
@@ -77,8 +53,8 @@ export default function FormulaireDemande() {
       setShowConfetti(true);
       setSuccess(true);
       setFormData({
-        name: '', email: '', phone: '', demandeType: 'recherche',
-        voiture: '', budget: '', urgence: '', forfait: '', message: '',
+        name: '', email: '', phone: '',
+        voiture: '', budget: '', urgence: '', message: '',
       });
     } catch {
       alert("Erreur lors de l'envoi. Veuillez réessayer ou nous contacter directement.");
@@ -162,34 +138,6 @@ export default function FormulaireDemande() {
 
           <form onSubmit={handleSubmit} className='space-y-8'>
 
-            {/* Forfait */}
-            <div className='bg-white rounded-lg shadow-lg p-8'>
-              <h2 className='text-xl font-semibold text-gray-900 mb-2'>Forfait souhaité</h2>
-              <p className='text-sm text-gray-500 mb-6'>Vous pouvez modifier ce choix après échange.</p>
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                {FORFAITS.map(f => (
-                  <label
-                    key={f.value}
-                    className={`cursor-pointer p-4 border-2 rounded-lg transition-all ${
-                      formData.forfait === f.value
-                        ? 'border-premium-gold bg-premium-gold/10'
-                        : 'border-gray-200 hover:border-premium-gold/50'
-                    }`}
-                  >
-                    <input
-                      type='radio'
-                      name='forfait'
-                      value={f.value}
-                      checked={formData.forfait === f.value}
-                      onChange={handleChange}
-                      className='sr-only'
-                    />
-                    <span className='text-sm font-medium text-gray-800'>{f.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
             {/* Informations personnelles */}
             <div className='bg-white rounded-lg shadow-lg p-8'>
               <h2 className='text-xl font-semibold text-gray-900 mb-6'>Vos coordonnées</h2>
@@ -271,28 +219,6 @@ export default function FormulaireDemande() {
                 </div>
               </div>
             </div>
-
-            {/* Documents — uniquement pour VIP */}
-            {formData.forfait === 'vip' && (
-              <div className='bg-amber-50 border border-amber-200 rounded-lg p-6'>
-                <div className='flex items-start gap-3 mb-4'>
-                  <span className='text-2xl'>📋</span>
-                  <div>
-                    <h3 className='font-semibold text-gray-900'>Documents nécessaires — Forfait VIP</h3>
-                    <p className='text-sm text-gray-600'>Pour démarrer les démarches administratives, je vous demanderai :</p>
-                  </div>
-                </div>
-                <ul className='space-y-2 text-sm text-gray-700'>
-                  {['Pièce d\'identité', 'Justificatif de domicile', 'Signature du mandat de recherche'].map(doc => (
-                    <li key={doc} className='flex items-center gap-2'>
-                      <span className='w-1.5 h-1.5 rounded-full bg-premium-gold shrink-0'></span>
-                      {doc}
-                    </li>
-                  ))}
-                </ul>
-                <p className='text-xs text-gray-500 mt-3'>Ces documents seront demandés après notre premier échange. Inutile de les joindre ici.</p>
-              </div>
-            )}
 
             {/* Soumission */}
             <div className='text-center'>

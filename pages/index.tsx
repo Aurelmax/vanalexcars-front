@@ -131,246 +131,92 @@ export default function Home({
         limit={3}
       />
 
-      {/* Forfaits Section */}
+      {/* Forfait unique Section */}
       <section className='py-16 bg-white'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center mb-12'>
+        <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
+          <div className='text-center mb-10'>
             <h2 className='text-3xl font-bold text-gray-900 mb-4'>
-              Mes Forfaits Premium
+              Mon tarif
             </h2>
             <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
-              Choisissez le forfait qui correspond à vos besoins
+              Un seul prix, tout compris. Pas de surprise.
             </p>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            {/* Forfait Basic */}
-            <div className='bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200 hover:border-yellow-500 transition-colors'>
-              <div className='text-center mb-6'>
-                <h3 className='text-2xl font-bold text-gray-900 mb-2'>Basic</h3>
-                <div className='text-4xl font-bold text-yellow-500 mb-1'>
-                  299€
-                </div>
-                <p className='text-xs text-gray-400 mb-1'>À partir de</p>
-                <p className='text-gray-600'>Par véhicule</p>
-              </div>
-              <ul className='space-y-4 mb-8'>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Recherche ciblée
-                </li>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Rapport détaillé
-                </li>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Support email
-                </li>
-              </ul>
-              <Link
-                href='/demande?forfait=basic'
-                className='block w-full bg-gray-900 text-white text-center py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors'
-              >
-                Choisir Basic
-              </Link>
+          {/* Prix hero */}
+          <div className='bg-white rounded-2xl shadow-xl p-10 border-2 border-yellow-400 text-center mb-8'>
+            <p className='text-xs font-bold uppercase tracking-widest text-yellow-500 mb-3'>Forfait unique tout compris</p>
+            <div className='flex items-end justify-center gap-2 mb-2'>
+              <span className='text-7xl font-black text-gray-900'>1 490</span>
+              <span className='text-3xl font-bold text-gray-900 mb-3'>€ TTC</span>
             </div>
+            <p className='text-gray-500 mb-1'>Par véhicule · Valable jusqu&apos;à 120 000 € de valeur véhicule</p>
+            <p className='text-xs text-gray-400 mb-8'>Au-delà de 120 000 € → devis personnalisé</p>
 
-            {/* Forfait Premium */}
-            <div className='bg-white rounded-xl shadow-lg p-8 border-2 border-yellow-500 relative'>
-              <div className='absolute -top-4 left-1/2 transform -translate-x-1/2'>
-                <span className='bg-yellow-500 text-black px-4 py-1 rounded-full text-sm font-semibold'>
-                  Recommandé
-                </span>
-              </div>
-              <div className='text-center mb-6'>
-                <h3 className='text-2xl font-bold text-gray-900 mb-2'>
-                  Premium
-                </h3>
-                <div className='text-4xl font-bold text-yellow-500 mb-1'>
-                  599€
-                </div>
-                <p className='text-xs text-gray-400 mb-1'>À partir de</p>
-                <p className='text-gray-600'>Par véhicule</p>
-              </div>
-              <ul className='space-y-4 mb-8'>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
+            <ul className='text-left max-w-sm mx-auto space-y-3 mb-8'>
+              {[
+                'Recherche & sélection sur AutoScout24.de',
+                'Vérification concessionnaire officiel',
+                'Négociation en votre nom',
+                'Transport dédié Cars Trans (< 1 semaine)',
+                'Démarches administratives complètes',
+                'Homologation & immatriculation',
+                'Livraison à domicile en France',
+              ].map((item) => (
+                <li key={item} className='flex items-center gap-3 text-gray-700 text-sm'>
+                  <svg className='w-5 h-5 text-green-500 shrink-0' fill='currentColor' viewBox='0 0 20 20'>
+                    <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
                   </svg>
-                  Recherche personnalisée
+                  {item}
                 </li>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Vérification concessionnaire officiel
-                </li>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Négociation prix
-                </li>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Support téléphonique
-                </li>
-              </ul>
-              <Link
-                href='/demande?forfait=premium'
-                className='block w-full bg-yellow-500 text-black text-center py-3 px-6 rounded-lg font-semibold hover:bg-yellow-400 transition-colors'
-              >
-                Choisir Premium
-              </Link>
-            </div>
+              ))}
+            </ul>
 
-            {/* Forfait VIP */}
-            <div className='bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200 hover:border-yellow-500 transition-colors'>
-              <div className='text-center mb-6'>
-                <h3 className='text-2xl font-bold text-gray-900 mb-2'>VIP</h3>
-                <div className='text-4xl font-bold text-yellow-500 mb-1'>
-                  999€
-                </div>
-                <p className='text-xs text-gray-400 mb-1'>À partir de</p>
-                <p className='text-gray-600'>Par véhicule</p>
-              </div>
-              <ul className='space-y-4 mb-8'>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Service sur-mesure
-                </li>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Accompagnement complet
-                </li>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Livraison France
-                </li>
-                <li className='flex items-center'>
-                  <svg
-                    className='w-5 h-5 text-green-500 mr-3'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  Support prioritaire
-                </li>
-              </ul>
-              <Link
-                href='/demande?forfait=vip'
-                className='block w-full bg-gray-900 text-white text-center py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors'
-              >
-                Choisir VIP
-              </Link>
+            <p className='text-xs text-gray-400 mb-6'>Hors carte grise et malus écologique</p>
+
+            <Link
+              href='/demande'
+              className='inline-block bg-yellow-500 text-black px-10 py-4 rounded-xl font-bold text-lg hover:bg-yellow-400 transition-all duration-300 hover:scale-105'
+            >
+              Démarrer mon import →
+            </Link>
+          </div>
+
+          {/* Comparatif vs importeMoi */}
+          <div className='bg-gray-50 rounded-2xl p-8 mb-8'>
+            <h3 className='text-lg font-bold text-gray-900 mb-4 text-center'>Pourquoi VanalexCars ?</h3>
+            <div className='overflow-x-auto'>
+              <table className='w-full text-sm'>
+                <thead>
+                  <tr className='text-left border-b border-gray-200'>
+                    <th className='pb-3 text-gray-500 font-medium'></th>
+                    <th className='pb-3 text-yellow-600 font-bold'>VanalexCars</th>
+                    <th className='pb-3 text-gray-400 font-medium'>importeMoi</th>
+                  </tr>
+                </thead>
+                <tbody className='divide-y divide-gray-100'>
+                  {[
+                    ['Prix', '1 490 €', '1 990 €'],
+                    ['Transport', 'Dédié < 1 semaine', 'Groupage 3-4 semaines'],
+                    ['Spécialité', 'Premium & sportives', 'Généraliste'],
+                    ['Interlocuteur', 'Un seul, direct', 'Plateforme'],
+                  ].map(([label, vanalex, importemoi]) => (
+                    <tr key={label}>
+                      <td className='py-3 text-gray-500'>{label}</td>
+                      <td className='py-3 font-semibold text-gray-900'>{vanalex}</td>
+                      <td className='py-3 text-gray-400'>{importemoi}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          {/* Call to Action */}
-          <div className='text-center mt-12'>
+          {/* CTA */}
+          <div className='text-center'>
             <div className='bg-linear-to-r from-yellow-500 to-yellow-400 rounded-xl p-8 text-black'>
-              <h3 className='text-2xl font-bold mb-4'>
-                Vous ne trouvez pas votre véhicule ?
+              <h3 className='text-2xl font-bold mb-2'>
+                Votre véhicule n&apos;est pas en catalogue ?
               </h3>
               <p className='text-lg mb-6'>
                 Je recherche spécifiquement selon vos critères en Allemagne
@@ -415,9 +261,9 @@ export default function Home({
                 ?
               </h3>
               <p className='text-gray-600'>
-                Le coût dépend du forfait choisi (299€ à 999€) et des frais
-                administratifs (immatriculation, carte grise, etc.). Je vous
-                fournis un devis détaillé avant toute démarche.
+                Mon forfait unique est de 1 490 € TTC par véhicule (jusqu&apos;à 120 000 €
+                de valeur), tout compris. Hors carte grise et malus écologique.
+                Au-delà de 120 000 €, je vous fournis un devis personnalisé.
               </p>
             </div>
 
@@ -451,9 +297,9 @@ export default function Home({
                 Puis-je visiter le véhicule avant achat ?
               </h3>
               <p className='text-gray-600'>
-                Avec le forfait Premium et VIP, je peux organiser une visite sur
-                place. Pour le forfait Basic, je fournis un rapport détaillé
-                avec photos et vidéos.
+                Je fournis un rapport détaillé avec photos et vidéos. Pour les
+                véhicules à fort enjeu, je peux organiser une inspection sur place
+                auprès du concessionnaire officiel allemand — à me préciser dans votre demande.
               </p>
             </div>
           </div>
