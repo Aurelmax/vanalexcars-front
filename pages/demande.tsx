@@ -265,8 +265,11 @@ export default function FormulaireDemande() {
                     <option value='30-50k'>30 000 € – 50 000 €</option>
                     <option value='50-80k'>50 000 € – 80 000 €</option>
                     <option value='80-120k'>80 000 € – 120 000 €</option>
-                    <option value='120k+'>Plus de 120 000 €</option>
+                    <option value='120-150k'>120 000 € – 150 000 €</option>
                   </select>
+                  <p className='text-xs text-gray-400 mt-1.5'>
+                    VanalexCars intervient sur des véhicules jusqu'à 150 000 €.
+                  </p>
                 </div>
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>Précisez vos critères</label>

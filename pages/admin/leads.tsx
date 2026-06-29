@@ -23,11 +23,11 @@ const MANDATE_ELIGIBLE = ['dealer_offer_received', 'mandate_pending'];
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, { label }]) => ({ value, label }));
 
 const BUDGET_LABELS: Record<string, string> = {
-  '<30k':   '< 30 000 €',
-  '30-50k': '30–50 000 €',
-  '50-80k': '50–80 000 €',
-  '80-120k':'80–120 000 €',
-  '120k+':  '> 120 000 €',
+  '<30k':    '< 30 000 €',
+  '30-50k':  '30–50 000 €',
+  '50-80k':  '50–80 000 €',
+  '80-120k': '80–120 000 €',
+  '120-150k':'120–150 000 €',
 };
 
 const TIMELINE_LABELS: Record<string, string> = {
