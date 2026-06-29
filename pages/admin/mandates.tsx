@@ -3,6 +3,7 @@
  * MVP : liste, création, changement de statut, génération PDF
  */
 
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
@@ -663,3 +664,5 @@ export default function AdminMandates() {
     </>
   );
 }
+
+AdminMandates.getLayout = (page: React.ReactNode) => page;

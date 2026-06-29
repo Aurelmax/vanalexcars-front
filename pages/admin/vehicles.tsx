@@ -1,3 +1,4 @@
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import VehicleManager from '../../components/admin/VehicleManager';
@@ -105,3 +106,5 @@ export default function AdminVehicles() {
     </>
   );
 }
+
+AdminVehicles.getLayout = (page: React.ReactNode) => page;
