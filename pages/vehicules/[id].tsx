@@ -392,13 +392,16 @@ export default function VehicleDetail() {
                 </div>
 
                 {/* CTA */}
-                <div className='space-y-4'>
+                <div className='space-y-3'>
                   <a
-                    href={`/contact?vehicle=${encodeURIComponent(vehicle.title)}`}
-                    className='block w-full bg-premium-gold hover:bg-premium-gold/90 text-premium-black text-center font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg'
+                    href={`/demande?voiture=${encodeURIComponent(vehicle.title)}`}
+                    className='block w-full bg-yellow-500 hover:bg-yellow-400 text-black text-center font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg'
                   >
-                    Demander des informations
+                    → Demander un mandat pour ce véhicule
                   </a>
+                  <p className='text-xs text-gray-400 text-center'>
+                    Traitement sous 24h — aucun engagement
+                  </p>
                   <a
                     href={`tel:+33646022468`}
                     className='block w-full bg-gray-800 hover:bg-gray-700 text-white text-center font-semibold py-4 rounded-xl transition-all duration-300 border border-gray-700'
@@ -406,7 +409,7 @@ export default function VehicleDetail() {
                     📞 Appeler maintenant
                   </a>
                   <a
-                    href={`https://wa.me/33646022468?text=${encodeURIComponent(`Bonjour, je suis intéressé par: ${vehicle.title}`)}`}
+                    href={`https://wa.me/33646022468?text=${encodeURIComponent(`Bonjour, je suis intéressé par ce véhicule : ${vehicle.title} — pouvez-vous me faire une proposition de mandat ?`)}`}
                     target='_blank'
                     rel='noopener noreferrer'
                     className='block w-full bg-green-600 hover:bg-green-700 text-white text-center font-semibold py-4 rounded-xl transition-all duration-300'

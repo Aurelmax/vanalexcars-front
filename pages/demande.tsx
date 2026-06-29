@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Confetti from '../components/Confetti';
 import Hero from '../components/Hero';
 
 export default function FormulaireDemande() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,6 +15,13 @@ export default function FormulaireDemande() {
     urgence: '',
     message: '',
   });
+
+  // Pré-remplir le champ voiture depuis l'URL (?voiture=...)
+  useEffect(() => {
+    if (router.isReady && router.query.voiture) {
+      setFormData(f => ({ ...f, voiture: String(router.query.voiture) }));
+    }
+  }, [router.isReady, router.query.voiture]);
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
