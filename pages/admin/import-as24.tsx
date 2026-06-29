@@ -35,14 +35,17 @@ type SSEEvent =
 // ─── Brand / Category config ─────────────────────────────────────────────────
 
 const BRANDS = [
-  { label: 'Porsche', slug: 'porsche' },
   { label: 'BMW', slug: 'bmw' },
   { label: 'Mercedes', slug: 'mercedes-benz' },
   { label: 'Audi', slug: 'audi' },
-  { label: 'Ford', slug: 'ford' },
+  { label: 'Porsche', slug: 'porsche' },
   { label: 'Volkswagen', slug: 'volkswagen' },
-  { label: 'Ferrari', slug: 'ferrari' },
-  { label: 'Lexus', slug: 'lexus' },
+  { label: 'Mini', slug: 'mini' },
+  { label: 'Ford', slug: 'ford' },
+  { label: 'Mazda', slug: 'mazda' },
+  { label: 'Jaguar', slug: 'jaguar' },
+  { label: 'MG', slug: 'mg' },
+  { label: 'Aston Martin', slug: 'aston-martin' },
 ];
 
 const CATEGORIES = [
@@ -54,7 +57,7 @@ const CATEGORIES = [
 ];
 
 const BASE_AS24 = 'https://www.autoscout24.de/lst';
-const AS24_FILTERS = '?fregfrom=2020&cy=D&damaged_listing=exclude&ustate=N%2CU&atype=C';
+const AS24_FILTERS = '?fregfrom=2024&cy=D&damaged_listing=exclude&ustate=N%2CU&atype=C';
 
 function buildBrandUrl(slug: string): string {
   return `${BASE_AS24}/${slug}${AS24_FILTERS}`;
