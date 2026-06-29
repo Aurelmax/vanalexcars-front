@@ -49,58 +49,58 @@ export default function Home({
 
       {/* Comment ça marche */}
       <section className='py-16 bg-gray-50'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+        <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='text-center mb-12'>
             <h2 className='text-3xl font-bold text-gray-900 mb-4'>
               Comment ça marche ?
             </h2>
             <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
-              Un processus simple et transparent pour importer votre véhicule
-              d&apos;Allemagne
+              Vous ne vous engagez sur rien avant d&apos;avoir vu le dossier complet du véhicule.
             </p>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            {/* Étape 1 */}
-            <div className='text-center'>
-              <div className='bg-yellow-500 text-black w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4'>
-                1
-              </div>
-              <h3 className='text-xl font-semibold text-gray-900 mb-4'>
-                Vous me contactez
-              </h3>
-              <p className='text-gray-600'>
-                Décrivez-moi le véhicule que vous recherchez, vos critères et
-                votre budget.
-              </p>
-            </div>
+          <div className='relative'>
+            {/* Ligne verticale */}
+            <div className='absolute left-7 top-8 bottom-8 w-0.5 bg-yellow-200 hidden md:block'></div>
 
-            {/* Étape 2 */}
-            <div className='text-center'>
-              <div className='bg-yellow-500 text-black w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4'>
-                2
-              </div>
-              <h3 className='text-xl font-semibold text-gray-900 mb-4'>
-                Je recherche en Allemagne
-              </h3>
-              <p className='text-gray-600'>
-                Je parcours les annonces allemandes et vous propose les
-                meilleures options.
-              </p>
-            </div>
-
-            {/* Étape 3 */}
-            <div className='text-center'>
-              <div className='bg-yellow-500 text-black w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4'>
-                3
-              </div>
-              <h3 className='text-xl font-semibold text-gray-900 mb-4'>
-                Livraison en France
-              </h3>
-              <p className='text-gray-600'>
-                Je m&apos;occupe de tout : achat, immatriculation, livraison à
-                votre domicile.
-              </p>
+            <div className='space-y-8'>
+              {[
+                {
+                  num: '1',
+                  title: 'Vous déposez votre demande',
+                  desc: 'Via le formulaire ou WhatsApp. Je qualifie votre besoin : modèle, budget, options, délai et estimation du malus.',
+                },
+                {
+                  num: '2',
+                  title: 'Je recherche le véhicule',
+                  desc: 'J\'interroge mon réseau de concessionnaires officiels allemands et j\'obtiens une offre écrite sur un véhicule correspondant à vos critères.',
+                },
+                {
+                  num: '3',
+                  title: 'Je vous présente le dossier complet',
+                  desc: 'Photos, historique, rapport CarVertical, prix du véhicule, frais d\'importation (1 490 €), transport et estimation malus + carte grise. Aucune surprise.',
+                },
+                {
+                  num: '4',
+                  title: 'Vous confirmez — c\'est seulement là que vous vous engagez',
+                  desc: 'Validation de votre intérêt, puis signature électronique du mandat et acompte de 300 à 500 €. Le mandat porte sur ce véhicule précis, pas sur une recherche abstraite.',
+                },
+                {
+                  num: '5',
+                  title: 'Je m\'occupe de tout',
+                  desc: 'Réservation auprès du concessionnaire, organisation du transport, démarches administratives et livraison à domicile en France.',
+                },
+              ].map(({ num, title, desc }) => (
+                <div key={num} className='flex gap-6 items-start'>
+                  <div className='shrink-0 w-14 h-14 bg-yellow-500 text-black rounded-full flex items-center justify-center text-xl font-black shadow-md'>
+                    {num}
+                  </div>
+                  <div className='flex-1 bg-white rounded-xl p-5 shadow-sm border border-gray-100'>
+                    <h3 className='font-bold text-gray-900 mb-1'>{title}</h3>
+                    <p className='text-gray-600 text-sm leading-relaxed'>{desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
