@@ -6,15 +6,19 @@ import { useRouter } from 'next/router';
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  new:              { label: 'Nouvelle demande',    color: 'bg-blue-100 text-blue-700' },
-  qualifying:       { label: 'En qualification',    color: 'bg-yellow-100 text-yellow-700' },
-  contacted:        { label: 'Client contacté',     color: 'bg-orange-100 text-orange-700' },
-  proposal_sent:    { label: 'Proposition envoyée', color: 'bg-purple-100 text-purple-700' },
-  mandate_pending:  { label: 'Mandat à créer',      color: 'bg-teal-100 text-teal-700' },
-  mandate_created:  { label: 'Mandat créé',         color: 'bg-green-100 text-green-700' },
-  abandoned:        { label: 'Abandonné',           color: 'bg-gray-100 text-gray-500' },
-  refused:          { label: 'Refusé',              color: 'bg-red-100 text-red-700' },
+  new:                  { label: 'Nouvelle demande',            color: 'bg-blue-100 text-blue-700' },
+  qualifying:           { label: 'En qualification',            color: 'bg-yellow-100 text-yellow-700' },
+  contacted:            { label: 'Client contacté',             color: 'bg-orange-100 text-orange-700' },
+  dealer_request_sent:  { label: 'Demande envoyée concess.',    color: 'bg-indigo-100 text-indigo-700' },
+  dealer_offer_received:{ label: 'Offre concess. reçue',        color: 'bg-teal-100 text-teal-700' },
+  mandate_pending:      { label: 'Mandat à créer',              color: 'bg-purple-100 text-purple-700' },
+  mandate_created:      { label: 'Mandat créé',                 color: 'bg-green-100 text-green-700' },
+  abandoned:            { label: 'Abandonné',                   color: 'bg-gray-100 text-gray-500' },
+  refused:              { label: 'Refusé',                      color: 'bg-red-100 text-red-700' },
 };
+
+// Statuts à partir desquels la conversion en mandat est autorisée
+const MANDATE_ELIGIBLE = ['dealer_offer_received', 'mandate_pending'];
 
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, { label }]) => ({ value, label }));
 
@@ -77,11 +81,12 @@ export default function AdminLeads() {
     setConverting(lead.id);
     setError('');
     try {
-      // Générer une référence automatique
       const date = new Date();
       const ref = `VX-${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-      // Créer le mandat pré-rempli
+      const dealer = lead.dealerInfo || {};
+      const offer = lead.dealerOffer || {};
+
       const mandatePayload = {
         reference: ref,
         status: 'draft',
@@ -94,6 +99,15 @@ export default function AdminLeads() {
         },
         vehicleInfo: {
           brand: lead.vehicleSearched || '',
+          vehiclePrice: offer.confirmedVehiclePrice || undefined,
+        },
+        dealerInfo: {
+          dealerName: dealer.dealerName || '',
+          dealerContactName: dealer.dealerContact || '',
+          dealerCity: dealer.dealerCity || '',
+          dealerCountry: dealer.dealerCountry || 'Allemagne',
+          dealerOrderNumber: offer.dealerOfferReference || '',
+          dealerOfferDate: offer.dealerOfferDate || undefined,
         },
         serviceInfo: {
           servicePrice: 1490,
@@ -110,6 +124,7 @@ export default function AdminLeads() {
           lead.message ? `Critères client : ${lead.message}` : '',
           lead.budget ? `Budget déclaré : ${BUDGET_LABELS[lead.budget] || lead.budget}` : '',
           lead.timeline ? `Délai souhaité : ${TIMELINE_LABELS[lead.timeline] || lead.timeline}` : '',
+          offer.dealerNotes ? `Notes concess. : ${offer.dealerNotes}` : '',
         ].filter(Boolean).join('\n'),
       };
 
@@ -122,7 +137,6 @@ export default function AdminLeads() {
       if (!res.ok) throw new Error('Erreur création mandat');
       const mandate = await res.json();
 
-      // Mettre à jour le lead : statut + référence au mandat
       await fetch(`${BACKEND}/api/leads/${lead.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -132,9 +146,8 @@ export default function AdminLeads() {
         }),
       });
 
-      setSuccess(`Mandat ${ref} créé avec succès.`);
+      setSuccess(`Mandat ${ref} créé. Redirection vers les mandats…`);
       fetchLeads();
-      // Rediriger vers la page mandats après 1.5s
       setTimeout(() => router.push('/admin/mandates'), 1500);
     } catch {
       setError('Erreur lors de la conversion en mandat.');
@@ -144,6 +157,7 @@ export default function AdminLeads() {
   }
 
   const newCount = leads.filter(l => l.status === 'new').length;
+  const canConvert = selected && MANDATE_ELIGIBLE.includes(selected.status);
 
   return (
     <>
@@ -165,8 +179,8 @@ export default function AdminLeads() {
               </div>
               <div className="flex items-center space-x-4">
                 <Link href="/admin-formulaires" className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium">← Formulaires</Link>
-                <Link href="/admin" className="text-gray-600 hover:text-gray-900 transition-colors">Payload CMS</Link>
-                <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">Voir le site</Link>
+                <Link href="/admin" className="text-gray-600 hover:text-gray-900">Payload CMS</Link>
+                <Link href="/" className="text-gray-600 hover:text-gray-900">Voir le site</Link>
               </div>
             </div>
           </div>
@@ -185,15 +199,35 @@ export default function AdminLeads() {
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-          {/* Titre */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Demandes entrantes</h1>
-              <p className="text-sm text-gray-500 mt-1">Qualifiez les leads avant de les convertir en mandat</p>
+              <p className="text-sm text-gray-500 mt-1">Qualifiez → contactez le concessionnaire → convertissez en mandat</p>
             </div>
           </div>
 
-          {/* Alertes */}
+          {/* Workflow visuel */}
+          <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 overflow-x-auto">
+            <div className="flex items-center gap-2 text-xs font-medium whitespace-nowrap">
+              {[
+                { s: 'new', label: 'Reçu' },
+                { s: 'qualifying', label: 'Qualification' },
+                { s: 'contacted', label: 'Contacté' },
+                { s: 'dealer_request_sent', label: 'Demande concess.' },
+                { s: 'dealer_offer_received', label: 'Offre reçue' },
+                { s: 'mandate_pending', label: 'Mandat à créer' },
+                { s: 'mandate_created', label: 'Mandat créé' },
+              ].map((step, i, arr) => (
+                <React.Fragment key={step.s}>
+                  <span className={`px-2 py-1 rounded-full ${STATUS_LABELS[step.s]?.color || 'bg-gray-100 text-gray-600'}`}>
+                    {step.label}
+                  </span>
+                  {i < arr.length - 1 && <span className="text-gray-300">→</span>}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+
           {error && <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">{error}</div>}
           {success && <div className="mb-4 bg-green-50 border border-green-200 text-green-700 rounded-lg p-4 text-sm">{success}</div>}
 
@@ -209,7 +243,6 @@ export default function AdminLeads() {
             <span className="ml-auto text-sm text-gray-500">{leads.length} lead(s)</span>
           </div>
 
-          {/* Disposition : liste + détail */}
           <div className="flex gap-6">
 
             {/* Liste */}
@@ -246,107 +279,111 @@ export default function AdminLeads() {
             </div>
 
             {/* Détail */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               {!selected ? (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center h-64">
                   <p className="text-gray-400 text-sm">Sélectionnez un lead dans la liste</p>
                 </div>
               ) : (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  {/* En-tête fiche */}
-                  <div className="px-6 py-5 border-b flex items-center justify-between gap-4">
+
+                  {/* En-tête */}
+                  <div className="px-6 py-5 border-b flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <h2 className="text-xl font-bold text-gray-900">{selected.fullName}</h2>
                       <p className="text-sm text-gray-500">{selected.vehicleSearched}</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {/* Changement de statut inline */}
+                    <div className="flex items-center gap-3 flex-wrap">
                       <select
                         value={selected.status}
-                        onChange={e => updateStatus(selected.id, e.target.value)}
+                        onChange={e => { updateStatus(selected.id, e.target.value); setSelected((s: any) => ({ ...s, status: e.target.value })); }}
                         className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-400"
                       >
                         {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                       </select>
 
-                      {/* Bouton conversion — désactivé si déjà converti */}
                       {selected.status === 'mandate_created' ? (
                         <Link href="/admin/mandates"
                           className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-semibold">
                           ✓ Voir le mandat
                         </Link>
-                      ) : (
+                      ) : canConvert ? (
                         <button
                           onClick={() => convertToMandate(selected)}
                           disabled={converting === selected.id}
-                          className="inline-flex items-center gap-2 bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-2 bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-400 transition disabled:opacity-50"
                         >
                           {converting === selected.id ? 'Conversion…' : '→ Convertir en mandat'}
                         </button>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">
+                          Disponible après réception de l'offre concess.
+                        </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Corps fiche */}
-                  <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {/* Coordonnées */}
-                    <div>
-                      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Coordonnées</h3>
-                      <dl className="space-y-2">
-                        <div>
-                          <dt className="text-xs text-gray-500">Email</dt>
-                          <dd className="text-sm font-medium text-gray-900">
-                            <a href={`mailto:${selected.email}`} className="text-blue-600 hover:underline">{selected.email}</a>
-                          </dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-gray-500">Téléphone</dt>
-                          <dd className="text-sm font-medium text-gray-900">
-                            {selected.phone ? <a href={`tel:${selected.phone}`} className="hover:underline">{selected.phone}</a> : <span className="text-gray-400">—</span>}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-gray-500">Date de la demande</dt>
-                          <dd className="text-sm font-medium text-gray-900">{new Date(selected.createdAt).toLocaleString('fr-FR')}</dd>
-                        </div>
-                      </dl>
+                  <div className="px-6 py-5 space-y-6">
+
+                    {/* Infos client + projet */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Coordonnées</h3>
+                        <dl className="space-y-2">
+                          <div>
+                            <dt className="text-xs text-gray-500">Email</dt>
+                            <dd className="text-sm font-medium"><a href={`mailto:${selected.email}`} className="text-blue-600 hover:underline">{selected.email}</a></dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-gray-500">Téléphone</dt>
+                            <dd className="text-sm font-medium">
+                              {selected.phone ? <a href={`tel:${selected.phone}`}>{selected.phone}</a> : <span className="text-gray-400">—</span>}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-gray-500">Date de la demande</dt>
+                            <dd className="text-sm font-medium">{new Date(selected.createdAt).toLocaleString('fr-FR')}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Projet</h3>
+                        <dl className="space-y-2">
+                          <div>
+                            <dt className="text-xs text-gray-500">Véhicule recherché</dt>
+                            <dd className="text-sm font-medium">{selected.vehicleSearched || '—'}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-gray-500">Budget</dt>
+                            <dd className="text-sm font-medium">{BUDGET_LABELS[selected.budget] || selected.budget || '—'}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-gray-500">Délai souhaité</dt>
+                            <dd className="text-sm font-medium">{TIMELINE_LABELS[selected.timeline] || selected.timeline || '—'}</dd>
+                          </div>
+                        </dl>
+                      </div>
                     </div>
 
-                    {/* Véhicule */}
-                    <div>
-                      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Projet</h3>
-                      <dl className="space-y-2">
-                        <div>
-                          <dt className="text-xs text-gray-500">Véhicule recherché</dt>
-                          <dd className="text-sm font-medium text-gray-900">{selected.vehicleSearched || '—'}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-gray-500">Budget</dt>
-                          <dd className="text-sm font-medium text-gray-900">{BUDGET_LABELS[selected.budget] || selected.budget || '—'}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-xs text-gray-500">Délai souhaité</dt>
-                          <dd className="text-sm font-medium text-gray-900">{TIMELINE_LABELS[selected.timeline] || selected.timeline || '—'}</dd>
-                        </div>
-                      </dl>
-                    </div>
-
-                    {/* Message */}
+                    {/* Message client */}
                     {selected.message && (
-                      <div className="sm:col-span-2">
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Critères et précisions</h3>
+                      <div>
+                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Critères client</h3>
                         <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-4 leading-relaxed whitespace-pre-wrap">{selected.message}</p>
                       </div>
                     )}
 
+                    {/* Section concessionnaire */}
+                    <DealerSection lead={selected} backendUrl={BACKEND} onSave={() => { fetchLeads(); }} onUpdate={(updated) => setSelected(updated)} />
+
                     {/* Notes internes */}
-                    <div className="sm:col-span-2">
+                    <div>
                       <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Notes internes</h3>
                       <NotesEditor lead={selected} backendUrl={BACKEND} onSave={fetchLeads} />
                     </div>
 
                     {/* Actions rapides */}
-                    <div className="sm:col-span-2 flex flex-wrap gap-3 pt-2 border-t">
+                    <div className="flex flex-wrap gap-3 pt-2 border-t">
                       <a href={`mailto:${selected.email}?subject=Votre%20demande%20VanalexCars%20—%20${encodeURIComponent(selected.vehicleSearched || '')}`}
                         className="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
                         ✉ Envoyer un email
@@ -372,7 +409,154 @@ export default function AdminLeads() {
 
 AdminLeads.getLayout = (page: React.ReactNode) => page;
 
-// Sous-composant pour les notes internes avec sauvegarde inline
+// ── Section concessionnaire + offre ──────────────────────────────────────────
+function DealerSection({ lead, backendUrl, onSave, onUpdate }: { lead: any; backendUrl: string; onSave: () => void; onUpdate: (l: any) => void }) {
+  const di = lead.dealerInfo || {};
+  const do_ = lead.dealerOffer || {};
+
+  const [form, setForm] = useState({
+    dealerName: di.dealerName || '',
+    dealerContact: di.dealerContact || '',
+    dealerCity: di.dealerCity || '',
+    dealerCountry: di.dealerCountry || 'Allemagne',
+    dealerOfferReference: do_.dealerOfferReference || '',
+    dealerOfferDate: do_.dealerOfferDate ? do_.dealerOfferDate.substring(0, 10) : '',
+    vehicleAvailabilityConfirmed: do_.vehicleAvailabilityConfirmed || false,
+    confirmedVehiclePrice: do_.confirmedVehiclePrice ? String(do_.confirmedVehiclePrice) : '',
+    dealerNotes: do_.dealerNotes || '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const di2 = lead.dealerInfo || {};
+    const do2 = lead.dealerOffer || {};
+    setForm({
+      dealerName: di2.dealerName || '',
+      dealerContact: di2.dealerContact || '',
+      dealerCity: di2.dealerCity || '',
+      dealerCountry: di2.dealerCountry || 'Allemagne',
+      dealerOfferReference: do2.dealerOfferReference || '',
+      dealerOfferDate: do2.dealerOfferDate ? do2.dealerOfferDate.substring(0, 10) : '',
+      vehicleAvailabilityConfirmed: do2.vehicleAvailabilityConfirmed || false,
+      confirmedVehiclePrice: do2.confirmedVehiclePrice ? String(do2.confirmedVehiclePrice) : '',
+      dealerNotes: do2.dealerNotes || '',
+    });
+  }, [lead.id]);
+
+  async function save() {
+    setSaving(true);
+    const body = {
+      dealerInfo: {
+        dealerName: form.dealerName,
+        dealerContact: form.dealerContact,
+        dealerCity: form.dealerCity,
+        dealerCountry: form.dealerCountry,
+      },
+      dealerOffer: {
+        dealerOfferReference: form.dealerOfferReference,
+        dealerOfferDate: form.dealerOfferDate || undefined,
+        vehicleAvailabilityConfirmed: form.vehicleAvailabilityConfirmed,
+        confirmedVehiclePrice: form.confirmedVehiclePrice ? Number(form.confirmedVehiclePrice) : undefined,
+        dealerNotes: form.dealerNotes,
+      },
+    };
+    const res = await fetch(`${backendUrl}/api/leads/${lead.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const updated = await res.json();
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+    onUpdate({ ...lead, ...updated });
+    onSave();
+  }
+
+  return (
+    <div className="border border-gray-200 rounded-xl p-5">
+      <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-indigo-400 inline-block"></span>
+        Concessionnaire &amp; Offre
+        <span className="text-xs text-gray-400 font-normal ml-1">— À remplir après contact avec le concess. allemand</span>
+      </h3>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Nom du concessionnaire</label>
+          <input value={form.dealerName} onChange={e => setForm(f => ({ ...f, dealerName: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400"
+            placeholder="Ex: BMW Zentrum München GmbH" />
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Contact (nom)</label>
+          <input value={form.dealerContact} onChange={e => setForm(f => ({ ...f, dealerContact: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400"
+            placeholder="Ex: Klaus Müller" />
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Ville</label>
+          <input value={form.dealerCity} onChange={e => setForm(f => ({ ...f, dealerCity: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400"
+            placeholder="Ex: Munich" />
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Pays</label>
+          <input value={form.dealerCountry} onChange={e => setForm(f => ({ ...f, dealerCountry: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400" />
+        </div>
+
+        {/* Séparateur offre */}
+        <div className="sm:col-span-2 border-t pt-3 mt-1">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Bon de commande / Offre</p>
+        </div>
+
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Référence bon de commande</label>
+          <input value={form.dealerOfferReference} onChange={e => setForm(f => ({ ...f, dealerOfferReference: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400"
+            placeholder="Ex: BC-2025-04871" />
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Date de l'offre</label>
+          <input type="date" value={form.dealerOfferDate} onChange={e => setForm(f => ({ ...f, dealerOfferDate: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400" />
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Prix véhicule confirmé (€ TTC)</label>
+          <input type="number" value={form.confirmedVehiclePrice} onChange={e => setForm(f => ({ ...f, confirmedVehiclePrice: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400"
+            placeholder="Ex: 48500" />
+        </div>
+        <div className="flex items-center gap-3 pt-5">
+          <input type="checkbox" id="avail" checked={form.vehicleAvailabilityConfirmed}
+            onChange={e => setForm(f => ({ ...f, vehicleAvailabilityConfirmed: e.target.checked }))}
+            className="w-4 h-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-400" />
+          <label htmlFor="avail" className="text-sm text-gray-700 font-medium cursor-pointer">
+            Disponibilité confirmée par le concess.
+          </label>
+        </div>
+        <div className="sm:col-span-2">
+          <label className="text-xs text-gray-500 block mb-1">Notes sur l'offre</label>
+          <textarea value={form.dealerNotes} onChange={e => setForm(f => ({ ...f, dealerNotes: e.target.value }))}
+            rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 resize-none"
+            placeholder="Conditions particulières, délai de livraison concess., remarques…" />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 mt-4">
+        <button onClick={save} disabled={saving}
+          className="text-sm bg-indigo-600 text-white px-4 py-1.5 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50">
+          {saving ? 'Sauvegarde…' : 'Sauvegarder'}
+        </button>
+        {saved && <span className="text-xs text-green-600 font-medium">✓ Sauvegardé</span>}
+      </div>
+    </div>
+  );
+}
+
+// ── Éditeur de notes internes ─────────────────────────────────────────────────
 function NotesEditor({ lead, backendUrl, onSave }: { lead: any; backendUrl: string; onSave: () => void }) {
   const [notes, setNotes] = useState(lead.internalNotes || '');
   const [saving, setSaving] = useState(false);
@@ -395,13 +579,9 @@ function NotesEditor({ lead, backendUrl, onSave }: { lead: any; backendUrl: stri
 
   return (
     <div>
-      <textarea
-        value={notes}
-        onChange={e => setNotes(e.target.value)}
-        rows={4}
-        placeholder="Ajoutez vos notes de qualification ici…"
-        className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-400 resize-none"
-      />
+      <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
+        placeholder="Notes de qualification, suivis, remarques…"
+        className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-400 resize-none" />
       <div className="flex items-center gap-3 mt-2">
         <button onClick={save} disabled={saving}
           className="text-sm bg-gray-800 text-white px-4 py-1.5 rounded-lg hover:bg-gray-700 transition disabled:opacity-50">
