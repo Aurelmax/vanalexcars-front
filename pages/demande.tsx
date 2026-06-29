@@ -128,12 +128,18 @@ export default function FormulaireDemande() {
     );
   }
 
+  const fromVehicle = Boolean(router.query.voiture);
+
   return (
     <>
       <Hero
-        title='Demandez votre véhicule'
-        subtitle="Service personnalisé d'import automobile"
-        description="Décrivez le véhicule de vos rêves et je m'occupe de tout : recherche, vérification, achat et livraison en France."
+        title={fromVehicle ? "Demande de mandat d'import" : 'Demandez votre véhicule'}
+        subtitle={fromVehicle ? 'Ouverture de mandat sur véhicule sélectionné' : "Service personnalisé d'import automobile"}
+        description={
+          fromVehicle
+            ? "Complétez vos coordonnées afin que je vérifie la disponibilité du véhicule auprès du concessionnaire et prépare votre mandat d'import personnalisé."
+            : "Décrivez le véhicule de vos rêves et je m'occupe de tout : recherche, vérification, achat et livraison en France."
+        }
         primaryButton={{ text: 'Voir mes services', href: '/services' }}
         secondaryButton={{ text: 'Me contacter', href: '/contact' }}
       />
@@ -141,8 +147,35 @@ export default function FormulaireDemande() {
       <div className='px-6 py-16'>
         <div className='max-w-3xl mx-auto'>
 
-          <h1 className='text-3xl font-bold mb-2 text-center'>Votre demande personnalisée</h1>
-          <p className='text-gray-500 text-center mb-6'>Je vous recontacte sous 24h pour discuter de votre projet.</p>
+          <h1 className='text-3xl font-bold mb-2 text-center'>
+            {fromVehicle ? "Demande de mandat d'import" : 'Votre demande personnalisée'}
+          </h1>
+          <p className='text-gray-500 text-center mb-6'>
+            {fromVehicle
+              ? "Je vérifie la disponibilité du véhicule et vous transmets le mandat sous 24h — aucun engagement avant votre signature."
+              : "Je vous recontacte sous 24h pour discuter de votre projet."}
+          </p>
+
+          {/* Rappel du processus mandat (visible uniquement si depuis une fiche véhicule) */}
+          {fromVehicle && (
+            <div className='bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8'>
+              <h2 className='text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4'>Le processus</h2>
+              <ol className='space-y-2'>
+                {[
+                  "Vous soumettez cette demande de mandat",
+                  "Je vérifie la disponibilité et les conditions auprès du concessionnaire",
+                  "Je prépare le mandat avec le prix réel, les frais, le transport et les taxes",
+                  "Vous recevez le mandat complet avant toute signature",
+                  "Vous signez uniquement si vous êtes d'accord — aucune surprise",
+                ].map((step, i) => (
+                  <li key={i} className='flex items-start gap-3 text-sm text-gray-600'>
+                    <span className='shrink-0 w-5 h-5 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold text-xs mt-0.5'>{i + 1}</span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
           {/* Entretien de découverte */}
           <div className='bg-green-50 border border-green-200 rounded-lg p-5 mb-10 flex flex-col sm:flex-row items-center justify-between gap-4'>
