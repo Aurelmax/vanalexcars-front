@@ -418,6 +418,21 @@ export default function VehicleDetail() {
                     💬 WhatsApp
                   </a>
                 </div>
+
+                {/* Interlocuteur */}
+                <div className='mt-6 flex items-center gap-4 bg-gray-900/50 border border-gray-800 rounded-xl p-4'>
+                  <img
+                    src='/uploads/aurelien-vanalexcars.png'
+                    alt='Aurélien — VanalexCars'
+                    className='w-16 h-16 rounded-full object-cover border-2 border-premium-gold shrink-0'
+                  />
+                  <div>
+                    <div className='text-xs text-gray-400 mb-0.5'>Votre interlocuteur</div>
+                    <div className='text-white font-semibold'>Aurélien</div>
+                    <div className='text-xs text-gray-400'>Mandataire automobile — VanalexCars</div>
+                    <div className='text-xs text-premium-gold mt-1'>Répond sous 24h · Sans engagement</div>
+                  </div>
+                </div>
               </div>
             </div>
 
