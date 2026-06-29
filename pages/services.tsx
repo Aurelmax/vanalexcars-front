@@ -134,9 +134,12 @@ export default function Services() {
               <span className='text-2xl shrink-0'>⚠️</span>
               <div>
                 <p className='font-semibold text-gray-900 mb-1'>Malus écologique — à anticiper</p>
-                <p className='text-sm text-gray-600'>
+                <p className='text-sm text-gray-600 mb-2'>
                   Le malus écologique peut représenter plusieurs milliers d'euros pour les véhicules essence puissants importés hors UE. Il est systématiquement calculé et communiqué avant tout engagement de votre part.
                 </p>
+                <Link href='/simulateur-carte-grise' className='text-sm font-semibold text-amber-700 hover:text-amber-800 underline underline-offset-2'>
+                  Simuler le coût de ma carte grise →
+                </Link>
               </div>
             </div>
 

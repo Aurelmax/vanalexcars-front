@@ -146,6 +146,14 @@ export default function Home({
               <div className='mt-5 pt-4 border-t border-white/10 text-xs text-gray-400'>
                 Accompagnement jusqu&apos;à la réception de votre carte grise définitive.
               </div>
+              <div className='mt-3'>
+                <Link
+                  href='/simulateur-carte-grise'
+                  className='text-xs text-yellow-400 hover:text-yellow-300 underline underline-offset-2'
+                >
+                  Simuler le coût de ma carte grise →
+                </Link>
+              </div>
             </div>
 
           </div>
