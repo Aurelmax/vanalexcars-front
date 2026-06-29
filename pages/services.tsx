@@ -153,7 +153,7 @@ export default function Services() {
             </div>
             <div>
               <p className='text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1'>Votre interlocuteur unique</p>
-              <h3 className='text-xl font-bold text-gray-900 mb-3'>Aurélien, fondateur VanalexCars</h3>
+              <h3 className='text-xl font-bold text-gray-900 mb-3'>Aurélien, mandataire automobile</h3>
               <p className='text-gray-600 text-sm leading-relaxed mb-4'>
                 Contrairement aux plateformes qui mettent simplement en relation acheteurs et vendeurs, je m&apos;appuie sur un réseau de concessionnaires officiels allemands avec lesquels j&apos;entretiens une relation directe. Cette proximité me permet d&apos;obtenir des informations fiables, de sécuriser les transactions et de sélectionner uniquement des véhicules que je serais prêt à acheter pour moi-même.
               </p>

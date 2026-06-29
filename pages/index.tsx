@@ -150,7 +150,7 @@ export default function Home({
             <div className='flex-1 text-center md:text-left'>
               <p className='text-xs font-bold uppercase tracking-widest text-yellow-500 mb-3'>Votre expert</p>
               <h2 className='text-3xl font-bold text-gray-900 mb-4'>
-                Aurélien, importateur indépendant
+                Aurélien, mandataire automobile
               </h2>
               <p className='text-gray-600 leading-relaxed mb-6'>
                 Contrairement aux plateformes qui mettent simplement en relation acheteurs et vendeurs, je m&apos;appuie sur un réseau de concessionnaires officiels allemands avec lesquels j&apos;entretiens une relation directe. Cette proximité me permet d&apos;obtenir des informations fiables, de sécuriser les transactions et de sélectionner uniquement des véhicules que je serais prêt à acheter pour moi-même.
