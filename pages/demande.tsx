@@ -29,6 +29,24 @@ export default function FormulaireDemande() {
     setIsSubmitting(true);
 
     try {
+      // 1. Stocker dans Payload CMS (lead entrant)
+      const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://api.import-voiture-allemagne.fr';
+      await fetch(`${BACKEND}/api/leads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: formData.name,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          vehicleSearched: formData.voiture,
+          budget: formData.budget || undefined,
+          timeline: formData.urgence || undefined,
+          message: formData.message || undefined,
+          status: 'new',
+        }),
+      });
+
+      // 2. Notification email via Web3Forms (alerte immédiate)
       const data = new FormData();
       data.append('access_key', '6f11c5bf-fe47-4bdc-90af-114658ee3a64');
       data.append('subject', `Nouvelle demande Vanalexcars — ${formData.voiture || 'sans modèle'}`);
