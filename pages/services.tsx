@@ -155,7 +155,7 @@ export default function Services() {
               <p className='text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1'>Votre interlocuteur unique</p>
               <h3 className='text-xl font-bold text-gray-900 mb-3'>Aurélien, fondateur VanalexCars</h3>
               <p className='text-gray-600 text-sm leading-relaxed mb-4'>
-                Je négocie en direct avec les concessionnaires allemands, je connais les pièges du marché et je ne vous propose que ce que j&apos;achèterais moi-même. Pas d&apos;intermédiaire, pas de plateforme — juste un expert à votre service.
+                Contrairement aux plateformes qui mettent simplement en relation acheteurs et vendeurs, je m&apos;appuie sur un réseau de concessionnaires officiels allemands avec lesquels j&apos;entretiens une relation directe. Cette proximité me permet d&apos;obtenir des informations fiables, de sécuriser les transactions et de sélectionner uniquement des véhicules que je serais prêt à acheter pour moi-même.
               </p>
               <a
                 href='https://wa.me/33646022468?text=Bonjour%20Aur%C3%A9lien%2C%20je%20souhaite%20discuter%20d%27un%20projet%20d%27import.'

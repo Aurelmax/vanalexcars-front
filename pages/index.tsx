@@ -153,7 +153,7 @@ export default function Home({
                 Aurélien, importateur indépendant
               </h2>
               <p className='text-gray-600 leading-relaxed mb-6'>
-                Passionné d&apos;automobile depuis toujours, j&apos;ai fondé VanalexCars pour offrir ce que les plateformes ne peuvent pas&nbsp;: un accompagnement humain, de bout en bout. Je négocie en direct avec les concessionnaires allemands, je connais les pièges, et je ne vous propose que ce que j&apos;achèterais moi-même.
+                Contrairement aux plateformes qui mettent simplement en relation acheteurs et vendeurs, je m&apos;appuie sur un réseau de concessionnaires officiels allemands avec lesquels j&apos;entretiens une relation directe. Cette proximité me permet d&apos;obtenir des informations fiables, de sécuriser les transactions et de sélectionner uniquement des véhicules que je serais prêt à acheter pour moi-même.
               </p>
               <div className='flex flex-wrap gap-6 justify-center md:justify-start mb-8'>
                 {[
