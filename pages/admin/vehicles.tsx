@@ -71,24 +71,6 @@ export default function AdminVehicles() {
                 Véhicules
               </Link>
               <Link
-                href='/admin/services'
-                className='py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm'
-              >
-                Services
-              </Link>
-              <Link
-                href='/admin/testimonials'
-                className='py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm'
-              >
-                Témoignages
-              </Link>
-              <Link
-                href='/admin/submissions'
-                className='py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm'
-              >
-                Soumissions
-              </Link>
-              <Link
                 href='/admin/leads'
                 className='py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm'
               >
