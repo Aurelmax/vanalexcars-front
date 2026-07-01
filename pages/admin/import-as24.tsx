@@ -262,10 +262,13 @@ export default function ImportAS24Admin() {
     setIsRunning(true);
     addLog(`Démarrage enrichissement — score < ${minScore}% | limite: ${enrichLimit}${enrichBrand ? ` | marque: ${enrichBrand}` : ''}`);
 
+    // Appel direct au backend Coolify (évite le timeout Netlify de 26s)
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.import-voiture-allemagne.fr';
+
     await readSSEStream(
-      '/api/admin/enrich',
+      `${backendUrl}/api/bulk-enrich`,
       'POST',
-      { Authorization: `Bearer ${token}` },
+      { 'x-secret': token },
       { minScore, limit: enrichLimit, brand: enrichBrand || undefined },
       (event) => {
         if (event.type === 'log') {
