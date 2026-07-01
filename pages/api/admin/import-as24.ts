@@ -5,7 +5,6 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { scrapeAutoScout24Page, AS24_BODY_MAP } from '../../../scripts/scrape-autoscout24';
 
 export const config = { api: { responseLimit: false } };
 
@@ -107,7 +106,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   sendEvent(res, { type: 'log', message: `Démarrage import AS24 — ${maxPages} page(s)` });
   sendEvent(res, { type: 'log', message: `URL: ${searchUrl}` });
-  sendEvent(res, { type: 'log', message: `Body param: ${bodyParam || 'non défini'} → ${AS24_BODY_MAP[bodyParam] || 'other'}` });
+  sendEvent(res, { type: 'log', message: `Body param: ${bodyParam || 'non défini'} — scraping via Playwright backend` });
 
   try {
     for (let page = 1; page <= maxPages; page++) {
@@ -119,7 +118,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       sendEvent(res, { type: 'log', message: `Page ${page}/${maxPages}: ${pageUrl}` });
 
-      const vehicles = await scrapeAutoScout24Page(pageUrl);
+      // Appel backend Playwright (contourne la protection anti-bot AS24)
+      let vehicles: any[] = [];
+      try {
+        const scrapeRes = await fetch(`${BACKEND}/api/search-as24`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-secret': process.env.SCRAPER_SECRET || '',
+          },
+          body: JSON.stringify({ searchUrl: pageUrl }),
+        });
+        if (scrapeRes.ok) {
+          const data = await scrapeRes.json();
+          vehicles = data.vehicles || [];
+        } else {
+          const err = await scrapeRes.text();
+          sendEvent(res, { type: 'log', message: `Erreur backend scraper: ${scrapeRes.status} — ${err.substring(0, 100)}` });
+        }
+      } catch (e: any) {
+        sendEvent(res, { type: 'log', message: `Erreur réseau backend: ${e.message}` });
+      }
 
       if (vehicles.length === 0) {
         sendEvent(res, { type: 'log', message: `Aucun véhicule trouvé page ${page}, arrêt.` });
