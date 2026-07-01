@@ -575,7 +575,7 @@ export default function ImportAS24Admin() {
                 Enrichira jusqu&apos;à <span className="text-white font-semibold">{enrichLimit}</span> véhicules avec un score{' '}
                 <span className="text-white font-semibold">&lt; {minScore}%</span>
                 {enrichBrand && <> de la marque <span className="text-yellow-400 font-semibold">{enrichBrand}</span></>}
-                {' '}via Firecrawl.
+                {' '}via Playwright (backend).
               </div>
 
               <button
