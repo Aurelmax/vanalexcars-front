@@ -6,7 +6,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { calcCompletionScore } from '../../../lib/completion-score';
-import { scrapeListingDetail, mergeVehicle } from '../../../scripts/enrich-vehicles';
+import { enrichVehicleViaBackend } from '../../../scripts/enrich-vehicles';
 
 export const config = { api: { responseLimit: false } };
 
@@ -99,9 +99,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         message: `Traitement: ${vehicle.title} (score: ${scoreBefore}%) — manque: ${missingFields.join(', ')}`,
       });
 
-      const detail = await scrapeListingDetail(vehicle.listingUrlResolved);
+      const result = await enrichVehicleViaBackend(vehicle.id);
 
-      if (!detail) {
+      if (!result) {
         stats.errors++;
         sendEvent(res, {
           type: 'vehicle',
@@ -109,16 +109,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           scoreBefore,
           scoreAfter: scoreBefore,
           status: 'error',
-          message: 'Impossible de scraper la fiche',
+          message: 'Impossible de scraper la fiche (backend)',
         });
         await sleep(2000);
         continue;
       }
 
-      const patch = mergeVehicle(vehicle, detail);
-
-      if (Object.keys(patch).length <= 1) {
-        // only lastScrapedAt — nothing to update
+      if (!result.appliedFields || result.appliedFields.length === 0) {
         stats.skipped++;
         sendEvent(res, {
           type: 'vehicle',
@@ -132,35 +129,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         continue;
       }
 
-      const patchRes = await fetch(`${BACKEND}/api/vehicles/${vehicle.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(patch),
+      // Le backend a déjà mis à jour le véhicule — recalculer le score
+      const enrichedVehicle = await fetch(`${BACKEND}/api/vehicles/${vehicle.id}`).then(r => r.json()).catch(() => vehicle);
+      const scoreAfter = calcCompletionScore(enrichedVehicle).score;
+      stats.enriched++;
+      sendEvent(res, {
+        type: 'vehicle',
+        title: vehicle.title,
+        scoreBefore,
+        scoreAfter,
+        status: 'enriched',
       });
-
-      if (patchRes.ok) {
-        const merged = { ...vehicle, ...patch };
-        const scoreAfter = calcCompletionScore(merged).score;
-        stats.enriched++;
-        sendEvent(res, {
-          type: 'vehicle',
-          title: vehicle.title,
-          scoreBefore,
-          scoreAfter,
-          status: 'enriched',
-        });
-      } else {
-        stats.errors++;
-        const errText = await patchRes.text();
-        sendEvent(res, {
-          type: 'vehicle',
-          title: vehicle.title,
-          scoreBefore,
-          scoreAfter: scoreBefore,
-          status: 'error',
-          message: errText.substring(0, 120),
-        });
-      }
 
       await sleep(1500);
     }
