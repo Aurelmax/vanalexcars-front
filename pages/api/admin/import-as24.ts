@@ -49,6 +49,7 @@ function mapTransmission(t?: string): string {
 }
 
 function mapBodyType(bodyType?: string, bodyParam?: string): string {
+  const AS24_BODY_MAP: Record<string, string> = { '1':'berline','2':'cabriolet','3':'break','4':'suv','5':'berline','6':'berline','7':'monospace','8':'monospace','9':'coupe','10':'other' };
   if (bodyParam && AS24_BODY_MAP[bodyParam]) return AS24_BODY_MAP[bodyParam];
   const b = (bodyType || '').toLowerCase();
   if (b.includes('cabrio') || b.includes('roadster') || b.includes('spider')) return 'cabriolet';
