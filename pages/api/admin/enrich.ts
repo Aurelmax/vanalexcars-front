@@ -102,12 +102,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Si originalListingUrl est absent mais sourceUrl pointe vers une fiche individuelle,
       // on le patch en base avant d'appeler le backend d'enrichissement
       if (!vehicle.originalListingUrl && vehicle.sourceUrl?.includes('/angebote/')) {
+        const absoluteUrl = vehicle.sourceUrl.startsWith('/')
+          ? `https://www.autoscout24.de${vehicle.sourceUrl}`
+          : vehicle.sourceUrl;
         await fetch(`${BACKEND}/api/vehicles/${vehicle.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ originalListingUrl: vehicle.sourceUrl }),
+          body: JSON.stringify({ originalListingUrl: absoluteUrl }),
         }).catch(() => null);
-        sendEvent(res, { type: 'log', message: `→ originalListingUrl récupéré depuis sourceUrl` });
+        sendEvent(res, { type: 'log', message: `→ originalListingUrl: ${absoluteUrl}` });
       }
 
       const result = await enrichVehicleViaBackend(vehicle.id);
