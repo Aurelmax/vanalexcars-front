@@ -62,8 +62,8 @@ export async function scrapeAutoScout24Page(url: string): Promise<AS24Vehicle[]>
 
   try {
     const result = await app.scrapeUrl(url, {
-      formats: [{
-        type: 'json',
+      formats: ['json'],
+      jsonOptions: {
         prompt: `Extrait la liste complète de tous les véhicules affichés sur cette page AutoScout24.
 Pour chaque véhicule, extrais :
 - titre complet, marque, modèle, prix, année, kilométrage
@@ -78,7 +78,7 @@ Pour chaque véhicule, extrais :
 - IMPORTANT: listingUrl = URL COMPLÈTE de la fiche individuelle au format https://www.autoscout24.de/angebote/[slug]-[uuid] (lien sur le titre ou l'image de chaque carte)
 - imageUrl = URL de la première photo`,
         schema: AS24VehicleListSchema,
-      }],
+      },
     } as any);
 
     const vehicles = (result as any).json?.vehicles || [];
