@@ -152,9 +152,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       for (const v of vehicles) {
         try {
           const cleanBrand = normalizeBrand(v.brand || '');
+          // Référence stable : UUID de l'URL AS24, sinon hash titre+prix+année
           const externalRef = v.listingUrl
-            ? v.listingUrl.split('/').filter(Boolean).pop() || `as24-${Date.now()}`
-            : `as24-${Date.now()}`;
+            ? v.listingUrl.split('/').filter(Boolean).pop()?.split('?')[0] || `as24-${v.title}-${v.price}-${v.year}`
+            : `as24-${(v.title || '').replace(/\s+/g, '-').toLowerCase()}-${v.price}-${v.year || 0}`;
 
           // Check if already imported
           const checkRes = await fetch(`${BACKEND}/api/vehicles?where[externalReference][equals]=${externalRef}`);
