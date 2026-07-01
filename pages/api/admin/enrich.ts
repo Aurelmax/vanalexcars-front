@@ -99,17 +99,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         message: `Traitement: ${vehicle.title} (score: ${scoreBefore}%) — manque: ${missingFields.join(', ')}`,
       });
 
+      // Si originalListingUrl est absent mais sourceUrl pointe vers une fiche individuelle,
+      // on le patch en base avant d'appeler le backend d'enrichissement
+      if (!vehicle.originalListingUrl && vehicle.sourceUrl?.includes('/angebote/')) {
+        await fetch(`${BACKEND}/api/vehicles/${vehicle.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ originalListingUrl: vehicle.sourceUrl }),
+        }).catch(() => null);
+        sendEvent(res, { type: 'log', message: `→ originalListingUrl récupéré depuis sourceUrl` });
+      }
+
       const result = await enrichVehicleViaBackend(vehicle.id);
 
-      if (!result) {
+      if (!result || 'error' in result) {
         stats.errors++;
+        const errorMsg = result && 'error' in result ? result.error : 'Impossible de scraper la fiche (backend)';
         sendEvent(res, {
           type: 'vehicle',
           title: vehicle.title,
           scoreBefore,
           scoreAfter: scoreBefore,
           status: 'error',
-          message: 'Impossible de scraper la fiche (backend)',
+          message: errorMsg,
         });
         await sleep(2000);
         continue;

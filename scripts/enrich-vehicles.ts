@@ -123,7 +123,7 @@ interface EnrichResult {
  * Le backend gère le scraping Playwright + la sauvegarde en base.
  * Retourne null en cas d'erreur.
  */
-export async function enrichVehicleViaBackend(vehicleId: string): Promise<EnrichResult | null> {
+export async function enrichVehicleViaBackend(vehicleId: string): Promise<EnrichResult | { error: string } | null> {
   try {
     const res = await fetch(`${BACKEND}/api/enrich-vehicle`, {
       method: 'POST',
@@ -138,13 +138,18 @@ export async function enrichVehicleViaBackend(vehicleId: string): Promise<Enrich
     if (!res.ok) {
       const errText = await res.text();
       console.error(`  ❌ Backend ${res.status}: ${errText.substring(0, 120)}`);
-      return null;
+      try {
+        const errJson = JSON.parse(errText);
+        return { error: errJson.error || errText.substring(0, 120) };
+      } catch {
+        return { error: `${res.status}: ${errText.substring(0, 120)}` };
+      }
     }
 
     return await res.json() as EnrichResult;
   } catch (e: any) {
     console.error(`  ❌ Erreur réseau: ${e.message}`);
-    return null;
+    return { error: `Réseau: ${e.message}` };
   }
 }
 
