@@ -59,12 +59,10 @@ const CATEGORIES = [
 const BASE_AS24 = 'https://www.autoscout24.de/lst';
 const AS24_FILTERS = '?fregfrom=2024&cy=D&damaged_listing=exclude&ustate=N%2CU&atype=C';
 
-function buildBrandUrl(slug: string): string {
-  return `${BASE_AS24}/${slug}${AS24_FILTERS}`;
-}
-
-function buildCategoryUrl(body: string): string {
-  return `${BASE_AS24}${AS24_FILTERS}&body=${body}`;
+function buildSearchUrl(brand: string, body: string): string {
+  const base = brand ? `${BASE_AS24}/${brand}` : BASE_AS24;
+  const bodyParam = body ? `&body=${body}` : '';
+  return `${base}${AS24_FILTERS}${bodyParam}`;
 }
 
 // ─── Score badge ─────────────────────────────────────────────────────────────
@@ -224,8 +222,7 @@ export default function ImportAS24Admin() {
   // ── Build import URL ─────────────────────────────────────────────────────
   function getImportUrl(): string {
     if (customUrl.trim()) return customUrl.trim();
-    if (selectedBrand) return buildBrandUrl(selectedBrand);
-    if (selectedCategory) return buildCategoryUrl(selectedCategory);
+    if (selectedBrand || selectedCategory) return buildSearchUrl(selectedBrand, selectedCategory);
     return '';
   }
 
@@ -425,8 +422,7 @@ export default function ImportAS24Admin() {
                     <button
                       key={b.slug}
                       onClick={() => {
-                        setSelectedBrand(b.slug);
-                        setSelectedCategory('');
+                        setSelectedBrand(prev => prev === b.slug ? '' : b.slug);
                         setCustomUrl('');
                       }}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
@@ -449,8 +445,7 @@ export default function ImportAS24Admin() {
                     <button
                       key={c.body}
                       onClick={() => {
-                        setSelectedCategory(c.body);
-                        setSelectedBrand('');
+                        setSelectedCategory(prev => prev === c.body ? '' : c.body);
                         setCustomUrl('');
                       }}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
