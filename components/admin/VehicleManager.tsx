@@ -1043,13 +1043,13 @@ export default function VehicleManager({
                   )}
                 </div>
 
-                {/* Images ImporteMoi (imageUrls) + Process Images */}
+                {/* Images source (imageUrls) + Process Images */}
                 {selectedVehicle && selectedVehicle.imageUrls && selectedVehicle.imageUrls.length > 0 && (
                   <div className='border-t pt-6'>
                     <div className='flex items-center justify-between mb-4'>
                       <div>
                         <h4 className='text-lg font-medium text-gray-900'>
-                          Images ImporteMoi
+                          Images source
                         </h4>
                         <p className='text-sm text-gray-500'>
                           {selectedVehicle.imageUrls.length} image(s) disponible(s)
@@ -1080,13 +1080,13 @@ export default function VehicleManager({
                       </button>
                     </div>
 
-                    {/* Grille des images ImporteMoi */}
+                    {/* Grille des images source */}
                     <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4'>
                       {selectedVehicle.imageUrls.map((img, index) => (
                         <div key={index} className='relative group'>
                           <Image
                             src={img.url}
-                            alt={`ImporteMoi ${index + 1}`}
+                            alt={`Image source ${index + 1}`}
                             width={200}
                             height={150}
                             className='w-full aspect-4/3 object-cover rounded-lg border-2 border-gray-200'

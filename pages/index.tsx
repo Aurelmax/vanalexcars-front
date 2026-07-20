@@ -314,11 +314,11 @@ export default function Home({
                     ['Transport', 'Dédié < 1 semaine', 'Groupage 3-4 semaines'],
                     ['Spécialité', 'Premium & sportives', 'Généraliste'],
                     ['Interlocuteur', 'Un seul, direct', 'Plateforme'],
-                  ].map(([label, vanalex, importemoi]) => (
+                  ].map(([label, vanalex, concurrent]) => (
                     <tr key={label}>
                       <td className='py-3 text-gray-500'>{label}</td>
                       <td className='py-3 font-semibold text-gray-900'>{vanalex}</td>
-                      <td className='py-3 text-gray-400'>{importemoi}</td>
+                      <td className='py-3 text-gray-400'>{concurrent}</td>
                     </tr>
                   ))}
                 </tbody>

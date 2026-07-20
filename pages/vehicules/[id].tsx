@@ -66,7 +66,7 @@ function calcScore(v: Vehicle): { score: number; missingFields: string[] } {
     ['Carburant',             10, !!v.fuel],
     ['Transmission',          10, !!v.transmission],
     ['Images',                10, !!(v.imageUrls && v.imageUrls.length > 0) || !!v.processedImages?.hero],
-    ['Concessionnaire réel',  10, !!v.dealer && !/importemoi/i.test(v.dealer)],
+    ['Concessionnaire réel',  10, !!v.dealer],
     ['Puissance',              5, !!(v.specifications?.power || v.power)],
     ['Couleur extérieure',     5, !!v.exteriorColor],
     ['Portes',                 5, !!v.doors],
@@ -258,7 +258,7 @@ export default function VehicleDetail() {
                   </div>
                 )}
 
-                {/* Lien vers l'annonce originale AutoScout24 ou importemoi */}
+                {/* Lien vers l'annonce originale AutoScout24 */}
                 {(vehicle.originalListingUrl || vehicle.sourceUrl) && (
                   <div className='mt-4'>
                     <a
@@ -474,9 +474,7 @@ export default function VehicleDetail() {
                 <div>
                   <div className='text-sm text-gray-400 mb-1'>Nom</div>
                   <div className='font-semibold'>
-                    {vehicle.dealer && !/importemoi/i.test(vehicle.dealer)
-                      ? vehicle.dealer
-                      : 'Concessionnaire non identifié'}
+                    {vehicle.dealer || 'Concessionnaire non identifié'}
                   </div>
                 </div>
                 {vehicle.dealerCity && (
@@ -513,7 +511,7 @@ export default function VehicleDetail() {
               {/* Carte de localisation — géocodage via Nominatim (OSM) */}
               {(vehicle.dealerCity || vehicle.dealerLat) && (
                 <DealerMap
-                  dealerName={vehicle.dealer && !/importemoi/i.test(vehicle.dealer) ? vehicle.dealer : undefined}
+                  dealerName={vehicle.dealer || undefined}
                   dealerCity={vehicle.dealerCity}
                   dealerAddress={vehicle.dealerAddress}
                   dealerPostalCode={vehicle.dealerPostalCode}
