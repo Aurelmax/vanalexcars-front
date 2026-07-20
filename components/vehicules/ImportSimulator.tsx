@@ -161,16 +161,22 @@ export default function ImportSimulator({
   const handleDeptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     setDept(val)
-    if (val.trim() && !validDept && val.trim().length >= 2) {
-      setDeptError('Département non reconnu (01–95, 2A, 2B)')
+    const trimmed = val.trim().toUpperCase()
+    if (trimmed.length >= 2) {
+      // Validate inline (can't use validDept — it's stale at this point)
+      const isValid = /^(2[AB]|\d{1,2})$/.test(trimmed) && (
+        trimmed === '2A' || trimmed === '2B' ||
+        (() => { const n = parseInt(trimmed.padStart(2, '0')); return n >= 1 && n <= 95 })()
+      )
+      setDeptError(isValid ? '' : 'Département non reconnu (01–95, 2A, 2B)')
     } else {
       setDeptError('')
     }
   }
 
-  const fmtEuro = (n: number | null) => {
-    if (n === null) return '—'
-    return n.toLocaleString('fr-FR') + ' €'
+  const fmtEuro = (n: number | null | undefined) => {
+    if (n == null || !isFinite(n as number)) return '—'
+    return (n as number).toLocaleString('fr-FR') + ' €'
   }
 
   return (
@@ -307,6 +313,25 @@ export default function ImportSimulator({
 
           {breakdownOpen && (
             <div className="divide-y divide-gray-800">
+              {/* Reference lines (prix concession, remise) */}
+              {breakdown.lines.filter(l => l.isReference).length > 0 && (
+                <>
+                  <div className="px-5 py-2 bg-gray-900/20">
+                    <div className="text-xs text-gray-600 uppercase tracking-widest">
+                      Référence concession
+                    </div>
+                  </div>
+                  {breakdown.lines.filter(l => l.isReference).map((line, i) => (
+                    <div key={`ref-${i}`} className="flex items-center justify-between px-5 py-2.5 bg-gray-900/10">
+                      <div className="text-sm text-gray-500">{line.label}</div>
+                      <div className="text-sm font-medium text-gray-400">
+                        {line.amount != null ? line.amount.toLocaleString('fr-FR') + ' €' : '—'}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
               {/* Included lines */}
               <div className="px-5 py-3 bg-gray-900/30">
                 <div className="text-xs text-gray-500 uppercase tracking-widest mb-2">
@@ -314,7 +339,7 @@ export default function ImportSimulator({
                 </div>
               </div>
               {breakdown.lines
-                .filter((l) => l.included)
+                .filter((l) => l.included && !l.isReference)
                 .map((line, i) => (
                   <div
                     key={i}
@@ -334,18 +359,10 @@ export default function ImportSimulator({
                     </div>
                     <div
                       className={`text-sm font-semibold shrink-0 ml-4 ${
-                        line.amount === null
-                          ? 'text-gray-500'
-                          : line.amount < 0
-                            ? 'text-green-400'
-                            : 'text-white'
+                        line.amount === null ? 'text-gray-500' : 'text-white'
                       }`}
                     >
-                      {line.amount === null
-                        ? '—'
-                        : line.amount < 0
-                          ? `−${Math.abs(line.amount).toLocaleString('fr-FR')} €`
-                          : `${line.amount.toLocaleString('fr-FR')} €`}
+                      {line.amount === null ? '—' : line.amount.toLocaleString('fr-FR') + ' €'}
                     </div>
                   </div>
                 ))}
@@ -365,7 +382,7 @@ export default function ImportSimulator({
                 </div>
               </div>
               {breakdown.lines
-                .filter((l) => !l.included)
+                .filter((l) => !l.included && !l.isReference)
                 .map((line, i) => (
                   <div
                     key={i}

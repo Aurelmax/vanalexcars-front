@@ -676,6 +676,7 @@ export interface CostLine {
   note?: string
   status: 'confirmed' | 'estimated' | 'missing' | 'to_verify'
   included: boolean
+  isReference?: boolean  // Display-only reference line (not part of any total)
 }
 
 export interface ImportBreakdown {
@@ -708,25 +709,29 @@ export function calculateImportBreakdown(opts: {
   const prixAchat = vehiclePrice - remise
 
   const lines: CostLine[] = [
+    // Reference lines — display only, not counted in any total
     {
       label: 'Prix concession allemande',
       amount: vehiclePrice,
       status: 'confirmed',
-      included: true,
+      included: false,
+      isReference: true,
     },
     ...(remise > 0
       ? [
           {
             label: 'Remise négociée estimée',
-            amount: -remise,
+            amount: remise,
             note: 'Variable selon négociation',
             status: 'estimated' as const,
-            included: true,
+            included: false,
+            isReference: true,
           },
         ]
       : []),
+    // Single vehicle cost line included in total
     {
-      label: "Prix d'achat estimé",
+      label: remise > 0 ? "Prix d'achat après remise" : "Prix du véhicule",
       amount: prixAchat,
       status: remise > 0 ? 'estimated' : 'confirmed',
       included: true,
