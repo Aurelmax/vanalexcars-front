@@ -18,16 +18,22 @@ let nextConfig = {
   // Configuration des images externes
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'storage.importemoi.fr',
-        pathname: '/ad/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'importemoi.fr',
-        pathname: '/**',
-      },
+      // Anciens domaines (legacy)
+      { protocol: 'https', hostname: 'storage.importemoi.fr', pathname: '/ad/**' },
+      { protocol: 'https', hostname: 'importemoi.fr', pathname: '/**' },
+      // AutoScout24 CDN
+      { protocol: 'https', hostname: '*.autoscout24.com' },
+      { protocol: 'https', hostname: '*.autoscout24.de' },
+      { protocol: 'https', hostname: '*.autoscout24-specs.com' },
+      { protocol: 'https', hostname: '*.autobild.de' },
+      { protocol: 'https', hostname: '*.is1.adform.net' },
+      { protocol: 'https', hostname: 'cdn.as24static.com' },
+      { protocol: 'https', hostname: '*.as24static.com' },
+      { protocol: 'https', hostname: '*.mobile.de' },
+      // Backend Hetzner (processedImages)
+      { protocol: 'https', hostname: 'api.import-voiture-allemagne.fr' },
+      // Netlify
+      { protocol: 'https', hostname: 'vanalexcars.netlify.app' },
     ],
   },
   // Configuration i18n pour le routage multilingue
