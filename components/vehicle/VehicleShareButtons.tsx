@@ -216,7 +216,7 @@ function ShareBtn({ icon, label, onClick, className = '', 'aria-label': ariaLabe
       <span className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-800 border border-gray-700 group-hover:border-premium-gold/60 group-hover:bg-gray-700 transition text-xl shadow-sm">
         {icon}
       </span>
-      <span className="text-xs text-gray-500 group-hover:text-gray-300 transition leading-tight text-center max-w-[56px]">
+      <span className="text-xs text-gray-500 group-hover:text-gray-300 transition leading-tight text-center max-w-14">
         {label}
       </span>
     </button>
