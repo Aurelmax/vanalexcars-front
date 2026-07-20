@@ -22,6 +22,10 @@ const ImportSimulator = dynamic(
   () => import('../../components/vehicules/ImportSimulator'),
   { ssr: false },
 );
+const VehicleShareButtons = dynamic(
+  () => import('../../components/vehicle/VehicleShareButtons'),
+  { ssr: false },
+);
 
 interface Vehicle {
   id: string;
@@ -188,6 +192,10 @@ export default function VehicleDetail() {
   }
 
   // ─── Data normalizations ──────────────────────────────────────────────────
+
+  // Canonical URL for sharing
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.import-voiture-allemagne.fr';
+  const canonicalUrl = `${siteUrl}/vehicules/${vehicle.id}`;
 
   // Images: hero traité en premier, puis toutes les photos brutes AS24
   const rawImageUrls = vehicle.imageUrls?.map(img => img.url) || [];
@@ -537,6 +545,19 @@ export default function VehicleDetail() {
                     <div className='text-xs text-gray-400'>Mandataire automobile — VanalexCars</div>
                     <div className='text-xs text-premium-gold mt-1'>Répond sous 24h · Sans engagement</div>
                   </div>
+                </div>
+
+                {/* Partage social */}
+                <div className='mt-4'>
+                  <VehicleShareButtons
+                    vehicleId={vehicle.id}
+                    brand={vehicle.brand}
+                    model={vehicle.model || vehicle.title}
+                    version={vehicle.title !== vehicle.model ? undefined : undefined}
+                    price={vehicle.price || undefined}
+                    mainImage={displayImages[0] || undefined}
+                    canonicalUrl={canonicalUrl}
+                  />
                 </div>
               </div>
             </div>

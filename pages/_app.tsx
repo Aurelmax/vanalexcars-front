@@ -1,5 +1,6 @@
 import type { AppProps } from 'next/app';
 import React from 'react';
+import Script from 'next/script';
 import Layout from '../components/Layout';
 import { validateConfig } from '../config/api';
 import { AppProvider } from '../context/AppContext';
@@ -24,9 +25,19 @@ export default function App({ Component, pageProps }: AppProps) {
     ComponentWithLayout.getLayout ??
     ((page: React.ReactNode) => <Layout>{page}</Layout>);
 
+  const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+  const umamiScriptUrl = process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || 'https://cloud.umami.is/script.js';
+
   return (
     <AppProvider>
       <AuthProvider>{getLayout(<Component {...pageProps} />)}</AuthProvider>
+      {umamiWebsiteId && (
+        <Script
+          src={umamiScriptUrl}
+          data-website-id={umamiWebsiteId}
+          strategy="afterInteractive"
+        />
+      )}
     </AppProvider>
   );
 }
