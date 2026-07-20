@@ -681,8 +681,8 @@ export default function ImportAS24Admin() {
                       const isEnriching = enrichingId === v.id;
                       const rowMsg = enrichRowMsg?.id === v.id ? enrichRowMsg : null;
                       const listingUrl = v.originalListingUrl || v.sourceUrl || '';
-                      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
-                      const payloadUrl = `${apiBase}/admin/collections/vehicles/${v.id}`;
+                      const siteBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.import-voiture-allemagne.fr';
+                      const ficheUrl = `${siteBase}/vehicules/${v.id}`;
                       return (
                         <tr
                           key={v.id}
@@ -727,13 +727,13 @@ export default function ImportAS24Admin() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-center gap-1" onClick={e => e.stopPropagation()}>
-                              {/* Payload */}
+                              {/* Fiche publique */}
                               <button
-                                onClick={() => window.open(payloadUrl, '_blank')}
-                                title="Ouvrir dans Payload CMS"
-                                className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-yellow-400 transition text-sm"
+                                onClick={() => window.open(ficheUrl, '_blank')}
+                                title="Voir la fiche publique"
+                                className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-green-400 transition text-sm"
                               >
-                                🔧
+                                👁
                               </button>
                               {/* AS24 */}
                               <button
@@ -834,10 +834,13 @@ export default function ImportAS24Admin() {
               {/* Actions */}
               <div className="space-y-2">
                 <button
-                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200'}/admin/collections/vehicles/${selectedVehicle.id}`, '_blank')}
-                  className="w-full flex items-center justify-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black font-semibold text-sm py-2.5 rounded-lg transition"
+                  onClick={() => {
+                    const siteBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.import-voiture-allemagne.fr';
+                    window.open(`${siteBase}/vehicules/${selectedVehicle.id}`, '_blank');
+                  }}
+                  className="w-full flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 text-white font-semibold text-sm py-2.5 rounded-lg transition"
                 >
-                  🔧 Ouvrir dans Payload CMS
+                  👁 Voir la fiche publique
                 </button>
                 {(selectedVehicle.originalListingUrl || selectedVehicle.sourceUrl) && (
                   <button
