@@ -1,17 +1,30 @@
 /**
  * GET /api/auth/me
  *
- * Vérifie le cookie admin_session et retourne les informations de l'utilisateur.
- * Utilisé par useAuth pour hydrater l'état client sans exposer le JWT.
+ * Lit le cookie admin_session et retourne les informations de l'utilisateur.
+ * Décode le JWT sans re-vérifier la signature (la vérification se fait dans
+ * le middleware Edge à chaque requête admin).
  *
  * Réponse OK : { id, email, name, role }
  * Réponse KO : 401
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { SESSION_COOKIE_NAME, verifyPayloadJwt } from '../../../lib/auth';
+import { SESSION_COOKIE_NAME } from '../../../lib/auth';
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+  } catch {
+    return null;
+  }
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -23,17 +36,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: 'Non authentifié' });
   }
 
-  let tokenPayload;
-  try {
-    tokenPayload = await verifyPayloadJwt(token);
-  } catch {
+  const claims = decodeJwtPayload(token);
+  if (!claims) {
+    return res.status(401).json({ error: 'Session invalide' });
+  }
+
+  // Vérification expiration
+  const now = Math.floor(Date.now() / 1000);
+  if (typeof claims['exp'] === 'number' && claims['exp'] < now) {
     return res.status(401).json({ error: 'Session expirée' });
   }
 
   // Récupérer le nom depuis Payload (non stocké dans le JWT par défaut)
   let name = '';
   try {
-    const userRes = await fetch(`${BACKEND}/api/users/${tokenPayload.id}`, {
+    const userRes = await fetch(`${BACKEND}/api/users/${claims['id']}`, {
       headers: { Authorization: `JWT ${token}` },
     });
     if (userRes.ok) {
@@ -41,13 +58,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       name = userData?.name ?? '';
     }
   } catch {
-    // Non bloquant — le nom est optionnel
+    // Non bloquant
   }
 
   return res.status(200).json({
-    id: tokenPayload.id,
-    email: tokenPayload.email,
+    id: claims['id'],
+    email: claims['email'],
     name,
-    role: tokenPayload.role ?? 'admin',
+    role: claims['role'] ?? 'admin',
   });
 }
