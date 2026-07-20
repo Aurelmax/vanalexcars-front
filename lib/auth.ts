@@ -193,11 +193,6 @@ export async function verifyAdminRequest(req: NextApiRequest): Promise<AuthResul
       return { ok: false, status: 401, error: 'Session invalide' };
     }
 
-    // CSRF : vérification Origin sur méthodes mutantes
-    if (!isOriginAllowed(req)) {
-      return { ok: false, status: 403, error: 'Origin non autorisé' };
-    }
-
     const user: AdminTokenPayload = {
       id: claims['id'] as string,
       email: claims['email'] as string,
