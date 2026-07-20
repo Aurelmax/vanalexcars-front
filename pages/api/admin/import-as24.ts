@@ -5,6 +5,7 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { verifyAdminRequest } from '../../../lib/auth';
 
 export const config = { api: { responseLimit: false } };
 
@@ -76,13 +77,10 @@ function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 // ─── Main handler ────────────────────────────────────────────────────────────
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Auth check
-  const secret = process.env.SCRAPER_SECRET;
-  const authHeader = req.headers['authorization'];
-  const token = authHeader?.replace('Bearer ', '').trim();
-
-  if (!secret || token !== secret) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  // Auth duale : cookie admin_session (dashboard) OU Bearer SCRAPER_SECRET (scripts/cron)
+  const auth = await verifyAdminRequest(req);
+  if (!auth.ok) {
+    return res.status(auth.status).json({ error: auth.error });
   }
 
   if (req.method !== 'POST') {

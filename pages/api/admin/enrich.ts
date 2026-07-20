@@ -7,6 +7,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { calcCompletionScore } from '../../../lib/completion-score';
 import { enrichVehicleViaBackend } from '../../../scripts/enrich-vehicles';
+import { verifyAdminRequest } from '../../../lib/auth';
 
 export const config = { api: { responseLimit: false } };
 
@@ -25,13 +26,10 @@ function resolveListingUrl(v: any): string | null {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Auth check
-  const secret = process.env.SCRAPER_SECRET;
-  const authHeader = req.headers['authorization'];
-  const token = authHeader?.replace('Bearer ', '').trim();
-
-  if (!secret || token !== secret) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  // Auth duale : cookie admin_session (dashboard) OU Bearer SCRAPER_SECRET (scripts/cron)
+  const auth = await verifyAdminRequest(req);
+  if (!auth.ok) {
+    return res.status(auth.status).json({ error: auth.error });
   }
 
   if (req.method !== 'POST') {

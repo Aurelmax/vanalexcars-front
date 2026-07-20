@@ -6,6 +6,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { calcCompletionScore } from '../../../lib/completion-score';
+import { verifyAdminRequest } from '../../../lib/auth';
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
 
@@ -14,15 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Auth: Bearer token or query param
-  const secret = process.env.SCRAPER_SECRET;
-  const authHeader = req.headers['authorization'];
-  const bearerToken = authHeader?.replace('Bearer ', '').trim();
-  const querySecret = req.query.secret as string | undefined;
-  const token = bearerToken || querySecret;
-
-  if (!secret || token !== secret) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  // Auth duale : cookie admin_session (dashboard) OU Bearer SCRAPER_SECRET (scripts/cron)
+  const auth = await verifyAdminRequest(req);
+  if (!auth.ok) {
+    return res.status(auth.status).json({ error: auth.error });
   }
 
   const { brand, category, sourcePlatform } = req.query as {

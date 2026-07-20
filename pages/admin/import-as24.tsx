@@ -1,11 +1,12 @@
 /**
  * Admin — Import AutoScout24
  * Full dark premium admin page. No Header/Footer.
- * Auth via sessionStorage token verified against /api/admin/stats
+ * Auth : cookie HttpOnly admin_session géré par middleware.ts + /api/auth/login
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -139,12 +140,7 @@ async function readSSEStream(
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function ImportAS24Admin() {
-  // Auth
-  const [token, setToken] = useState<string>('');
-  const [inputPassword, setInputPassword] = useState('');
-  const [authError, setAuthError] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authChecking, setAuthChecking] = useState(false);
+  const router = useRouter();
 
   // Running state
   const [isRunning, setIsRunning] = useState(false);
@@ -177,48 +173,15 @@ export default function ImportAS24Admin() {
   const [enrichingId, setEnrichingId] = useState<string | null>(null);
   const [enrichRowMsg, setEnrichRowMsg] = useState<{ id: string; ok: boolean; msg: string } | null>(null);
 
-  // ── On mount: check sessionStorage ──────────────────────────────────────
-  useEffect(() => {
-    const saved = sessionStorage.getItem('adminToken');
-    if (saved) {
-      setToken(saved);
-      setIsAuthenticated(true);
-    }
-  }, []);
-
   // Auto-scroll logs
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  // ── Auth submit ──────────────────────────────────────────────────────────
-  async function handleAuthSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setAuthChecking(true);
-    setAuthError('');
-
-    try {
-      const res = await fetch('/api/admin/stats', {
-        headers: { Authorization: `Bearer ${inputPassword}` },
-      });
-      if (res.ok) {
-        sessionStorage.setItem('adminToken', inputPassword);
-        setToken(inputPassword);
-        setIsAuthenticated(true);
-      } else {
-        setAuthError('Token invalide. Vérifiez SCRAPER_SECRET.');
-      }
-    } catch {
-      setAuthError('Erreur réseau.');
-    } finally {
-      setAuthChecking(false);
-    }
-  }
-
-  function handleLogout() {
-    sessionStorage.removeItem('adminToken');
-    setToken('');
-    setIsAuthenticated(false);
+  // ── Logout ───────────────────────────────────────────────────────────────
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.replace('/admin/login');
   }
 
   // ── Add log line ─────────────────────────────────────────────────────────
@@ -247,7 +210,7 @@ export default function ImportAS24Admin() {
     await readSSEStream(
       '/api/admin/import-as24',
       'POST',
-      { Authorization: `Bearer ${token}` },
+      {},
       { searchUrl, maxPages },
       (event) => {
         if (event.type === 'log') {
@@ -269,13 +232,11 @@ export default function ImportAS24Admin() {
     setIsRunning(true);
     addLog(`Démarrage enrichissement — score < ${minScore}% | limite: ${enrichLimit}${enrichBrand ? ` | marque: ${enrichBrand}` : ''}`);
 
-    // Appel direct au backend Coolify (évite le timeout Netlify de 26s)
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.import-voiture-allemagne.fr';
-
+    // Proxy sécurisé : SCRAPER_SECRET ajouté côté serveur dans /api/admin/enrich-backend
     await readSSEStream(
-      `${backendUrl}/api/bulk-enrich`,
+      '/api/admin/enrich-backend',
       'POST',
-      { 'x-secret': token },
+      {},
       { minScore, limit: enrichLimit, brand: enrichBrand || undefined },
       (event) => {
         if (event.type === 'log') {
@@ -304,10 +265,10 @@ export default function ImportAS24Admin() {
     setEnrichingId(vehicleId);
     setEnrichRowMsg(null);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.import-voiture-allemagne.fr';
-      const res = await fetch(`${backendUrl}/api/enrich-vehicle`, {
+      // Proxy sécurisé : SCRAPER_SECRET ajouté côté serveur dans /api/admin/enrich-single
+      const res = await fetch('/api/admin/enrich-single', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-secret': token },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vehicleId }),
       });
       const data = await res.json();
@@ -339,9 +300,7 @@ export default function ImportAS24Admin() {
       if (filterCategory) params.set('category', filterCategory);
       if ([...params].length) url += `?${params.toString()}`;
 
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(url);
       if (!res.ok) {
         addLog(`Erreur stats: ${res.status}`);
         return;
@@ -357,8 +316,9 @@ export default function ImportAS24Admin() {
   }
 
   useEffect(() => {
-    if (isAuthenticated && token) loadStats();
-  }, [isAuthenticated, token]);
+    loadStats();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Filtered vehicles ────────────────────────────────────────────────────
   const filteredVehicles = vehicles.filter(v => {
@@ -370,50 +330,8 @@ export default function ImportAS24Admin() {
     return true;
   });
 
-  // ── Auth screen ──────────────────────────────────────────────────────────
-  if (!isAuthenticated) {
-    return (
-      <>
-        <Head>
-          <title>Admin AS24 — Connexion</title>
-        </Head>
-        <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-          <div className="w-full max-w-sm bg-gray-900 rounded-2xl border border-gray-800 p-8 shadow-2xl">
-            <div className="text-center mb-8">
-              <div className="text-3xl mb-2">🔐</div>
-              <h1 className="text-xl font-bold text-white">Admin Import AS24</h1>
-              <p className="text-gray-400 text-sm mt-1">Interface d&apos;administration réservée</p>
-            </div>
-            <form onSubmit={handleAuthSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Token d&apos;accès (SCRAPER_SECRET)</label>
-                <input
-                  type="password"
-                  value={inputPassword}
-                  onChange={e => setInputPassword(e.target.value)}
-                  placeholder="Entrez le token secret…"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 transition"
-                  autoFocus
-                />
-              </div>
-              {authError && (
-                <p className="text-red-400 text-sm">{authError}</p>
-              )}
-              <button
-                type="submit"
-                disabled={authChecking || !inputPassword}
-                className="w-full bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 rounded-lg transition"
-              >
-                {authChecking ? 'Vérification…' : 'Se connecter'}
-              </button>
-            </form>
-          </div>
-        </div>
-      </>
-    );
-  }
-
   // ─── Main admin UI ────────────────────────────────────────────────────────
+  // Auth garantie par middleware.ts — aucun écran de connexion ici
 
   return (
     <>

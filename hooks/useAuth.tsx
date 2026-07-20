@@ -1,16 +1,27 @@
+/**
+ * hooks/useAuth.tsx
+ *
+ * Hydrate l'état de l'utilisateur depuis /api/auth/me (cookie HttpOnly).
+ * Aucun token n'est stocké en localStorage ou sessionStorage.
+ * La session est gérée exclusivement par le cookie admin_session.
+ */
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
+  role: string;
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,62 +35,54 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Hydratation au montage via le cookie HttpOnly
   useEffect(() => {
-    // Vérifier si l'utilisateur est déjà connecté
-    const savedAuth = localStorage.getItem('vanalexcars_auth');
-    if (savedAuth) {
-      try {
-        const authData = JSON.parse(savedAuth);
-        setIsAuthenticated(true);
-        setUser(authData.user);
-      } catch (error) {
-        localStorage.removeItem('vanalexcars_auth');
-      }
-    }
+    fetch('/api/auth/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setUser(data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Pour la démo, on accepte n'importe quel email/password
-    // En production, vous devriez vérifier avec votre backend
-    if (email && password) {
-      const userData: User = {
-        id: 1,
-        name: 'Administrateur',
-        email: email
-      };
-      
-      setIsAuthenticated(true);
-      setUser(userData);
-      
-      // Sauvegarder en localStorage
-      localStorage.setItem('vanalexcars_auth', JSON.stringify({
-        user: userData,
-        timestamp: Date.now()
-      }));
-      
-      return true;
+  const login = async (email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { ok: false, error: data.error || 'Identifiants invalides' };
     }
-    return false;
+
+    setUser(data.user);
+    return { ok: true };
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
+  const logout = async (): Promise<void> => {
+    await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
-    localStorage.removeItem('vanalexcars_auth');
-  };
-
-  const value: AuthContextType = {
-    isAuthenticated,
-    user,
-    login,
-    logout
+    router.replace('/admin/login');
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated: !!user,
+        user,
+        loading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
