@@ -681,7 +681,10 @@ export default function ImportAS24Admin() {
                       const isEnriching = enrichingId === v.id;
                       const rowMsg = enrichRowMsg?.id === v.id ? enrichRowMsg : null;
                       const listingUrl = v.originalListingUrl || v.sourceUrl || '';
-                      const payloadUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200'}/admin/collections/vehicles/${v.id}`;
+                      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+                      // Le Payload admin tourne sur le port 4200 — le reverse proxy ne route que /api/*
+                      const payloadAdminBase = apiBase.replace(/^(https?:\/\/[^/:]+)(:\d+)?/, '$1:4200');
+                      const payloadUrl = `${payloadAdminBase}/admin/collections/vehicles/${v.id}`;
                       return (
                         <tr
                           key={v.id}
@@ -833,7 +836,10 @@ export default function ImportAS24Admin() {
               {/* Actions */}
               <div className="space-y-2">
                 <button
-                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200'}/admin/collections/vehicles/${selectedVehicle.id}`, '_blank')}
+                  onClick={() => {
+                    const base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200').replace(/^(https?:\/\/[^/:]+)(:\d+)?/, '$1:4200');
+                    window.open(`${base}/admin/collections/vehicles/${selectedVehicle.id}`, '_blank');
+                  }}
                   className="w-full flex items-center justify-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black font-semibold text-sm py-2.5 rounded-lg transition"
                 >
                   🔧 Ouvrir dans Payload CMS
