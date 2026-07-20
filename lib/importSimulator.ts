@@ -89,6 +89,11 @@ export function filterEquipment(items: string[]): string[] {
     if (!trimmed || trimmed.length < 3) continue
     const lower = trimmed.toLowerCase()
     if (EQUIPMENT_PARASITES.has(lower)) continue
+    // Skip compound strings where all tokens are parasites (e.g. "Belgique/belgique")
+    if (/[/|,]/.test(lower)) {
+      const tokens = lower.split(/[/|,]/).map(t => t.trim()).filter(Boolean)
+      if (tokens.length > 0 && tokens.every(t => EQUIPMENT_PARASITES.has(t) || /^[a-z]{2,3}$/.test(t))) continue
+    }
     // Skip pure country codes (2-3 letters all caps)
     if (/^[A-Z]{2,3}$/.test(trimmed)) continue
     // Skip if it's just a number

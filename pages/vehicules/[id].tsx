@@ -288,28 +288,49 @@ export default function VehicleDetail() {
             </div>
 
             {/* ── Top summary banner ──────────────────────────────────────── */}
-            <div className='mb-8 grid grid-cols-3 gap-3 p-4 sm:p-6 bg-gray-900/60 border border-gray-800 rounded-2xl'>
-              <div className='text-center'>
-                <div className='text-xl sm:text-3xl font-bold text-premium-gold'>
-                  {vehicle.price?.toLocaleString('fr-FR')} €
+            {(() => {
+              // Quick estimate: price + fixed fees (no transport, no CG, no malus)
+              const p = vehicle.price || 0
+              const fees = simulatorParams.honoraires + simulatorParams.plaquesExport
+                + simulatorParams.cpiWw + simulatorParams.coc + simulatorParams.formalitesAdmin
+              const estimateLivre = p > 0 ? p + fees : 0
+              return (
+                <div className='mb-8 grid grid-cols-3 gap-3 p-4 sm:p-5 bg-gray-900/60 border border-gray-800 rounded-2xl'>
+                  <div className='text-center'>
+                    <div className='text-lg sm:text-2xl font-bold text-premium-gold'>
+                      {p > 0 ? `${p.toLocaleString('fr-FR')} €` : '—'}
+                    </div>
+                    <div className='text-xs text-gray-400 mt-1'>Prix Allemagne</div>
+                  </div>
+                  <div className='text-center border-x border-gray-700'>
+                    {estimateLivre > 0 ? (
+                      <>
+                        <div className='text-lg sm:text-2xl font-bold text-cyan-400'>
+                          ~{estimateLivre.toLocaleString('fr-FR')} €
+                        </div>
+                        <div className='text-xs text-gray-400 mt-1'>Budget livré</div>
+                        <div className='text-xs text-gray-600 mt-0.5'>hors transport</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className='text-lg sm:text-2xl font-bold text-gray-500'>—</div>
+                        <div className='text-xs text-gray-400 mt-1'>Budget livré</div>
+                      </>
+                    )}
+                  </div>
+                  <div className='text-center'>
+                    <div className='text-lg sm:text-2xl font-bold text-gray-500'>
+                      <a href='#simulation' className='hover:text-green-400 transition-colors text-sm font-semibold flex flex-col items-center gap-0.5'>
+                        <span className='text-xl'>↓</span>
+                        <span>Simuler</span>
+                      </a>
+                    </div>
+                    <div className='text-xs text-gray-400 mt-1'>Budget immatriculé</div>
+                    <div className='text-xs text-gray-600 mt-0.5'>avec votre département</div>
+                  </div>
                 </div>
-                <div className='text-xs text-gray-400 mt-1'>Prix Allemagne</div>
-              </div>
-              <div className='text-center border-x border-gray-700'>
-                <div className='text-xl sm:text-3xl font-bold text-cyan-400'>
-                  Simuler
-                </div>
-                <div className='text-xs text-gray-400 mt-1'>Budget livré</div>
-                <div className='text-xs text-gray-600 mt-0.5'>section ci-dessous</div>
-              </div>
-              <div className='text-center'>
-                <div className='text-xl sm:text-3xl font-bold text-green-400'>
-                  Simuler
-                </div>
-                <div className='text-xs text-gray-400 mt-1'>Budget immatriculé</div>
-                <div className='text-xs text-gray-600 mt-0.5'>indiquez votre dept.</div>
-              </div>
-            </div>
+              )
+            })()}
 
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-12'>
               {/* Colonne gauche: Images */}
