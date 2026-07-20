@@ -62,6 +62,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(403).json({ error: 'Accès refusé : rôle admin requis' });
   }
 
+  // Migration : si le rôle est absent du JWT (utilisateur pré-migration),
+  // on le patche immédiatement en base pour que les prochains logins l'incluent.
+  if (!tokenPayload.role) {
+    fetch(`${BACKEND}/api/users/${tokenPayload.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `JWT ${rawToken}`,
+      },
+      body: JSON.stringify({ role: 'admin' }),
+    }).catch(() => {}); // Non bloquant
+  }
+
   // Cookie HttpOnly — le JWT brut ne part jamais dans le body JSON
   res.setHeader('Set-Cookie', buildSetCookieHeader(rawToken));
 

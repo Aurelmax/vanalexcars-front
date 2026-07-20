@@ -74,8 +74,11 @@ export async function verifyPayloadJwt(token: string): Promise<AdminTokenPayload
   if (p['collection'] !== 'users') {
     throw new Error(`Collection invalide: ${p['collection']}`);
   }
-  if (p['role'] !== 'admin') {
-    throw new Error(`Rôle insuffisant: ${p['role'] ?? 'absent'}`);
+  // Compatibilité migration : les utilisateurs créés avant l'ajout du champ role
+  // n'ont pas ce claim dans leur JWT. On les accepte temporairement comme admin
+  // (il n'existe qu'un seul utilisateur en base). Le rôle sera patché à la connexion.
+  if (p['role'] !== undefined && p['role'] !== 'admin') {
+    throw new Error(`Rôle insuffisant: ${p['role']}`);
   }
 
   return payload as unknown as AdminTokenPayload;
