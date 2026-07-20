@@ -6,9 +6,22 @@ import dynamic from 'next/dynamic';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { translateAutoTerms } from '../../lib/translations/auto-terms-de-fr';
+import {
+  parseRegistration,
+  parsePower,
+  normalizeColor,
+  normalizeBodyType,
+  filterEquipment,
+  DEFAULT_SIMULATOR_PARAMS,
+  SimulatorParams,
+} from '../../lib/importSimulator';
 
 // Import dynamique pour éviter les erreurs SSR de Leaflet
 const DealerMap = dynamic(() => import('../../components/DealerMap'), { ssr: false });
+const ImportSimulator = dynamic(
+  () => import('../../components/vehicules/ImportSimulator'),
+  { ssr: false },
+);
 
 interface Vehicle {
   id: string;
@@ -37,6 +50,7 @@ interface Vehicle {
   interiorColor?: string;
   sourceUrl?: string;
   originalListingUrl?: string;
+  co2?: number;
   imageUrls?: Array<{ url: string; id: string }>;
   processedImages?: {
     hero?: string;
@@ -48,6 +62,7 @@ interface Vehicle {
     power?: string;
     powerKw?: number;
     powerHp?: number;
+    co2?: number;
   };
   features?: Array<{ feature: string }>;
 }
@@ -105,6 +120,7 @@ export default function VehicleDetail() {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [simulatorParams, setSimulatorParams] = useState<SimulatorParams>(DEFAULT_SIMULATOR_PARAMS);
 
   useEffect(() => {
     if (!id) return;
@@ -124,6 +140,21 @@ export default function VehicleDetail() {
 
     fetchVehicle();
   }, [id]);
+
+  useEffect(() => {
+    const fetchSimulatorParams = async () => {
+      try {
+        const r = await fetch('/api/simulator-params');
+        if (r.ok) {
+          const data = await r.json();
+          setSimulatorParams({ ...DEFAULT_SIMULATOR_PARAMS, ...data });
+        }
+      } catch {
+        // keep defaults
+      }
+    };
+    fetchSimulatorParams();
+  }, []);
 
   if (loading) {
     return (
@@ -156,6 +187,8 @@ export default function VehicleDetail() {
     );
   }
 
+  // ─── Data normalizations ──────────────────────────────────────────────────
+
   // Images: hero traité en premier, puis toutes les photos brutes AS24
   const rawImageUrls = vehicle.imageUrls?.map(img => img.url) || [];
   const displayImages = vehicle.processedImages?.hero
@@ -164,21 +197,45 @@ export default function VehicleDetail() {
 
   const mainImage = displayImages[selectedImage] || '/placeholder-car.jpg';
 
-  const power = vehicle.specifications?.power || vehicle.power;
-  const features = vehicle.features?.map(f => translateAutoTerms(f.feature)).filter(Boolean) || [];
-  const { score: completionScore, missingFields } = calcScore(vehicle);
+  // Year normalization (handles MMYYYY packed format)
+  const parsedReg = parseRegistration(vehicle.year);
+  const normalizedYear = parsedReg?.year ?? vehicle.year;
 
-  // Masquer uniquement les dumps d'équipements (liste de mots-clés sans phrases)
-  // Détection : pas de point de fin de phrase, lignes très courtes (≤4 mots en moyenne)
+  // Power normalization
+  const rawPower = vehicle.specifications?.power || vehicle.power;
+  const parsedPower = parsePower(rawPower);
+  const powerKw = vehicle.specifications?.powerKw ?? parsedPower?.kw ?? null;
+  const powerDisplay = parsedPower?.display || rawPower || '—';
+
+  // Color normalization
+  const exteriorColorFr = normalizeColor(vehicle.exteriorColor);
+  const interiorColorFr = vehicle.interiorColor;
+
+  // Body type normalization
+  const bodyTypeFr = normalizeBodyType(vehicle.category);
+
+  // CO2 (check both top-level and specifications)
+  const co2 = vehicle.co2 ?? vehicle.specifications?.co2 ?? null;
+
+  // Equipment: translate, filter parasites, deduplicate
+  const rawFeatures = vehicle.features?.map(f => translateAutoTerms(f.feature)).filter(Boolean) || [];
+  const features = filterEquipment(rawFeatures);
+
+  // Mileage display
+  const mileageUnknown = vehicle.mileage === 0 || vehicle.mileage == null;
+
+  // Description
   const isEquipmentDump = (text: string) => {
     if (!text) return false;
     const hasSentences = /[.!?]/.test(text);
-    if (hasSentences) return false; // une vraie description a des phrases
+    if (hasSentences) return false;
     const lines = text.split(/[\n,;]+/).filter(Boolean);
     const avgWords = lines.reduce((s, l) => s + l.trim().split(/\s+/).length, 0) / (lines.length || 1);
-    return avgWords <= 3; // listes d'équipements : 1-3 mots par entrée
+    return avgWords <= 3;
   };
   const showDescription = vehicle.description && vehicle.description.length > 20 && !isEquipmentDump(vehicle.description);
+
+  const { score: completionScore, missingFields } = calcScore(vehicle);
 
   return (
     <>
@@ -186,7 +243,7 @@ export default function VehicleDetail() {
         <title>{vehicle.title} | VanalexCars</title>
         <meta
           name='description'
-          content={`${vehicle.brand} ${vehicle.model} - ${vehicle.year} - ${vehicle.mileage?.toLocaleString()} km - ${vehicle.price?.toLocaleString()} €`}
+          content={`${vehicle.brand} ${vehicle.model} - ${parsedReg?.displayDate ?? normalizedYear} - ${mileageUnknown ? 'km NC' : vehicle.mileage?.toLocaleString() + ' km'} - ${vehicle.price?.toLocaleString()} €`}
         />
       </Head>
 
@@ -220,6 +277,30 @@ export default function VehicleDetail() {
               >
                 Fiche à {completionScore}%
               </span>
+            </div>
+
+            {/* ── Top summary banner ──────────────────────────────────────── */}
+            <div className='mb-8 grid grid-cols-3 gap-3 p-4 sm:p-6 bg-gray-900/60 border border-gray-800 rounded-2xl'>
+              <div className='text-center'>
+                <div className='text-xl sm:text-3xl font-bold text-premium-gold'>
+                  {vehicle.price?.toLocaleString('fr-FR')} €
+                </div>
+                <div className='text-xs text-gray-400 mt-1'>Prix Allemagne</div>
+              </div>
+              <div className='text-center border-x border-gray-700'>
+                <div className='text-xl sm:text-3xl font-bold text-cyan-400'>
+                  Simuler
+                </div>
+                <div className='text-xs text-gray-400 mt-1'>Budget livré</div>
+                <div className='text-xs text-gray-600 mt-0.5'>section ci-dessous</div>
+              </div>
+              <div className='text-center'>
+                <div className='text-xl sm:text-3xl font-bold text-green-400'>
+                  Simuler
+                </div>
+                <div className='text-xs text-gray-400 mt-1'>Budget immatriculé</div>
+                <div className='text-xs text-gray-600 mt-0.5'>indiquez votre dept.</div>
+              </div>
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-12'>
@@ -282,12 +363,12 @@ export default function VehicleDetail() {
                     <span className='px-3 py-1 bg-premium-gold/20 text-premium-gold rounded-full text-sm font-semibold'>
                       {vehicle.brand?.toUpperCase()}
                     </span>
-                    {vehicle.year && (
-                      <span className='text-gray-400 text-sm'>{vehicle.year}</span>
+                    {parsedReg && (
+                      <span className='text-gray-400 text-sm'>{parsedReg.displayDate}</span>
                     )}
                     {vehicle.category && vehicle.category !== 'other' && (
                       <span className='px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm capitalize'>
-                        {translateAutoTerms(vehicle.category)}
+                        {bodyTypeFr}
                       </span>
                     )}
                   </div>
@@ -297,16 +378,30 @@ export default function VehicleDetail() {
                   <div className='text-4xl font-bold text-premium-gold'>
                     {vehicle.price?.toLocaleString('fr-FR')} €
                   </div>
+                  {parsedReg?.month && (
+                    <div className='text-sm text-gray-400 mt-2'>
+                      Première mise en circulation : <span className='text-gray-200'>{parsedReg.displayDate}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Caractéristiques principales */}
                 <div className='grid grid-cols-2 gap-4 mb-8'>
 
-                  {/* Champs toujours affichés */}
+                  {/* Kilométrage */}
                   <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                     <div className='text-gray-400 text-sm mb-1'>Kilométrage</div>
-                    <div className='text-white font-semibold text-lg'>
-                      {vehicle.mileage != null ? `${vehicle.mileage.toLocaleString('fr-FR')} km` : '—'}
+                    <div className='flex items-center gap-2'>
+                      {mileageUnknown ? (
+                        <>
+                          <span className='text-gray-500 text-sm'>Kilométrage non communiqué</span>
+                          <span className='inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-700 text-gray-400 text-xs font-bold shrink-0'>?</span>
+                        </>
+                      ) : (
+                        <span className='text-white font-semibold text-lg'>
+                          {vehicle.mileage.toLocaleString('fr-FR')} km
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -327,23 +422,33 @@ export default function VehicleDetail() {
                   <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                     <div className='text-gray-400 text-sm mb-1'>Puissance</div>
                     <div className='text-white font-semibold text-lg'>
-                      {power || '—'}
+                      {powerDisplay}
                     </div>
                   </div>
 
                   <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                     <div className='text-gray-400 text-sm mb-1'>Année</div>
                     <div className='text-white font-semibold text-lg'>
-                      {vehicle.year || '—'}
+                      {normalizedYear || '—'}
                     </div>
                   </div>
 
                   <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                     <div className='text-gray-400 text-sm mb-1'>Carrosserie</div>
-                    <div className='text-white font-semibold text-lg capitalize'>
-                      {({'berline':'Berline','break':'Break','suv':'SUV','coupe':'Coupé','cabriolet':'Cabriolet','monospace':'Monospace','other':'—'} as Record<string,string>)[vehicle.category || ''] || '—'}
+                    <div className='text-white font-semibold text-lg'>
+                      {bodyTypeFr}
                     </div>
                   </div>
+
+                  {/* CO2 si disponible */}
+                  {co2 != null && co2 > 0 && (
+                    <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
+                      <div className='text-gray-400 text-sm mb-1'>CO₂ (WLTP)</div>
+                      <div className='text-white font-semibold text-lg'>
+                        {co2} g/km
+                      </div>
+                    </div>
+                  )}
 
                   {/* Champs affichés seulement si disponibles */}
                   {vehicle.doors && (
@@ -364,20 +469,20 @@ export default function VehicleDetail() {
                     </div>
                   )}
 
-                  {vehicle.exteriorColor && (
+                  {exteriorColorFr && (
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                       <div className='text-gray-400 text-sm mb-1'>Couleur extérieure</div>
-                      <div className='text-white font-semibold text-lg capitalize'>
-                        {vehicle.exteriorColor}
+                      <div className='text-white font-semibold text-lg'>
+                        {exteriorColorFr}
                       </div>
                     </div>
                   )}
 
-                  {vehicle.interiorColor && (
+                  {interiorColorFr && (
                     <div className='bg-gray-900/50 border border-gray-800 rounded-lg p-4'>
                       <div className='text-gray-400 text-sm mb-1'>Sellerie</div>
                       <div className='text-white font-semibold text-lg'>
-                        {vehicle.interiorColor}
+                        {interiorColorFr}
                       </div>
                     </div>
                   )}
@@ -464,6 +569,24 @@ export default function VehicleDetail() {
                 </div>
               </div>
             )}
+
+            {/* ── Import simulation section ──────────────────────────────── */}
+            <div className='mt-16'>
+              <h2 className='text-3xl font-bold text-white mb-2'>
+                Simulation d'importation
+              </h2>
+              <p className='text-gray-400 mb-8'>
+                Estimez le coût complet pour importer ce véhicule en France — malus, carte grise, transport inclus.
+              </p>
+              <ImportSimulator
+                vehiclePrice={vehicle.price}
+                fuel={vehicle.fuel}
+                year={normalizedYear}
+                co2={co2}
+                powerKw={powerKw}
+                params={simulatorParams}
+              />
+            </div>
 
             {/* Dealer Info — concessionnaire réel AutoScout24 */}
             <div className='mt-12 bg-gray-900/50 border border-gray-800 rounded-xl p-6'>
