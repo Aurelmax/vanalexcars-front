@@ -168,6 +168,11 @@ export default function ImportAS24Admin() {
   const [enrichLimit, setEnrichLimit] = useState(15);
   const [enrichBrand, setEnrichBrand] = useState('');
 
+  // Import URL unique
+  const [singleUrl, setSingleUrl] = useState('');
+  const [singleLoading, setSingleLoading] = useState(false);
+  const [singleResult, setSingleResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
   // Drawer + individual enrich
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleRow | null>(null);
   const [enrichingId, setEnrichingId] = useState<string | null>(null);
@@ -225,6 +230,33 @@ export default function ImportAS24Admin() {
       },
       () => setIsRunning(false)
     );
+  }
+
+  // ── Import URL unique ─────────────────────────────────────────────────────
+  async function handleImportSingle() {
+    const url = singleUrl.trim();
+    if (!url) return;
+    setSingleLoading(true);
+    setSingleResult(null);
+    try {
+      const res = await fetch('/api/admin/import-single', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listingUrl: url }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSingleResult({ ok: true, msg: `✅ ${data.action === 'created' ? 'Créé' : 'Mis à jour'} : ${data.title}` });
+        setSingleUrl('');
+        loadStats();
+      } else {
+        setSingleResult({ ok: false, msg: `❌ ${data.error || 'Erreur inconnue'}` });
+      }
+    } catch {
+      setSingleResult({ ok: false, msg: '❌ Erreur réseau' });
+    } finally {
+      setSingleLoading(false);
+    }
   }
 
   // ── Run enrich ───────────────────────────────────────────────────────────
@@ -372,6 +404,35 @@ export default function ImportAS24Admin() {
         </header>
 
         <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
+
+          {/* ── Import URL unique ── */}
+          <div className="bg-gray-900 rounded-2xl border border-blue-800 p-5">
+            <h2 className="text-base font-bold text-blue-400 mb-3 flex items-center gap-2">
+              🔗 Import URL unique
+            </h2>
+            <div className="flex gap-3 items-start">
+              <input
+                type="url"
+                value={singleUrl}
+                onChange={e => { setSingleUrl(e.target.value); setSingleResult(null); }}
+                placeholder="https://www.autoscout24.de/angebote/..."
+                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                onKeyDown={e => e.key === 'Enter' && !singleLoading && handleImportSingle()}
+              />
+              <button
+                onClick={handleImportSingle}
+                disabled={singleLoading || !singleUrl.trim()}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-lg transition whitespace-nowrap"
+              >
+                {singleLoading ? '⏳ Import...' : 'Importer'}
+              </button>
+            </div>
+            {singleResult && (
+              <p className={`mt-2 text-sm ${singleResult.ok ? 'text-green-400' : 'text-red-400'}`}>
+                {singleResult.msg}
+              </p>
+            )}
+          </div>
 
           {/* ── Top row: Import + Enrich panels ── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
