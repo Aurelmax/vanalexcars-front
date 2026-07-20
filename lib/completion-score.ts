@@ -70,7 +70,7 @@ export function calcCompletionScore(v: VehicleForScore): { score: number; missin
     fuel:               !!v.fuel,
     transmission:       !!v.transmission,
     images:             hasImages,
-    dealer:             !!v.dealer && !/importemoi/i.test(v.dealer),
+    dealer:             !!v.dealer,
     power:              hasPower,
     exteriorColor:      !!v.exteriorColor,
     doors:              !!v.doors,

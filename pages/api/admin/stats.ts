@@ -57,6 +57,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         score,
         missingFields,
         sourcePlatform: v.sourcePlatform || '',
+        originalListingUrl: v.originalListingUrl || '',
+        sourceUrl: v.sourceUrl || '',
       };
     });
 

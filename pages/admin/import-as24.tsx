@@ -20,6 +20,8 @@ interface VehicleRow {
   score: number;
   missingFields: string[];
   sourcePlatform: string;
+  originalListingUrl?: string;
+  sourceUrl?: string;
 }
 
 interface StatsResult {
@@ -170,6 +172,11 @@ export default function ImportAS24Admin() {
   const [enrichLimit, setEnrichLimit] = useState(15);
   const [enrichBrand, setEnrichBrand] = useState('');
 
+  // Drawer + individual enrich
+  const [selectedVehicle, setSelectedVehicle] = useState<VehicleRow | null>(null);
+  const [enrichingId, setEnrichingId] = useState<string | null>(null);
+  const [enrichRowMsg, setEnrichRowMsg] = useState<{ id: string; ok: boolean; msg: string } | null>(null);
+
   // ── On mount: check sessionStorage ──────────────────────────────────────
   useEffect(() => {
     const saved = sessionStorage.getItem('adminToken');
@@ -278,6 +285,8 @@ export default function ImportAS24Admin() {
             addLog(`✅ Enrichi: ${event.title} | ${event.scoreBefore}% → ${event.scoreAfter}%`);
           } else if (event.status === 'skipped') {
             addLog(`ℹ️ Ignoré: ${event.title} — rien à enrichir`);
+          } else if (event.status === 'removed') {
+            addLog(`🗑️ Inactivé: ${event.title}${event.message ? ` | ${event.message}` : ''}`);
           } else {
             addLog(`❌ Erreur: ${event.title}${event.message ? ` — ${event.message}` : ''}`);
           }
@@ -288,6 +297,36 @@ export default function ImportAS24Admin() {
       },
       () => setIsRunning(false)
     );
+  }
+
+  // ── Enrich single vehicle ────────────────────────────────────────────────
+  async function handleEnrichOne(vehicleId: string) {
+    setEnrichingId(vehicleId);
+    setEnrichRowMsg(null);
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.import-voiture-allemagne.fr';
+      const res = await fetch(`${backendUrl}/api/enrich-vehicle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-secret': token },
+        body: JSON.stringify({ vehicleId }),
+      });
+      const data = await res.json();
+      if (res.ok && !data.error) {
+        setEnrichRowMsg({ id: vehicleId, ok: true, msg: data.message || 'Enrichi ✓' });
+        addLog(`✅ Enrichi: ${vehicles.find(v => v.id === vehicleId)?.title || vehicleId}`);
+        setTimeout(() => { setEnrichRowMsg(null); loadStats(); }, 3000);
+      } else {
+        setEnrichRowMsg({ id: vehicleId, ok: false, msg: data.error || 'Erreur' });
+        addLog(`❌ Erreur enrichissement: ${data.error || 'inconnue'}`);
+        setTimeout(() => setEnrichRowMsg(null), 4000);
+      }
+    } catch (e: any) {
+      setEnrichRowMsg({ id: vehicleId, ok: false, msg: e.message });
+      addLog(`❌ Erreur réseau: ${e.message}`);
+      setTimeout(() => setEnrichRowMsg(null), 4000);
+    } finally {
+      setEnrichingId(null);
+    }
   }
 
   // ── Load stats ───────────────────────────────────────────────────────────
@@ -701,55 +740,103 @@ export default function ImportAS24Admin() {
                     <th className="px-4 py-3 text-left">Ville</th>
                     <th className="px-4 py-3 text-left">Champs manquants</th>
                     <th className="px-4 py-3 text-left">Source</th>
+                    <th className="px-4 py-3 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
                   {filteredVehicles.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                      <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                         {tableLoading ? 'Chargement…' : 'Aucun véhicule. Cliquez sur Actualiser.'}
                       </td>
                     </tr>
                   ) : (
-                    filteredVehicles.map(v => (
-                      <tr key={v.id} className="hover:bg-gray-800/50 transition">
-                        <td className="px-4 py-3">
-                          <ScoreBadge score={v.score} />
-                        </td>
-                        <td className="px-4 py-3 text-white max-w-[220px] truncate" title={v.title}>
-                          {v.title}
-                        </td>
-                        <td className="px-4 py-3 text-gray-300">
-                          {v.brand.charAt(0).toUpperCase() + v.brand.slice(1)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-gray-300 whitespace-nowrap">
-                          {v.price > 0 ? `${v.price.toLocaleString('fr-FR')} €` : '—'}
-                        </td>
-                        <td className="px-4 py-3 text-gray-400 max-w-[150px] truncate" title={v.dealer}>
-                          {v.dealer || '—'}
-                        </td>
-                        <td className="px-4 py-3 text-gray-400">
-                          {v.dealerCity || '—'}
-                        </td>
-                        <td className="px-4 py-3 text-gray-500 text-xs max-w-[200px]">
-                          {v.missingFields.length > 0 ? (
-                            <span title={v.missingFields.join(', ')}>
-                              {v.missingFields.slice(0, 3).join(', ')}
-                              {v.missingFields.length > 3 && ` +${v.missingFields.length - 3}`}
-                            </span>
-                          ) : (
-                            <span className="text-green-500">Complet</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          {v.sourcePlatform ? (
-                            <span className="text-xs bg-blue-900 text-blue-300 px-2 py-0.5 rounded">
-                              {v.sourcePlatform.replace('autoscout24.de', 'AS24')}
-                            </span>
-                          ) : '—'}
-                        </td>
-                      </tr>
-                    ))
+                    filteredVehicles.map(v => {
+                      const isEnriching = enrichingId === v.id;
+                      const rowMsg = enrichRowMsg?.id === v.id ? enrichRowMsg : null;
+                      const listingUrl = v.originalListingUrl || v.sourceUrl || '';
+                      const payloadUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200'}/admin/collections/vehicles/${v.id}`;
+                      return (
+                        <tr
+                          key={v.id}
+                          className={`hover:bg-gray-800/60 transition cursor-pointer ${isEnriching ? 'opacity-60' : ''}`}
+                          onClick={() => setSelectedVehicle(v)}
+                          title="Cliquer pour prévisualiser"
+                        >
+                          <td className="px-4 py-3">
+                            <ScoreBadge score={v.score} />
+                          </td>
+                          <td className="px-4 py-3 text-white max-w-[220px] truncate" title={v.title}>
+                            {v.title}
+                          </td>
+                          <td className="px-4 py-3 text-gray-300">
+                            {v.brand.charAt(0).toUpperCase() + v.brand.slice(1)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-gray-300 whitespace-nowrap">
+                            {v.price > 0 ? `${v.price.toLocaleString('fr-FR')} €` : '—'}
+                          </td>
+                          <td className="px-4 py-3 text-gray-400 max-w-[150px] truncate" title={v.dealer}>
+                            {v.dealer || '—'}
+                          </td>
+                          <td className="px-4 py-3 text-gray-400">
+                            {v.dealerCity || '—'}
+                          </td>
+                          <td className="px-4 py-3 text-gray-500 text-xs max-w-[200px]">
+                            {v.missingFields.length > 0 ? (
+                              <span title={v.missingFields.join(', ')}>
+                                {v.missingFields.slice(0, 3).join(', ')}
+                                {v.missingFields.length > 3 && ` +${v.missingFields.length - 3}`}
+                              </span>
+                            ) : (
+                              <span className="text-green-500">Complet</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            {v.sourcePlatform ? (
+                              <span className="text-xs bg-blue-900 text-blue-300 px-2 py-0.5 rounded">
+                                {v.sourcePlatform.replace('autoscout24.de', 'AS24')}
+                              </span>
+                            ) : '—'}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-center gap-1" onClick={e => e.stopPropagation()}>
+                              {/* Payload */}
+                              <button
+                                onClick={() => window.open(payloadUrl, '_blank')}
+                                title="Ouvrir dans Payload CMS"
+                                className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-yellow-400 transition text-sm"
+                              >
+                                🔧
+                              </button>
+                              {/* AS24 */}
+                              <button
+                                onClick={() => listingUrl && window.open(listingUrl, '_blank')}
+                                disabled={!listingUrl}
+                                title={listingUrl ? 'Ouvrir l\'annonce AS24' : 'URL AS24 non disponible'}
+                                className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-blue-400 disabled:opacity-30 disabled:cursor-not-allowed transition text-sm"
+                              >
+                                🔗
+                              </button>
+                              {/* Enrichir */}
+                              <button
+                                onClick={() => !isEnriching && handleEnrichOne(v.id)}
+                                disabled={isEnriching}
+                                title="Relancer l'enrichissement"
+                                className="p-1.5 rounded hover:bg-gray-700 text-gray-400 hover:text-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
+                              >
+                                {isEnriching ? '⏳' : '▶'}
+                              </button>
+                              {/* Feedback message */}
+                              {rowMsg && (
+                                <span className={`text-xs ml-1 ${rowMsg.ok ? 'text-green-400' : 'text-red-400'}`}>
+                                  {rowMsg.msg}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -765,6 +852,101 @@ export default function ImportAS24Admin() {
 
         </div>
       </div>
+
+      {/* ── Drawer prévisualisation ── */}
+      {selectedVehicle && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setSelectedVehicle(null)}
+          />
+          {/* Panel */}
+          <aside className="fixed top-0 right-0 h-full w-[420px] max-w-full bg-gray-900 border-l border-gray-700 z-50 flex flex-col shadow-2xl">
+            {/* Header drawer */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+              <h3 className="text-sm font-bold text-white truncate pr-4">{selectedVehicle.title}</h3>
+              <button
+                onClick={() => setSelectedVehicle(null)}
+                className="text-gray-400 hover:text-white transition text-lg leading-none shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Corps */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* Score */}
+              <div className="flex items-center gap-3">
+                <ScoreBadge score={selectedVehicle.score} />
+                <span className="text-xs text-gray-400">Score de complétude</span>
+              </div>
+
+              {/* Infos principales */}
+              <div className="bg-gray-800 rounded-xl p-4 space-y-2 text-sm">
+                <Row label="Marque" value={selectedVehicle.brand.charAt(0).toUpperCase() + selectedVehicle.brand.slice(1)} />
+                <Row label="Catégorie" value={selectedVehicle.category} />
+                <Row label="Prix" value={selectedVehicle.price > 0 ? `${selectedVehicle.price.toLocaleString('fr-FR')} €` : '—'} />
+                <Row label="Dealer" value={selectedVehicle.dealer || '—'} />
+                <Row label="Ville" value={selectedVehicle.dealerCity || '—'} />
+                <Row label="Source" value={selectedVehicle.sourcePlatform?.replace('autoscout24.de', 'AS24') || '—'} />
+              </div>
+
+              {/* Champs manquants */}
+              {selectedVehicle.missingFields.length > 0 && (
+                <div className="bg-gray-800 rounded-xl p-4">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Champs manquants</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedVehicle.missingFields.map(f => (
+                      <span key={f} className="text-xs bg-red-900/60 text-red-300 px-2 py-0.5 rounded">{f}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="space-y-2">
+                <button
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200'}/admin/collections/vehicles/${selectedVehicle.id}`, '_blank')}
+                  className="w-full flex items-center justify-center gap-2 bg-yellow-600 hover:bg-yellow-500 text-black font-semibold text-sm py-2.5 rounded-lg transition"
+                >
+                  🔧 Ouvrir dans Payload CMS
+                </button>
+                {(selectedVehicle.originalListingUrl || selectedVehicle.sourceUrl) && (
+                  <button
+                    onClick={() => window.open(selectedVehicle.originalListingUrl || selectedVehicle.sourceUrl, '_blank')}
+                    className="w-full flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-600 text-white font-semibold text-sm py-2.5 rounded-lg transition"
+                  >
+                    🔗 Voir l&apos;annonce AutoScout24
+                  </button>
+                )}
+                <button
+                  onClick={() => { setSelectedVehicle(null); handleEnrichOne(selectedVehicle.id); }}
+                  disabled={enrichingId === selectedVehicle.id}
+                  className="w-full flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 disabled:opacity-40 text-white font-semibold text-sm py-2.5 rounded-lg transition"
+                >
+                  {enrichingId === selectedVehicle.id ? '⏳ Enrichissement en cours…' : '▶ Relancer l\'enrichissement'}
+                </button>
+              </div>
+
+              {/* Placeholder détails à venir */}
+              <div className="bg-gray-800/50 rounded-xl p-4 border border-dashed border-gray-700 text-center text-xs text-gray-500">
+                Prévisualisation complète — à venir
+              </div>
+            </div>
+          </aside>
+        </>
+      )}
     </>
+  );
+}
+
+// Helper row pour le drawer
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-2">
+      <span className="text-gray-400 shrink-0">{label}</span>
+      <span className="text-white text-right truncate">{value}</span>
+    </div>
   );
 }
