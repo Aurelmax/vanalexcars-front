@@ -116,13 +116,27 @@ export function isOriginAllowed(req: NextApiRequest): boolean {
   if (!MUTATING_METHODS.has(req.method || '')) return true;
 
   const origin = (req.headers['origin'] || req.headers['referer'] || '') as string;
-  if (!origin) return false;
+
+  // Si pas d'Origin (appel serveur-à-serveur sans navigateur), on laisse passer.
+  // Les appels Bearer SCRAPER_SECRET n'ont pas d'Origin.
+  if (!origin) return true;
 
   const rawList = process.env.ADMIN_ALLOWED_ORIGINS || process.env.NEXT_PUBLIC_SITE_URL || '';
   const allowed = rawList
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
+
+  // Si aucune liste configurée, accepter les requêtes same-host
+  if (allowed.length === 0) {
+    const host = (req.headers['host'] || '') as string;
+    try {
+      const originHost = new URL(origin).host;
+      return originHost === host;
+    } catch {
+      return false;
+    }
+  }
 
   return allowed.some((o) => origin.startsWith(o));
 }
