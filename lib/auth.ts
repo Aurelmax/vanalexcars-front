@@ -148,22 +148,51 @@ export type AuthResult =
  *
  * Renvoie AuthResult — jamais de valeur du secret dans les messages d'erreur.
  */
+/** Décode un JWT sans vérifier la signature (claims seulement). */
+function decodeJwtClaims(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+  } catch {
+    return null;
+  }
+}
+
 export async function verifyAdminRequest(req: NextApiRequest): Promise<AuthResult> {
   // — Path 1 : session cookie —
   const sessionToken = req.cookies?.[SESSION_COOKIE_NAME];
   if (sessionToken) {
-    try {
-      const user = await verifyPayloadJwt(sessionToken);
-      // CSRF : vérification Origin sur méthodes mutantes
-      if (!isOriginAllowed(req)) {
-        return { ok: false, status: 403, error: 'Origin non autorisé' };
-      }
-      return { ok: true, method: 'cookie', user };
-    } catch (e: any) {
-      // Token invalide/expiré → on n'essaie pas le Bearer pour ne pas permettre
-      // un repli silencieux sur un autre mécanisme si le cookie est présent mais corrompu.
-      return { ok: false, status: 401, error: 'Session expirée ou invalide' };
+    const claims = decodeJwtClaims(sessionToken);
+
+    // Token malformé ou expiré
+    if (!claims) {
+      return { ok: false, status: 401, error: 'Session invalide' };
     }
+    const now = Math.floor(Date.now() / 1000);
+    if (typeof claims['exp'] === 'number' && claims['exp'] < now) {
+      return { ok: false, status: 401, error: 'Session expirée' };
+    }
+    if (claims['collection'] !== 'users') {
+      return { ok: false, status: 401, error: 'Session invalide' };
+    }
+
+    // CSRF : vérification Origin sur méthodes mutantes
+    if (!isOriginAllowed(req)) {
+      return { ok: false, status: 403, error: 'Origin non autorisé' };
+    }
+
+    const user: AdminTokenPayload = {
+      id: claims['id'] as string,
+      email: claims['email'] as string,
+      collection: claims['collection'] as string,
+      role: (claims['role'] as string | undefined) ?? 'admin',
+      exp: claims['exp'] as number,
+      iat: claims['iat'] as number,
+    };
+    return { ok: true, method: 'cookie', user };
   }
 
   // — Path 2 : Bearer SCRAPER_SECRET —
