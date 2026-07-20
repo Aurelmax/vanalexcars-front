@@ -681,8 +681,7 @@ export default function ImportAS24Admin() {
                       const isEnriching = enrichingId === v.id;
                       const rowMsg = enrichRowMsg?.id === v.id ? enrichRowMsg : null;
                       const listingUrl = v.originalListingUrl || v.sourceUrl || '';
-                      const siteBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.import-voiture-allemagne.fr';
-                      const ficheUrl = `${siteBase}/vehicules/${v.id}`;
+                      const ficheUrl = `/vehicules/${v.id}`;
                       return (
                         <tr
                           key={v.id}
@@ -835,8 +834,7 @@ export default function ImportAS24Admin() {
               <div className="space-y-2">
                 <button
                   onClick={() => {
-                    const siteBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.import-voiture-allemagne.fr';
-                    window.open(`${siteBase}/vehicules/${selectedVehicle.id}`, '_blank');
+                    window.open(`/vehicules/${selectedVehicle.id}`, '_blank');
                   }}
                   className="w-full flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 text-white font-semibold text-sm py-2.5 rounded-lg transition"
                 >
