@@ -342,11 +342,19 @@ export default function ImportAS24Admin() {
 
         {/* ── Header ── */}
         <header className="border-b border-gray-800 bg-gray-900 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🚗</span>
-            <div>
-              <h1 className="text-lg font-bold text-white">Admin Import AutoScout24</h1>
-              <p className="text-xs text-gray-400">Import &amp; enrichissement véhicules</p>
+          <div className="flex items-center gap-4">
+            <a
+              href="/admin/vehicles"
+              className="text-xs text-gray-400 hover:text-white transition px-3 py-1 rounded border border-gray-700 hover:border-gray-500"
+            >
+              ← Admin
+            </a>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🚗</span>
+              <div>
+                <h1 className="text-lg font-bold text-white">Admin Import AutoScout24</h1>
+                <p className="text-xs text-gray-400">Import &amp; enrichissement véhicules</p>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-4">

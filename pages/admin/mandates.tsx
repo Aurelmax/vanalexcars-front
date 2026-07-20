@@ -390,6 +390,9 @@ export default function AdminMandates() {
               <Link href="/admin/mandates" className="py-4 px-1 border-b-2 border-yellow-500 text-yellow-600 font-medium text-sm">
                 Mandats
               </Link>
+              <Link href="/admin/import-as24" className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm">
+                Import AS24
+              </Link>
             </div>
           </div>
         </nav>

@@ -82,6 +82,12 @@ export default function AdminVehicles() {
               >
                 Mandats
               </Link>
+              <Link
+                href='/admin/import-as24'
+                className='py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm'
+              >
+                Import AS24
+              </Link>
             </div>
           </div>
         </nav>
